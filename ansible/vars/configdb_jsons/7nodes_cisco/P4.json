@@ -28,23 +28,23 @@
     "BGP_NEIGHBOR_AF" : {
         "default|fc01::86|ipv6_unicast" : {
             "admin_status" : "true",
-            "route_map_in" : "pass_all_in",
-            "route_map_out" : "pass_all"
+            "route_map_in" : ["pass_all_in"],
+            "route_map_out" : ["pass_all"]
         },
         "default|fc07::02|ipv6_unicast" : {
             "admin_status" : "true",
-            "route_map_in" : "pass_all_in",
-            "route_map_out" : "pass_all"
+            "route_map_in" : ["pass_all_in"],
+            "route_map_out" : ["pass_all"]
         },
         "default|fc06::01|ipv6_unicast" :{
             "admin_status" : "true",
-            "route_map_in" : "pass_all_in",
-            "route_map_out" : "pass_all"
+            "route_map_in" : ["pass_all_in"],
+            "route_map_out" : ["pass_all"]
         },
         "default|fc04::02|ipv6_unicast": {
             "admin_status" : "true",
-            "route_map_in" : "pass_all_in",
-            "route_map_out" : "pass_all"
+            "route_map_in" : ["pass_all_in"],
+            "route_map_out" : ["pass_all"]
         }
     },
     "BGP_NEIGHBOR": {

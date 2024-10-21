@@ -51,28 +51,28 @@
     "BGP_NEIGHBOR_AF" : {
         "Vrf1|10.10.246.254|ipv4_unicast" :{
             "admin_status" : "true",
-            "route_map_in" : "pass_all",
-            "route_map_out" : "pass_all"
+            "route_map_in" : ["pass_all"],
+            "route_map_out" : ["pass_all"]
         },
         "default|2064:100::1d|ipv4_vpn" : {
             "admin_status" : "true",
-            "route_map_in" : "pass_all_in",
-            "route_map_out" : "pass_all"
+            "route_map_in" : ["pass_all_in"],
+            "route_map_out" : ["pass_all"]
         },
         "default|2064:200::1e|ipv4_vpn" : {
             "admin_status" : "true",
-            "route_map_in" : "pass_all_in",
-            "route_map_out" : "pass_all"
+            "route_map_in" : ["pass_all_in"],
+            "route_map_out" : ["pass_all"]
         },
         "default|FC08::02|ipv6_unicast" :{
             "admin_status" : "true",
-            "route_map_in" : "pass_all_in",
-            "route_map_out" : "pass_all"
+            "route_map_in" : ["pass_all_in"],
+            "route_map_out" : ["pass_all"]
         },
         "default|fc06::2|ipv6_unicast": {
             "admin_status" : "true",
-            "route_map_in" : "pass_all_in",
-            "route_map_out" : "pass_all"
+            "route_map_in" : ["pass_all_in"],
+            "route_map_out" : ["pass_all"]
         }
     },
     "BGP_NEIGHBOR": {
