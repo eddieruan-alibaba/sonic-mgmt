@@ -450,9 +450,15 @@
         - name: set cfg_profile to {{ init_cfg_profile }}
           set_fact:
             cfg_profile: "{{ init_cfg_profile }}"
+        - name: Set actual configuration value based on cfg_profile key
+          set_fact:
+            actual_config: "{{ lookup('vars', cfg_profile) }}"
+        - name: Debug actual configuration value
+          debug:
+            msg: "The actual configuration value is: {{ actual_config }}"
         - name: Copy over config_db.json from file system for {{ cfg_profile }}
           copy :
-            src: "{{ cfg_profile }}"
+            src: "{{ actual_config }}"
             dest: /tmp/config_db.json
           when: cfg_profile is defined
         - name: Overwrite config_db.json
