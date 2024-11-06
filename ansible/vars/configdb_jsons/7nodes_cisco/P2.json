@@ -16,7 +16,38 @@
         "pass_all_in|1" : {
             "route_operation" : "permit",
             "set_ipv6_next_hop_prefer_global" : "true"
+        },
+        "srv6_r|permit|10": {
+            "match_ipv6_address_prefix_list": "srv6_right"
+        },
+        "srv6_r|deny|20": {},
+        "srv6_l|permit|10": {
+            "match_ipv6_address_prefix_list": "srv6_left"
+        },
+        "srv6_l|deny|20": {}
+    },
+    "IPV6_PREFIX_LIST": {
+        "srv6_right|seq|10": {
+            "permit": "fd00:204:204:fff4:4::/80"
+        },
+        "srv6_right|seq|11": {
+            "permit": "2064:100::1d/128"
+        },
+        "srv6_right|seq|12": {
+            "permit": "2064:100::1e/128"
+        },
+        "srv6_right|seq|13": {
+            "permit": "fd00:205:205:fff5:5::/80"
+        },
+        "srv6_left|seq|10": {
+            "permit": "2064:100::1f/128"
         }
+    },
+    "BGP_REDIST": {
+        "static|ipv6": {
+            "route_map": "srv6"
+        },
+        "static|ipv6|PUBLIC-TC11": {}
     },
     "BGP_GLOBALS_AF" : {
         "default|ipv6_unicast" : {
@@ -29,22 +60,22 @@
         "default|fc00::82|ipv6_unicast" : {
             "admin_status" : "true",
             "route_map_in" : ["pass_all_in"],
-            "route_map_out" : ["pass_all"]
+            "route_map_out" : ["srv6_l"]
         },
         "default|fc09::2|ipv6_unicast" : {
             "admin_status" : "true",
             "route_map_in" : ["pass_all_in"],
-            "route_map_out" : ["pass_all"]
+            "route_map_out" : ["srv6_l"]
         },
         "default|fc08::1|ipv6_unicast" :{
             "admin_status" : "true",
             "route_map_in" : ["pass_all_in"],
-            "route_map_out" : ["pass_all"]
+            "route_map_out" : ["srv6_r"]
         },
         "default|fc07::1|ipv6_unicast": {
             "admin_status" : "true",
             "route_map_in" : ["pass_all_in"],
-            "route_map_out" : ["pass_all"]
+            "route_map_out" : ["srv6_l"]
         }
     },
     "BGP_NEIGHBOR": {
@@ -411,6 +442,24 @@
             "FLEX_COUNTER_STATUS": "disable",
             "FLEX_COUNTER_DELAY_STATUS": "true",
             "POLL_INTERVAL": "10000"
+        }
+    },
+    "SRV6_LOCATOR": {
+        "lsid1": {
+            "argu_len": "48",
+            "block_len": "32",
+            "func_len": "32",
+            "node_len": "16",
+            "opcode_prefix": [
+                "::fff5:5:0:0:0"
+            ],
+            "opcode_act": [
+                "end-x"
+            ],
+            "opcode_vrf": [
+                "interface Ethernet4 nexthop fc09::2"
+            ],
+            "prefix": "fd00:205:205::/48"
         }
     }
 }
