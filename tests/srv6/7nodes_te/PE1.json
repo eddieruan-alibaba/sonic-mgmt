@@ -1,8 +1,8 @@
 {
     "BGP_GLOBALS": {
         "Vrf1" : {
-            "local_asn" : "64602",
-            "router_id" : "100.1.0.31 ",
+            "local_asn" : "64600",
+            "router_id" : "100.1.0.29 ",
             "log_nbr_state_changes" : "true",
             "load_balance_mp_relax" : "true",
             "srv6_locator": "lsid1",
@@ -10,12 +10,33 @@
             "holdtime" : "30"
         },
         "default" : {
-            "local_asn" : "64602",
-            "router_id" : "100.1.0.31",
+            "local_asn" : "64600",
+            "router_id" : "100.1.0.29",
             "log_nbr_state_changes" : "true",
             "load_balance_mp_relax" : "true",
             "keepalive" : "10",
             "holdtime" : "30"
+        }
+    },
+    "IPV6_PREFIX_LIST": {
+        "srv6_prefix|seq|10": {
+            "permit": "2064:100::1d/128"
+        },
+        "srv6_prefix|seq|11": {
+            "permit": "fd00:201:201:fff1:1::/80"
+        }
+    },
+    "PREFIX_SET": {
+        "srv6_prefix":{
+            "mode": "ipv6"
+        }
+    },
+    "PREFIX": {
+        "srv6_prefix|2064:100::1d/128|exact": {
+            "action" : "permit"
+        },
+        "srv6_prefix|fd00:201:201:fff1:1::/80|80..128": {
+            "action" : "permit"
         }
     },
     "ROUTE_MAP" : {
@@ -28,13 +49,28 @@
         "pass_all_in|1" : {
             "route_operation" : "permit",
             "set_ipv6_next_hop_prefer_global" : "true"
+        },
+        "sr1|10": {
+            "route_operation" : "permit",
+            "set_ext_community_inline": "color:01:1"
+        },
+        "sr2|10": {
+            "route_operation" : "permit",
+            "set_ext_community_inline": "color:01:2"
+        },
+        "srv6|10": {
+            "route_operation" : "permit",
+            "match_prefix_set": "srv6_prefix"
+        },
+        "srv6|20": {
+            "route_operation" : "deny"
         }
     },
     "BGP_GLOBALS_AF" : {
         "default|ipv6_unicast" : {
             "max_ebgp_paths" : 64,
             "redistribute_connected": "true",
-            "redistribute_static_rmap": "pass_all"
+            "redistribute_static_rmap": "srv6"
         },
         "default|ipv4_vpn" : {
             "max_ebgp_paths" : 64
@@ -54,102 +90,103 @@
             "route_map_in" : ["pass_all"],
             "route_map_out" : ["pass_all"]
         },
-        "default|2064:100::1d|ipv4_vpn" : {
-            "admin_status" : "true",
-            "route_map_in" : ["pass_all_in"],
-            "route_map_out" : ["pass_all"]
-        },
         "default|2064:200::1e|ipv4_vpn" : {
             "admin_status" : "true",
             "route_map_in" : ["pass_all_in"],
-            "route_map_out" : ["pass_all"]
+            "route_map_out" : ["sr1"]
         },
-        "default|FC08::02|ipv6_unicast" :{
+        "default|2064:300::1f|ipv4_vpn" : {
+            "admin_status" : "true",
+            "route_map_in" : ["pass_all_in"],
+            "route_map_out" : ["sr1"]
+        },
+        "default|FC00::71|ipv6_unicast" :{
             "admin_status" : "true",
             "route_map_in" : ["pass_all_in"],
             "route_map_out" : ["pass_all"]
         },
-        "default|fc06::2|ipv6_unicast": {
+        "default|fc02::2|ipv6_unicast": {
             "admin_status" : "true",
             "route_map_in" : ["pass_all_in"],
-            "route_map_out" : ["pass_all"]
+            "route_map_out" :["pass_all"]
         }
     },
     "BGP_NEIGHBOR": {
         "Vrf1|10.10.246.254": {
             "admin_status": "true",
-            "local_asn" : "64602",
-            "local_addr" : "10.10.246.31",
-            "asn": "64602",
+            "local_asn" : "64600",
+            "local_addr" : "10.10.246.29",
+            "asn": "64600",
             "name": "exabgp_v4"
         },
         "default|2064:200::1e": {
             "admin_status": "true",
-            "local_addr" : "2064:300::1f",
-            "local_asn" : "64602",
             "ebgp_multihop": "true",
             "ebgp_multihop_ttl":  "255",
             "capability_ext_nexthop": "true",
+            "local_addr" :"2064:100::1d",
+            "local_asn" : "64600",
             "asn": "64601",
             "name": "PE2"
         },
-        "default|2064:100::1d": {
+        "default|2064:300::1f": {
             "admin_status": "true",
-            "local_addr" : "2064:300::1f",
-            "local_asn" : "64602",
             "ebgp_multihop": "true",
             "ebgp_multihop_ttl":  "255",
             "capability_ext_nexthop": "true",
-            "asn": "64600",
-            "name": "PE1"
+            "local_addr" :"2064:100::1d",
+            "local_asn" : "64600",
+            "asn": "64602",
+            "name": "PE3"
         },
-        "default|FC08::02": {
+        "default|FC00::71": {
             "admin_status": "true",
-            "local_asn" : "64602",
-            "local_addr" : "FC08::01",
-            "asn": "65102",
-            "name": "P2"
+            "local_asn" : "64600",
+            "local_addr" : "FC00::71",
+            "asn": "65100",
+            "name": "P1"
         },
-        "default|fc06::2": {
+        "default|fc02::2": {
             "admin_status": "true",
-            "local_asn" : "64602",
-            "local_addr" : "FC06::01",
-            "asn": "65103",
-            "name": "P4"
+            "local_asn" : "64600",
+            "local_addr" : "FC02::01",
+            "asn": "65101",
+            "name": "P3"
         }
     },
     "DEVICE_METADATA": {
         "localhost": {
             "asic": "cisco-ngdp-vs",
-            "bgp_asn": "64602",
-            "hostname": "PE3",
-            "mac": "52:54:00:df:1c:5e",
+            "bgp_asn": "64600",
+            "hostname": "PE1",
+            "mac": "52:54:00:df:0c:4e",
             "platform": "x86_64-kvm_x86_64-r0",
             "synchronous_mode": "enable",
             "hwsku" : "cisco-8101-p4-32x100-vs",
-            "frr_mgmt_framework_config": "true",
             "docker_routing_config_mode": "unified",
+            "frr_mgmt_framework_config": "true",
             "nexthop_group" : "enabled",
             "type": "LeafRouter"
         }
     },
     "INTERFACE": {
-        "Ethernet24": {"vrf_name" : "Vrf1"},
-        "Ethernet24|10.10.246.31/24 ": {
-            "family": "IPv4",
-            "scope": "global"
-        },
-        "Ethernet24|fc0a::31/120 ": {
-            "family": "IPv6",
-            "scope": "global"
-        },
+        "Ethernet0": {},
         "Ethernet4": {},
-        "Ethernet4|fc08::1/120 ": {
+        "Ethernet24": {"vrf_name" : "Vrf1"},
+        "Ethernet24|10.10.246.29/24 ": {
+            "family": "IPv4",
+            "vrf_name": "PUBLIC-TC11",
+            "scope": "global"
+        },
+        "Ethernet24|fc0a::29/120 ": {
             "family": "IPv6",
             "scope": "global"
         },
-        "Ethernet12": {},
-        "Ethernet12|fc06::1/120 ": {
+        "Ethernet0|fc00::72/126 ": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "Ethernet4|fc02::1/120 ": {
             "family": "IPv6",
             "scope": "global"
         }
@@ -412,17 +449,13 @@
             "mtu": "9100"
         }
     },
-    "VRF": {
-        "Vrf1": {},
-        "Vrf2": {}
-    },
     "LOOPBACK_INTERFACE": {
         "Loopback0": {},
-        "Loopback0|100.1.0.31/32": {},
-        "Loopback0|2064:300::1f/128": {}
+        "Loopback0|100.1.0.29/32": {},
+        "Loopback0|2064:100::1d/128": {}
     },
     "MGMT_INTERFACE": {
-        "eth0|10.250.0.53/24": {
+        "eth0|10.250.0.51/24": {
             "gwaddr": "10.250.0.1"
         }
     },
@@ -432,6 +465,10 @@
             "alias": "eth0"
         }
     },
+    "VRF": {
+        "Vrf1": {},
+        "Vrf2": {}
+    },
     "SRV6_LOCATOR": {
         "lsid1": {
             "argu_len": "48",
@@ -439,18 +476,15 @@
             "func_len": "32",
             "node_len": "16",
             "opcode_prefix": [
-                "::fff3:3:0:0:0",
-                "::fff3:33:0:0:0"
+                "::fff1:1:0:0:0"
             ],
             "opcode_act": [
-                "end-dt46",
                 "end-dt46"
             ],
             "opcode_data": [
-                "vrf Vrf1",
-                "vrf Vrf2"
+                "vrf Vrf1"
             ],
-            "prefix": "fd00:203:203::/48"
+            "prefix": "fd00:201:201::/48"
         }
     },
     "FLEX_COUNTER_TABLE": {

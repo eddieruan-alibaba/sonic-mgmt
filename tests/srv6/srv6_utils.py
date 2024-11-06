@@ -1,9 +1,27 @@
 import logging
+import os
+import re
+import ast
+import random
+import pprint
+import pytest
+import json
+import ipaddress
+import pdb
+import getpass
+import ptf
 import time
 import requests
+import ptf.packet as packet
 import ptf.packet as scapy
 import ptf.testutils as testutils
 from ptf.mask import Mask
+
+from ptf.testutils import simple_tcp_packet
+from ptf.testutils import send_packet
+from ptf.mask import Mask
+
+from tests.common.helpers.assertions import pytest_assert
 from tests.common.helpers.assertions import pytest_assert
 
 logger = logging.getLogger(__name__)
@@ -309,7 +327,7 @@ def check_topo_recv_pkt_raw(ptfadapter, port=0, dst_ip="", dscp = 0, no_packet =
     # received = False
     # if rcv_pkt:
     #     received = True
-    #     #poll more time to see 
+    #     #poll more time to see
     #     cnt = testutils.count_matched_packets_all_ports(ptfadapter, mask, ports = ptf_ports, timeout=2)
 
     #     logger.debug(("index:{} tot_cnt_in_2s:{} rcv_pkt: {}").format(index, cnt + 1, scapy.Ether(rcv_pkt).summary()))
@@ -366,7 +384,7 @@ def check_topo_recv_pkt_vpn(ptfadapter, port=0, dst_ip="", dscp = 0, vpnsid = ""
         #mask inner udp
         mask.set_care((ETH_H_LEN + vlan_h_len + IP6_H_LEN + IP6_H_LEN + UDP_SPORT_OFFSET)*8, 16)
         mask.set_care((ETH_H_LEN + vlan_h_len + IP6_H_LEN + IP6_H_LEN + UDP_DPORT_OFFSET)*8, 16)
-        
+
     logger.debug("check_topo_recv_pkt_vpn pkt_base: " + pkt_base.summary())
 
     if no_packet:
@@ -496,7 +514,7 @@ def check_topo_recv_pkt_te(ptfadapter, port=0, dst_ip="", dscp = 0, vpnsid = "",
         mask.set_care((ETH_H_LEN + vlan_h_len + IP6_DST_OFFSET)*8, 128)
         #mask vpn dip6
         mask.set_care((ETH_H_LEN + vlan_h_len + IP6_H_LEN + IP6_DST_OFFSET)*8, 128)
-    
+
         #mask inner dip6
         mask.set_care((ETH_H_LEN + vlan_h_len + IP6_H_LEN + IP6_H_LEN + IP6_DST_OFFSET)*8, 128)
         #mask inner udp
@@ -565,7 +583,7 @@ def check_topo_recv_pkt_srh_te(ptfadapter, port=0, dst_ip="", dscp = 0, vpnsid =
         mask.set_care((ETH_H_LEN + vlan_h_len + IP6_DST_OFFSET)*8, 128)
         #mask vpn dip6
         mask.set_care((ETH_H_LEN + vlan_h_len + IP6_H_LEN + SRH_ADDR_OFFSET)*8, 128)
-    
+
         #mask inner dip6
         mask.set_care((ETH_H_LEN + vlan_h_len + IP6_H_LEN + SRH_H_LEN + IP6_DST_OFFSET)*8, 128)
         #mask inner udp
@@ -667,3 +685,333 @@ def collect_frr_debugfile(duthosts, rand_one_dut_hostname, nbrhosts, filename, v
     nbrhost.shell(cmd, module_ignore_errors=True)
     cmd = "docker cp bgp:{} {}".format(filename, test_log_dir)
     nbrhost.shell(cmd, module_ignore_errors=True)
+
+def CheckNodesonPath(exp_pkt_lst, dst_port_lst, ptfadapter):
+    rcv_pkt = True
+    for i in range(len(exp_pkt_lst)):
+        try:
+            testutils.verify_packet(ptfadapter, exp_pkt_lst[i], dst_port_lst[i])
+        except Exception as e:
+            rcv_pkt = False
+            logging.debug("Error: packet not received on dst port {}.".format(dst_port_lst[i]))
+
+    return rcv_pkt
+
+def runSendReceiveCheckForSinglePath(pkt, src_port, exp_pkt_lst, dst_port_lst, ptfadapter):
+    """
+    @summary Send packet and verify it is received/not received on the expected ports
+    @param pkt: The packet that will be injected into src_port
+    @param src_ports: The port into which the pkt will be injected
+    @param exp_pkt: The packet that will be received on one of the dst_ports
+    @param dst_ports: The ports on which the exp_pkt may be received
+    @param pkt_expected: Indicated whether it is expected to receive the exp_pkt on one of the dst_ports
+    @param ptfadapter: The ptfadapter fixture
+    """
+
+    # Send the packet and poll on destination ports
+    testutils.send_packet(ptfadapter, src_port, pkt, 1)
+    logger.debug("Sent packet: " + pkt.summary())
+    pytest_assert(len(exp_pkt_lst) == len(dst_port_lst))
+
+    rcv_pkt = CheckNodesonPath(exp_pkt_lst, dst_port_lst, ptfadapter)
+
+    if not rcv_pkt:
+        raise Exception("No packets traverse either path!")
+
+def generate_encapsulated_packet(sid,hlim,pkt,seglst = None):
+    exp_encap_pkt = Ether(dst="00:11:22:33:44:55", src="aa:bb:cc:dd:ee:ff", type=0x86dd) / IPv6(src="2064:100::1f",dst=sid,hlim=hlim)
+    exp_encap_pkt.nh = 4
+    if seglst:
+        exp_encap_pkt = Ether(dst="00:11:22:33:44:55", src="aa:bb:cc:dd:ee:ff", type=0x86dd) / IPv6(src="2064:100::1f",dst=sid,hlim=hlim) / IPv6ExtHdrSegmentRouting(addresses=seglst, nh=4, segleft=1)
+        exp_encap_pkt.nh = 43
+    masked2recv_encap = Mask(exp_encap_pkt)
+    masked2recv_encap.set_do_not_care_scapy(scapy.Ether, "dst")
+    masked2recv_encap.set_do_not_care_scapy(scapy.Ether, "src")
+    # Mask flow label
+    masked2recv_encap.set_do_not_care(128, 16)
+    return masked2recv_encap
+
+def check_vpn_route_info(nbrhost,  prefix_list, color_flag, endpoint, color, vrf="", is_v6=False):
+    pytest_assert(check_vpn_route_info_func(nbrhost,  prefix_list, color_flag, endpoint, color,vrf,is_v6))
+
+
+def check_vpn_route_info_func(duthost, prefix_list, color_flag, endpoint, color,vrf, is_v6=False):
+
+    pattern_color = r"(Color:{})".format(color_flag)
+    pattern_endpoint = r"(srv6-tunnel:{}\|{})".format(endpoint, color)
+    color_flag = False
+    endpoint_flag = False
+    vrf_str = ""
+    if vrf != "":
+        vrf_str = "vrf {}".format(vrf)
+    for prefix in prefix_list:
+        if is_v6:
+            cmd = "vtysh -c  'show bgp {} ipv6 unicast {}'".format(vrf_str,prefix)
+        else:
+            cmd = "vtysh -c  'show bgp {} ipv4 unicast {}'".format(vrf_str,prefix)
+        try:
+            text = duthost.command(cmd)["stdout_lines"]
+            print_lines(text)
+
+            for line in text:
+                if re.search(pattern_color, line):
+                    color_flag = True
+
+                if re.search(pattern_endpoint, line):
+                    endpoint_flag = True
+        except Exception as e:
+            logger.debug('The command is nil: exception {}'.format(e))
+            return False
+
+    logger.debug('color: {}, endpoint: {}'.format(color_flag, endpoint_flag))
+    if color_flag == False or endpoint_flag == False:
+        return False
+
+    return True
+
+
+def check_bfd_status(duthost, candidate_list = [], status_list = []):
+    bfd_context = duthost.command("vtysh -c 'show sr-te policy detail'")["stdout"]
+    for candidate in candidate_list:
+        if candidate not in bfd_context:
+            raise Exception("Cpath name is invalid!")
+
+    flag = True
+    for line in bfd_context.splitlines():
+        # Regular expression to capture the Candidate Name
+        pattern = r"Candidate Name: (\w+) "
+
+        # Search the string using the defined pattern
+        match = re.search(pattern, line)
+        if match:
+            candidate_name = match.group(1)
+            for index, value in enumerate(candidate_list):
+                if candidate_name == value:
+                    # Regular expression to capture the Satus
+                    pattern1 = r"Status: (\w+)"
+
+                    # Search the string using the defined pattern
+                    match = re.search(pattern1, line)
+                    if match:
+                        status = match.group(1)
+                        if status.lower() != status_list[index].lower():
+                            flag = False
+                            break
+                    else:
+                        flag = False
+
+    return flag
+def Get_route_group_id(duthost, prefix, is_v6=False, vrf = "Default"):
+
+    nexthop_id = 4294967295
+    pic_id = 4294967295
+
+    pattern_nexthop = r"Nexthop Group ID:\s+(\d+)"
+    pattern_pic = r"PIC Context ID:\s+(\d+)"
+
+    if is_v6:
+        cmd = "vtysh -c 'show ipv6 route vrf {} {}  nexthop-group'".format(vrf, prefix)
+    else:
+        cmd = "vtysh -c 'show ip route vrf {} {}  nexthop-group'".format(vrf, prefix)
+
+    try:
+        text = duthost.command(cmd)["stdout_lines"]
+        print_lines(text)
+    except Exception as e:
+        logger.debug('The command is nil: exception {}'.format(e))
+        return 0, 0
+
+    for line in text:
+        nexthop_list = re.findall(pattern_nexthop, line)
+        if nexthop_list:
+            nexthop_id = nexthop_list[0]
+
+        pic_list = re.findall(pattern_pic, line)
+        if pic_list:
+            pic_id = pic_list[0]
+
+    logger.debug('Nexthop id: {}, PIC id: {}'.format(nexthop_id, pic_id))
+
+    return nexthop_id, pic_id
+
+def check_bgp_neighbor_func(nbrhost, neighbor, state):
+    # Idle/Established
+    cmd = "vtysh -c 'show bgp neighbors {} json'".format(neighbor)
+    try:
+        text = nbrhost.command(cmd)["stdout"]
+    except Exception as e:
+        logger.debug('The command is nil: exception {}'.format(e))
+        return False
+
+    if not text:
+        return False
+    json_str_cleaned = text.strip()
+    json_data = json.loads(json_str_cleaned)
+    bgpState = json_data[neighbor]["bgpState"]
+    if bgpState == state:
+        return True
+    return False
+
+def check_route_nexthop_group(nbrhost, id, weight_count):
+    pytest_assert(check_route_nexthop_gruop_func(nbrhost, id, weight_count))
+
+def check_route_nexthop_gruop_func(duthost, id, weight_count):
+
+    cmd = "vtysh -c  'show nexthop-group rib {}'".format(id)
+
+    try:
+        text = duthost.command(cmd)["stdout"]
+
+        count = text.count("weight")
+
+        logger.debug('Id: {}, Weight_count: {}, Count: {}'.format(id, weight_count, count))
+    except Exception as e:
+        logger.debug('The command is nil: exception {}'.format(e))
+        return False
+
+    if weight_count != count:
+        return False
+
+    return True
+
+def check_vpn_route_sid_func(nbrhost, prefix, remote_sid, is_v6 = False):
+    if is_v6:
+        cmd = "vtysh -c 'show bgp ipv6 vpn {} json'".format(prefix)
+    else:
+        cmd = "vtysh -c 'show bgp ipv4 vpn {} json'".format(prefix)
+    try:
+        text = nbrhost.command(cmd)["stdout"]
+    except Exception as e:
+        logger.debug('The command is nil: exception {}'.format(e))
+        return False
+
+    if not text:
+        return False
+
+    json_str_cleaned = text.strip()
+    json_data = json.loads(json_str_cleaned)
+    if not json_data:
+        return False
+    if not json_data["2:2"]:
+        return False
+
+    json_remote_sid  = json_data["2:2"]["paths"][0]["remoteSid"]
+
+    if remote_sid  == json_remote_sid:
+        return True
+    return False
+
+def check_static_route_func(nbrhost, prefix, action):
+    # Idle/Established
+    cmd = "vtysh -c 'show ipv6 route {} json'".format(prefix)
+    try:
+        text = nbrhost.command(cmd)["stdout"]
+    except Exception as e:
+        logger.debug('The command is nil: exception {}'.format(e))
+        return False
+
+    if not text:
+        return False
+
+    json_str_cleaned = text.strip()
+    json_data = json.loads(json_str_cleaned)
+    if not json_data:
+        return False
+
+    if not json_data[prefix]:
+        return False
+
+    seg6local_action = json_data[prefix][0]["nexthops"][0]["seg6local"]["action"]
+
+    if seg6local_action == action:
+        return True
+    return False
+
+def check_vpn_route_is_te(nbrhost,  prefix_list, vrf,is_v6=False):
+
+    pattern_endpoint = r"(tunnel:)"
+    is_te_flag = False
+    vrf_str = ""
+    if vrf != "":
+        vrf_str = "vrf {}".format(vrf)
+    for prefix in prefix_list:
+        if is_v6:
+            cmd = "vtysh -c  'show bgp {} ipv6 unicast {}'".format(vrf_str,prefix)
+        else:
+            cmd = "vtysh -c  'show bgp {} ipv4 unicast {}'".format(vrf_str,prefix)
+        try:
+            text = nbrhost.command(cmd)["stdout_lines"]
+            print_lines(text)
+        except Exception as e:
+            logger.debug('The command is nil: exception {}'.format(e))
+            return False
+
+        if "Network not in table" in text:
+            return False
+
+        for line in text:
+            if re.search(pattern_endpoint, line):
+                is_te_flag = True
+
+    return is_te_flag
+
+def check_bgp_route_is_exist(duthost, cmd):
+    command = "vtysh -c '{}'".format(cmd)
+    try:
+        text = duthost.command(command)["stdout"]
+    except Exception as e:
+        logger.debug('The command is nil: exception {}'.format(e))
+        return False
+
+    if not text or 'Network not in table' in text:
+        return False
+
+    return True
+
+def check_bgp_route_is_exist(duthost, cmd):
+    command = "vtysh -c '{}'".format(cmd)
+    try:
+        text = duthost.command(command)["stdout"]
+    except Exception as e:
+        logger.debug('The command is nil: exception {}'.format(e))
+        return False
+
+    if not text or 'Network not in table' in text:
+        return False
+
+    return True
+
+def check_locator_sid_count(nbrhost, sid_name, sid_count):
+    cmd = "vtysh -c 'show segment-routing srv6 locator {} detail'".format(sid_name)
+    try:
+        text = nbrhost.command(cmd)["stdout"]
+    except Exception as e:
+        logger.debug('The command is nil: exception {}'.format(e))
+        return False
+
+    if not text:
+        return False
+
+    sidaction = text.count('sidaction')
+
+    logger.debug("sidaction: {}, sid_count: {}".format(sidaction, sid_count))
+    if (sidaction == sid_count):
+        return True
+
+    return False
+
+def check_locator_dt46_sid_count(nbrhost, sid_name, sid_count):
+    cmd = "vtysh -c 'show segment-routing srv6 locator {} detail'".format(sid_name)
+    try:
+        text = nbrhost.command(cmd)["stdout"]
+    except Exception as e:
+        logger.debug('The command is nil: exception {}'.format(e))
+        return False
+    dt46_count = text.count('End.DT46\r\n')
+    dt4_count = text.count("End.DT4\r\n")
+    dt6_count = text.count("End.DT6\r\n")
+    logger.debug("DT46: {}, DT4: {}, DT6: {}, sid_count: {}".format(dt46_count, dt4_count, dt6_count, sid_count))
+    if (dt46_count+dt4_count+dt6_count == sid_count):
+        return True
+
+    return False

@@ -18,10 +18,9 @@ from srv6_utils import recording_fwding_chain
 from srv6_utils import turn_on_off_frr_debug
 from srv6_utils import collect_frr_debugfile
 
-from common_utils import enable_tcpdump
-from common_utils import disable_tcpdump
 from srv6_utils import *
 from trex_utils import *
+from common_utils import *
 
 logger = logging.getLogger(__name__)
 
