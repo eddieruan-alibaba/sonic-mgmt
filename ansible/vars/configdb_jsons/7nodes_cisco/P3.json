@@ -17,23 +17,24 @@
             "route_operation" : "permit",
             "set_ipv6_next_hop_prefer_global" : "true"
         },
-        "srv6_r|permit|10": {
-            "match_ipv6_address_prefix_list": "srv6_right"
+        "srv6_r|10": {
+            "route_operation" : "permit",
+            "match_prefix_set|ipv6": "srv6_right"
         },
-        "srv6_r_5|permit|10": {
-            "match_ipv6_address_prefix_list": "srv6_right_to_05"
+        "srv6_r_5|10": {
+            "route_operation" : "permit",
+            "match_prefix_set|ipv6": "srv6_right_to_05"
         },
-        "srv6_r|deny|20": {},
-        "srv6_l|permit|10": {
+        "srv6_r|20": {
+            "route_operation" : "deny"
+        },
+        "srv6_l|10": {
+            "route_operation" : "permit",
             "match_ipv6_address_prefix_list": "srv6_left"
         },
-        "srv6_l|deny|20": {}
-    },
-    "BGP_REDIST": {
-        "static|ipv6": {
-            "route_map": "srv6_r_5"
-        },
-        "static|ipv6|PUBLIC-TC11": {}
+        "srv6_l|deny|20": {
+            "route_operation" : "deny"
+        }
     },
     "IPV6_PREFIX_LIST": {
         "srv6_right|seq|11": {
@@ -58,11 +59,45 @@
             "permit": "2064:100::1f/128"
         }
     },
+    "PREFIX_SET": {
+        "srv6_right":{
+            "mode": "ipv6"
+        },
+        "srv6_right_to_05":{
+            "mode": "ipv6"
+        },
+        "srv6_left":{
+            "mode": "ipv6"
+        }
+    },
+    "PREFIX": {
+        "srv6_right|2064:100::1d/128|exact": {
+            "action" : "permit"
+        },
+        "srv6_right|2064:100::1e/128|exact": {
+            "action" : "permit"
+        },
+        "srv6_right_to_05|fd00:204:204:fff4:4::/80|80..128": {
+            "action" : "permit"
+        },
+        "srv6_right_to_05|2064:100::1d/128|exact": {
+            "action" : "permit"
+        },
+        "srv6_right_to_05|2064:100::1e/128|exact": {
+            "action" : "permit"
+        },
+        "srv6_right_to_05|fd00:101:204::/48|80..128": {
+            "action" : "permit"
+        },
+        "srv6_left|2064:100::1f/128|exact": {
+            "action" : "permit"
+        }
+    },
     "BGP_GLOBALS_AF" : {
         "default|ipv6_unicast" : {
             "max_ebgp_paths" : 64,
             "redistribute_connected": "true",
-            "redistribute_static_rmap": "pass_all"
+            "redistribute_static_rmap": "srv6_r_5"
         }
     },
     "BGP_NEIGHBOR_AF" : {
