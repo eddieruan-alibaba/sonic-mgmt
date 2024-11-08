@@ -28,13 +28,41 @@
         "pass_all_in|1" : {
             "route_operation" : "permit",
             "set_ipv6_next_hop_prefer_global" : "true"
+        },
+        "sr1|10": {
+            "route_operation" : "permit",
+            "set_ext_community_inline": "color:1"
+        },
+        "sr2|10": {
+            "route_operation" : "permit",
+            "set_ext_community_inline": "color:2"
+        },
+        "srv6|10": {
+            "route_operation" : "permit",
+            "match_prefix_set": "srv6_prefix"
+        },
+        "srv6|20": {
+            "route_operation" : "deny"
+        }
+    },
+    "PREFIX_SET": {
+        "srv6_prefix":{
+            "mode": "ipv6"
+        }
+    },
+    "PREFIX": {
+        "srv6_prefix|2064:300::1f/128|exact": {
+            "action" : "permit"
+        },
+        "srv6_prefix|fd00:203:203:fff3:3::/80|80..128": {
+            "action" : "permit"
         }
     },
     "BGP_GLOBALS_AF" : {
         "default|ipv6_unicast" : {
             "max_ebgp_paths" : 64,
             "redistribute_connected": "true",
-            "redistribute_static_rmap": "pass_all"
+            "redistribute_static_rmap": "srv6"
         },
         "default|ipv4_vpn" : {
             "max_ebgp_paths" : 64
@@ -57,12 +85,12 @@
         "default|2064:100::1d|ipv4_vpn" : {
             "admin_status" : "true",
             "route_map_in" : ["pass_all_in"],
-            "route_map_out" : ["pass_all"]
+            "route_map_out" : ["sr1"]
         },
         "default|2064:200::1e|ipv4_vpn" : {
             "admin_status" : "true",
             "route_map_in" : ["pass_all_in"],
-            "route_map_out" : ["pass_all"]
+            "route_map_out" : ["sr1"]
         },
         "default|FC08::02|ipv6_unicast" :{
             "admin_status" : "true",
@@ -439,18 +467,53 @@
             "func_len": "32",
             "node_len": "16",
             "opcode_prefix": [
-                "::fff3:3:0:0:0",
-                "::fff3:33:0:0:0"
+                "::fff3:3:0:0:0"
             ],
             "opcode_act": [
-                "end-dt46",
                 "end-dt46"
             ],
             "opcode_data": [
-                "vrf Vrf1",
-                "vrf Vrf2"
+                "vrf Vrf1"
             ],
             "prefix": "fd00:203:203::/48"
+        }
+    },
+    "SRV6_POLICY": {
+        "1|2064:100::1d":{
+        },
+        "1|2064:100::1d|1|a": {
+            "seg_name": "a",
+            "weight": "1"
+        },
+        "1|2064:100::1d|1|b": {
+            "seg_name": "b",
+            "weight": "1"
+        },
+        "100|2064:100::1d|1|c": {
+            "seg_name": "c",
+            "weight": "1"
+        },
+        "3|2064:200::1e|1|c": {
+            "seg_name": "c",
+            "weight": "1"
+        },
+        "3|2064:200::1e|1|d": {
+            "seg_name": "d",
+            "weight": "1"
+        }
+    },
+    "SRV6_SID_LIST": {
+        "a": {
+            "1": "fd00:204:204:fff4:4::"
+        },
+        "b": {
+            "1": "fd00:205:205:fff5:5::"
+        },
+        "c": {
+            "1": "fd00:206:206:fff6:6::"
+        },
+        "d": {
+            "1": "fd00:207:207:fff7:7::"
         }
     },
     "FLEX_COUNTER_TABLE": {

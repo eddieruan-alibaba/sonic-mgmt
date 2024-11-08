@@ -1,33 +1,70 @@
 {
     "BGP_GLOBALS": {
-        "Vrf1" : {
-            "local_asn" : "64602",
-            "router_id" : "100.1.0.31 ",
-            "log_nbr_state_changes" : "true",
-            "load_balance_mp_relax" : "true",
-            "srv6_locator": "lsid1",
-            "keepalive" : "10",
-            "holdtime" : "30"
-        },
         "default" : {
-            "local_asn" : "64602",
-            "router_id" : "100.1.0.31",
+            "local_asn" : "65100",
+            "router_id" : "100.1.0.35",
             "log_nbr_state_changes" : "true",
             "load_balance_mp_relax" : "true",
             "keepalive" : "10",
             "holdtime" : "30"
         }
     },
+    "PREFIX_SET": {
+        "srv6_right":{
+            "mode": "ipv6"
+        },
+        "srv6_right_to_05":{
+            "mode": "ipv6"
+        },
+        "srv6_left":{
+            "mode": "ipv6"
+        }
+    },
+    "PREFIX": {
+        "srv6_right|2064:100::1d/128|exact": {
+            "action" : "permit"
+        },
+        "srv6_right|2064:200::1e/128|exact": {
+            "action" : "permit"
+        },
+        "srv6_right_to_05|fd00:207:207:fff7:7::/80|80..128": {
+            "action" : "permit"
+        },
+        "srv6_right_to_05|2064:100::1d/128|exact": {
+            "action" : "permit"
+        },
+        "srv6_right_to_05|2064:200::1e/128|exact": {
+            "action" : "permit"
+        },
+        "srv6_left|2064:300::1f/128|exact": {
+            "action" : "permit"
+        }
+    },
     "ROUTE_MAP" : {
         "pass_all|1" : {
-            "route_operation" : "permit"
-        },
-        "s1|1" : {
             "route_operation" : "permit"
         },
         "pass_all_in|1" : {
             "route_operation" : "permit",
             "set_ipv6_next_hop_prefer_global" : "true"
+        },
+        "srv6_r|10": {
+            "route_operation" : "permit",
+            "match_prefix_set": "srv6_right"
+        },
+        "srv6_r_5|10": {
+            "route_operation" : "permit",
+            "match_prefix_set": "srv6_right_to_05"
+        },
+        "srv6_r|20": {
+            "route_operation" : "deny"
+        },
+        "srv6_l|10": {
+            "route_operation" : "permit",
+            "match_prefix_set": "srv6_left"
+        },
+        "srv6_l|20": {
+            "route_operation" : "deny"
         }
     },
     "BGP_GLOBALS_AF" : {
@@ -35,121 +72,125 @@
             "max_ebgp_paths" : 64,
             "redistribute_connected": "true",
             "redistribute_static_rmap": "pass_all"
-        },
-        "default|ipv4_vpn" : {
-            "max_ebgp_paths" : 64
-        },
-        "Vrf1|ipv4_unicast" : {
-            "max_ebgp_paths" : 64,
-            "rd_vpn_export" : "2:2",
-            "rt_vpn_both" : "1:1",
-            "rmap_vpn_export" : "s1",
-            "export_vpn" : "true",
-            "import_vpn" : "true"
         }
     },
     "BGP_NEIGHBOR_AF" : {
-        "Vrf1|10.10.246.254|ipv4_unicast" :{
-            "admin_status" : "true",
-            "route_map_in" : ["pass_all"],
-            "route_map_out" : ["pass_all"]
-        },
-        "default|2064:100::1d|ipv4_vpn" : {
+        "default|fc00::72|ipv6_unicast" : {
             "admin_status" : "true",
             "route_map_in" : ["pass_all_in"],
             "route_map_out" : ["pass_all"]
         },
-        "default|2064:200::1e|ipv4_vpn" : {
+        "default|fc00::76|ipv6_unicast" : {
             "admin_status" : "true",
             "route_map_in" : ["pass_all_in"],
             "route_map_out" : ["pass_all"]
         },
-        "default|FC08::02|ipv6_unicast" :{
+        "default|fc00::7e|ipv6_unicast" :{
             "admin_status" : "true",
             "route_map_in" : ["pass_all_in"],
             "route_map_out" : ["pass_all"]
         },
-        "default|fc06::2|ipv6_unicast": {
+        "default|fc00::81|ipv6_unicast": {
+            "admin_status" : "true",
+            "route_map_in" : ["pass_all_in"],
+            "route_map_out" : ["pass_all"]
+        },
+        "default|fc01::85|ipv6_unicast": {
             "admin_status" : "true",
             "route_map_in" : ["pass_all_in"],
             "route_map_out" : ["pass_all"]
         }
     },
     "BGP_NEIGHBOR": {
-        "Vrf1|10.10.246.254": {
+        "default|fc00::72": {
             "admin_status": "true",
-            "local_asn" : "64602",
-            "local_addr" : "10.10.246.31",
-            "asn": "64602",
-            "name": "exabgp_v4"
-        },
-        "default|2064:200::1e": {
-            "admin_status": "true",
-            "local_addr" : "2064:300::1f",
-            "local_asn" : "64602",
-            "ebgp_multihop": "true",
-            "ebgp_multihop_ttl":  "255",
-            "capability_ext_nexthop": "true",
-            "asn": "64601",
-            "name": "PE2"
-        },
-        "default|2064:100::1d": {
-            "admin_status": "true",
-            "local_addr" : "2064:300::1f",
-            "local_asn" : "64602",
-            "ebgp_multihop": "true",
-            "ebgp_multihop_ttl":  "255",
-            "capability_ext_nexthop": "true",
+            "local_asn" : "65100",
+            "min_adv_interval": "0",
+            "local_addr" :"fc00::71",
             "asn": "64600",
+            "ebgp_multihop": "true",
+            "ebgp_multihop_ttl":  "255",
             "name": "PE1"
         },
-        "default|FC08::02": {
+        "default|fc00::76": {
             "admin_status": "true",
-            "local_asn" : "64602",
-            "local_addr" : "FC08::01",
+            "local_asn" : "65100",
+            "min_adv_interval": "0",
+            "local_addr" :"fc00::75",
+            "asn": "64601",
+            "ebgp_multihop": "true",
+            "ebgp_multihop_ttl":  "255",
+            "name": "PE2"
+        },
+        "default|fc00::7e": {
+            "admin_status": "true",
+            "local_asn" : "65100",
+            "min_adv_interval": "0",
+            "local_addr" :"fc00::7d",
+            "asn": "65101",
+            "ebgp_multihop": "true",
+            "ebgp_multihop_ttl":  "255",
+            "name": "P3"
+        },
+        "default|fc00::81": {
+            "admin_status": "true",
+            "local_asn" : "65100",
+            "min_adv_interval": "0",
+            "local_addr" :"fc00::82",
             "asn": "65102",
+            "ebgp_multihop": "true",
+            "ebgp_multihop_ttl":  "255",
             "name": "P2"
         },
-        "default|fc06::2": {
+        "default|fc01::85": {
             "admin_status": "true",
-            "local_asn" : "64602",
-            "local_addr" : "FC06::01",
+            "local_asn" : "65100",
+            "min_adv_interval": "0",
+            "local_addr" :"fc01::86",
             "asn": "65103",
+            "ebgp_multihop": "true",
+            "ebgp_multihop_ttl":  "255",
             "name": "P4"
         }
     },
     "DEVICE_METADATA": {
         "localhost": {
             "asic": "cisco-ngdp-vs",
-            "bgp_asn": "64602",
-            "hostname": "PE3",
-            "mac": "52:54:00:df:1c:5e",
+            "bgp_asn": "65100",
+            "hostname": "P1",
+            "mac": "52:54:00:00:00:4e",
             "platform": "x86_64-kvm_x86_64-r0",
             "synchronous_mode": "enable",
             "hwsku" : "cisco-8101-p4-32x100-vs",
+            "nexthop_group" : "enabled",
             "frr_mgmt_framework_config": "true",
             "docker_routing_config_mode": "unified",
-            "nexthop_group" : "enabled",
             "type": "LeafRouter"
         }
     },
     "INTERFACE": {
-        "Ethernet24": {"vrf_name" : "Vrf1"},
-        "Ethernet24|10.10.246.31/24 ": {
-            "family": "IPv4",
-            "scope": "global"
-        },
-        "Ethernet24|fc0a::31/120 ": {
+        "Ethernet112": {},
+        "Ethernet112|fc00::71/126 ": {
             "family": "IPv6",
             "scope": "global"
         },
-        "Ethernet4": {},
-        "Ethernet4|fc08::1/120 ": {
+        "Ethernet116": {},
+        "Ethernet116|fc00::75/126 ": {
             "family": "IPv6",
             "scope": "global"
         },
-        "Ethernet12": {},
-        "Ethernet12|fc06::1/120 ": {
+        "Ethernet124": {},
+        "Ethernet124|fc00::7d/126": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "Ethernet64": {},
+        "Ethernet64|fc00::82/126 ": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "Ethernet68": {},
+        "Ethernet68|fc01::86/126 ": {
             "family": "IPv6",
             "scope": "global"
         }
@@ -412,17 +453,13 @@
             "mtu": "9100"
         }
     },
-    "VRF": {
-        "Vrf1": {},
-        "Vrf2": {}
-    },
     "LOOPBACK_INTERFACE": {
         "Loopback0": {},
-        "Loopback0|100.1.0.31/32": {},
-        "Loopback0|2064:300::1f/128": {}
+        "Loopback0|100.1.0.35/32": {},
+        "Loopback0|2064:700::23/128": {}
     },
     "MGMT_INTERFACE": {
-        "eth0|10.250.0.53/24": {
+        "eth0|10.250.0.125/24": {
             "gwaddr": "10.250.0.1"
         }
     },
@@ -432,6 +469,13 @@
             "alias": "eth0"
         }
     },
+    "FLEX_COUNTER_TABLE": {
+        "ACL": {
+            "FLEX_COUNTER_STATUS": "disable",
+            "FLEX_COUNTER_DELAY_STATUS": "true",
+            "POLL_INTERVAL": "10000"
+        }
+    },
     "SRV6_LOCATOR": {
         "lsid1": {
             "argu_len": "48",
@@ -439,25 +483,15 @@
             "func_len": "32",
             "node_len": "16",
             "opcode_prefix": [
-                "::fff3:3:0:0:0",
-                "::fff3:33:0:0:0"
+                "::fff7:7:0:0:0"
             ],
             "opcode_act": [
-                "end-dt46",
-                "end-dt46"
+                "end-x"
             ],
             "opcode_data": [
-                "vrf Vrf1",
-                "vrf Vrf2"
+                "interface Ethernet116 nexthop fc00::76"
             ],
-            "prefix": "fd00:203:203::/48"
-        }
-    },
-    "FLEX_COUNTER_TABLE": {
-        "ACL": {
-            "FLEX_COUNTER_STATUS": "disable",
-            "FLEX_COUNTER_DELAY_STATUS": "true",
-            "POLL_INTERVAL": "10000"
+            "prefix": "fd00:207:207::/48"
         }
     }
 }

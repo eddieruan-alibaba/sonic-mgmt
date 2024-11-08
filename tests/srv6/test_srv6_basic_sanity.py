@@ -18,10 +18,9 @@ from srv6_utils import recording_fwding_chain
 from srv6_utils import turn_on_off_frr_debug
 from srv6_utils import collect_frr_debugfile
 
-from common_utils import enable_tcpdump
-from common_utils import disable_tcpdump
 from srv6_utils import *
 from trex_utils import *
+from common_utils import *
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +75,10 @@ bgp_neighbor_down_wait_time = 30
 def setup_config(duthosts, rand_one_dut_hostname, nbrhosts, ptfhost):
     logger.info("step 0 - install trex on PTF")
     trex_install(ptfhost)
+
+
+    setup_config_for_testbed(duthosts, rand_one_dut_hostname, nbrhosts, ptfhost, test_vm_names, "7nodes_srv6")
+
 
     logger.info("Announce routes from CEs")
     ptfip = ptfhost.mgmt_ip
