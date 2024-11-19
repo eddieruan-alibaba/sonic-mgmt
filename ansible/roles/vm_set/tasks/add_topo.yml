@@ -161,7 +161,10 @@
       pull: yes
       state: started
       restart: no
-      network_mode: none
+      published_ports:
+        - "4500:4500"
+        - "4501:4501"
+        - "4507:4507"
       detach: True
       capabilities:
         - net_admin

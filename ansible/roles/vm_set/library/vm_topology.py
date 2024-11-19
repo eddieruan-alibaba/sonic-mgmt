@@ -1111,8 +1111,8 @@ class VMTopology(object):
                 "ovs-ofctl add-flow %s table=0,in_port=%s,action=drop" % (br_name, vm_iface_id))
         else:
             # Add flow from a VM to an external iface
-            VMTopology.cmd("ovs-ofctl add-flow %s table=0,in_port=%s,action=output:%s" %
-                           (br_name, vm_iface_id, dut_iface_id))
+            VMTopology.cmd("ovs-ofctl add-flow %s table=0,in_port=%s,action=output:%s,%s" %
+                           (br_name, vm_iface_id, dut_iface_id, injected_iface_id))
 
         if disconnect_vm:
             # Add flow from external iface to ptf container
@@ -1976,8 +1976,9 @@ def main():
             netns_mgmt_ip_addr = module.params['netns_mgmt_ip_addr']
 
             # Add management port to PTF docker and configure IP
-            net.add_mgmt_port_to_docker(mgmt_bridge, ptf_mgmt_ip_addr, ptf_mgmt_ip_gw,
-                                        ptf_mgmt_ipv6_addr, ptf_mgmt_ipv6_gw, ptf_extra_mgmt_ip_addr)
+            # no need to configure GW since the default to docker0 is configured
+            net.add_mgmt_port_to_docker(mgmt_bridge, ptf_mgmt_ip_addr, None,
+                                        ptf_mgmt_ipv6_addr, None, ptf_extra_mgmt_ip_addr)
 
             ptf_bp_ip_addr = module.params['ptf_bp_ip_addr']
             ptf_bp_ipv6_addr = module.params['ptf_bp_ipv6_addr']
