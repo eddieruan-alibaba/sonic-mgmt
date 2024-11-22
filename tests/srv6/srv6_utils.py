@@ -250,18 +250,21 @@ def check_routes(nbrhost, ips, nexthops, vrf="", is_v6=False):
 
     pytest_assert(ret)
 
+def reset_topo_pkt_counter(ptfadapter):
+    ptfadapter.dataplane.flush()
+
 def check_topo_recv_pkt_raw(ptfadapter, port=0, dst_ip="", dscp = 0, no_packet = False, no_vlan=True, validateDSCP = True):
     #port info is fixed and also define and used in trex_agent.py
     if no_vlan == False:
         if "." in dst_ip:
-            pkt_base = Ether()/Dot1Q()/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)
+            pkt_base = Ether()/Dot1Q()/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)/"data"
         else:
-            pkt_base  = Ether()/Dot1Q()/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)
+            pkt_base  = Ether()/Dot1Q()/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)/"data"
     else:
         if "." in dst_ip:
-            pkt_base = Ether()/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)
+            pkt_base = Ether()/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)/"data"
         else:
-            pkt_base  = Ether()/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)
+            pkt_base  = Ether()/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)/"data"
 
     mask = MyMask(pkt_base, ignore_extra_bytes=True, dont_care_all=True)
     # mask.set_do_not_care_scapy(scapy.Ether, 'dst')
@@ -317,14 +320,14 @@ def check_topo_recv_pkt_vpn(ptfadapter, port=0, dst_ip="", dscp = 0, vpnsid = ""
     outer_src_ip6 = outer_sip if outer_sip != "" else "0::0"
     if no_vlan == False:
         if "." in dst_ip:
-            pkt_base = Ether()/Dot1Q()/IPv6(src=outer_src_ip6, dst=vpnsid, nh=4)/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)
+            pkt_base = Ether()/Dot1Q()/IPv6(src=outer_src_ip6, dst=vpnsid, nh=4)/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)/"data"
         else:
-            pkt_base  = Ether()/Dot1Q()/IPv6(src=outer_src_ip6, dst=vpnsid, nh=41)/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)
+            pkt_base  = Ether()/Dot1Q()/IPv6(src=outer_src_ip6, dst=vpnsid, nh=41)/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)/"data"
     else:
         if "." in dst_ip:
-            pkt_base = Ether()/IPv6(src=outer_src_ip6, dst=vpnsid, nh=4)/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)
+            pkt_base = Ether()/IPv6(src=outer_src_ip6, dst=vpnsid, nh=4)/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)/"data"
         else:
-            pkt_base  = Ether()/IPv6(src=outer_src_ip6, dst=vpnsid, nh=41)/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)
+            pkt_base  = Ether()/IPv6(src=outer_src_ip6, dst=vpnsid, nh=41)/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)/"data"
 
     mask = MyMask(pkt_base, ignore_extra_bytes=True, dont_care_all=True)
     ETH_H_LEN = 14
@@ -379,14 +382,14 @@ def check_topo_recv_pkt_vpn_one_port_only(ptfadapter, ports=[], dst_ip="", dscp 
     outer_src_ip6 = outer_sip if outer_sip != "" else "0::0"
     if no_vlan == False:
         if "." in dst_ip:
-            pkt_base = Ether()/Dot1Q()/IPv6(src=outer_src_ip6, dst=vpnsid, nh=4)/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)
+            pkt_base = Ether()/Dot1Q()/IPv6(src=outer_src_ip6, dst=vpnsid, nh=4)/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)/"data"
         else:
-            pkt_base  = Ether()/Dot1Q()/IPv6(src=outer_src_ip6, dst=vpnsid, nh=41)/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)
+            pkt_base  = Ether()/Dot1Q()/IPv6(src=outer_src_ip6, dst=vpnsid, nh=41)/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)/"data"
     else:
         if "." in dst_ip:
-            pkt_base = Ether()/IPv6(src=outer_src_ip6, dst=vpnsid, nh=4)/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)
+            pkt_base = Ether()/IPv6(src=outer_src_ip6, dst=vpnsid, nh=4)/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)/"data"
         else:
-            pkt_base  = Ether()/IPv6(src=outer_src_ip6, dst=vpnsid, nh=41)/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)
+            pkt_base  = Ether()/IPv6(src=outer_src_ip6, dst=vpnsid, nh=41)/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)/"data"
 
     mask = MyMask(pkt_base, ignore_extra_bytes=True, dont_care_all=True)
     ETH_H_LEN = 14
@@ -447,14 +450,14 @@ def check_topo_recv_pkt_te(ptfadapter, port=0, dst_ip="", dscp = 0, vpnsid = "",
     outer_src_ip6 = outer_sip if outer_sip != "" else "0::0"
     if no_vlan == False:
         if "." in dst_ip:
-            pkt_base = Ether()/Dot1Q()/IPv6(src=outer_src_ip6, dst=segment, nh=41)/IPv6(dst=vpnsid, nh=4)/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)
+            pkt_base = Ether()/Dot1Q()/IPv6(src=outer_src_ip6, dst=segment, nh=41)/IPv6(dst=vpnsid, nh=4)/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)/"data"
         else:
-            pkt_base  = Ether()/Dot1Q()/IPv6(src=outer_src_ip6, dst=segment, nh=41)/IPv6(dst=vpnsid, nh=41)/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)
+            pkt_base  = Ether()/Dot1Q()/IPv6(src=outer_src_ip6, dst=segment, nh=41)/IPv6(dst=vpnsid, nh=41)/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)/"data"
     else:
         if "." in dst_ip:
-            pkt_base = Ether()/IPv6(src=outer_src_ip6, dst=segment, nh=41)/IPv6(dst=vpnsid, nh=4)/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)
+            pkt_base = Ether()/IPv6(src=outer_src_ip6, dst=segment, nh=41)/IPv6(dst=vpnsid, nh=4)/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)/"data"
         else:
-            pkt_base  = Ether()/IPv6(src=outer_src_ip6, dst=segment, nh=41)/IPv6(dst=vpnsid, nh=41)/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)
+            pkt_base  = Ether()/IPv6(src=outer_src_ip6, dst=segment, nh=41)/IPv6(dst=vpnsid, nh=41)/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)/"data"
 
     mask = MyMask(pkt_base, ignore_extra_bytes=True, dont_care_all=True)
     ETH_H_LEN = 14
@@ -514,14 +517,14 @@ def check_topo_recv_pkt_srh_te(ptfadapter, port=0, dst_ip="", dscp = 0, vpnsid =
     outer_src_ip6 = outer_sip if outer_sip != "" else "0::0"
     if no_vlan == False:
         if "." in dst_ip:
-            pkt_base = Ether()/Dot1Q()/IPv6(src=outer_src_ip6, dst=segment, nh=43)/IPv6ExtHdrSegmentRouting(addresses=[vpnsid], nh=4, segleft=1)/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)
+            pkt_base = Ether()/Dot1Q()/IPv6(src=outer_src_ip6, dst=segment, nh=43)/IPv6ExtHdrSegmentRouting(addresses=[vpnsid], nh=4, segleft=1)/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)/"data"
         else:
-            pkt_base  = Ether()/Dot1Q()/IPv6(src=outer_src_ip6, dst=segment, nh=43)/IPv6ExtHdrSegmentRouting(addresses=[vpnsid], nh=41, segleft=1)/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)
+            pkt_base  = Ether()/Dot1Q()/IPv6(src=outer_src_ip6, dst=segment, nh=43)/IPv6ExtHdrSegmentRouting(addresses=[vpnsid], nh=41, segleft=1)/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)/"data"
     else:
         if "." in dst_ip:
-            pkt_base = Ether()/IPv6(src=outer_src_ip6, dst=segment, nh=43)/IPv6ExtHdrSegmentRouting(addresses=[vpnsid], nh=4, segleft=1)/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)
+            pkt_base = Ether()/IPv6(src=outer_src_ip6, dst=segment, nh=43)/IPv6ExtHdrSegmentRouting(addresses=[vpnsid], nh=4, segleft=1)/IP(dst = dst_ip, tos=(dscp<<2))/UDP(dport=5000, sport=5001)/"data"
         else:
-            pkt_base  = Ether()/IPv6(src=outer_src_ip6, dst=segment, nh=43)/IPv6ExtHdrSegmentRouting(addresses=[vpnsid], nh=41, segleft=1)/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)
+            pkt_base  = Ether()/IPv6(src=outer_src_ip6, dst=segment, nh=43)/IPv6ExtHdrSegmentRouting(addresses=[vpnsid], nh=41, segleft=1)/IPv6(dst = dst_ip, tc=(dscp<<2))/UDP(dport=5000,sport=5001)/"data"
 
     mask = MyMask(pkt_base, ignore_extra_bytes=True, dont_care_all=True)
     ETH_H_LEN = 14

@@ -40,6 +40,17 @@ sender_mac = "52:54:00:df:1c:5e" # From PE3
 #
 ptf_port_for_backplane = 18
 
+ptf_port_for_p2_to_p1 = 16
+ptf_port_for_p2_to_p3 = 36
+ptf_port_for_p4_to_p1 = 17
+ptf_port_for_p4_to_p3 = 37
+ptf_port_for_pe3_to_p2 = 39
+ptf_port_for_pe3_to_p4 = 40
+ptf_port_for_p1_to_pe1 = 28
+ptf_port_for_p1_to_pe2 = 29
+ptf_port_for_p3_to_pe1 = 34
+ptf_port_for_p3_to_pe2 = 35
+
 # The number of routes published by each CE
 num_ce_routes = 10
 
@@ -203,6 +214,23 @@ def test_traffic_check(tbinfo, duthosts, rand_one_dut_hostname, ptfhost, nbrhost
     #
     # Create a packet sending to 192.100.0.1
     #
+
+    #add trex tream check
+    test_ipv4_dip = "192.100.0.1"
+    reset_topo_pkt_counter(ptfadapter) #reset counters before each run
+    result = trex_run(test_ipv4_dip, duration = 5) #run sync mode
+    #result example {'ptf_tot_tx': 10000, 'ptf_tot_rx': 10000, 'P3_tx_to_PE2': 2500, 'P2_tx_to_PE1': 2500, 'P1_tx_to_PE2': 2500, 'P1_tx_to_PE2': 2500}
+    expect_list = {"ptf_tot_rx": 5000, "ptf_tot_tx": 5000, "PE3_tx_to_P4": 2500, "PE3_tx_to_P2": 2500} #check pkt count on any link
+    logger.info("test_traffic_check vrf ip:{} test result:{}, expect_list:{}".format(test_ipv4_dip, result, expect_list))
+    pytest_assert(thresh_check(result, expect_list))
+    #check raw CE packet on your link
+    check_topo_recv_pkt_raw(ptfadapter, port=ptf_port_for_backplane, dst_ip=test_ipv4_dip)
+    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p2, dst_ip=test_ipv4_dip, vpnsid = "fd00:202:202:fff2:22::", no_vlan=True)
+    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p2, dst_ip=test_ipv4_dip, vpnsid = "fd00:201:201:fff1:11::", no_vlan=True)
+    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p4, dst_ip=test_ipv4_dip, vpnsid = "fd00:202:202:fff2:22::", no_vlan=True)
+    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p4, dst_ip=test_ipv4_dip, vpnsid = "fd00:201:201:fff1:11::", no_vlan=True)
+    reset_topo_pkt_counter(ptfadapter)
+
     # establish_and_configure_bfd(nbrhosts)
     tcp_pkt0 = simple_tcp_packet(
         ip_src="192.200.0.1",
