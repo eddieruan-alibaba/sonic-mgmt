@@ -79,7 +79,7 @@
             "max_ebgp_paths" : 64,
             "rd_vpn_export" : "2:2",
             "rt_vpn_both" : "1:1",
-            "rmap_vpn_export" : "s1",
+            "rmap_vpn_export" : "sr1",
             "export_vpn" : "true",
             "import_vpn" : "true"
         }
@@ -93,12 +93,12 @@
         "default|2064:200::1e|ipv4_vpn" : {
             "admin_status" : "true",
             "route_map_in" : ["pass_all_in"],
-            "route_map_out" : ["sr1"]
+            "route_map_out" : ["pass_all"]
         },
         "default|2064:300::1f|ipv4_vpn" : {
             "admin_status" : "true",
             "route_map_in" : ["pass_all_in"],
-            "route_map_out" : ["sr1"]
+            "route_map_out" : ["pass_all"]
         },
         "default|FC00::71|ipv6_unicast" :{
             "admin_status" : "true",

@@ -12,7 +12,6 @@ import getpass
 import ptf
 import time
 import requests
-from scapy.layers.inet6 import IPv6ExtHdrSegmentRouting
 import ptf.packet as packet
 import ptf.packet as scapy
 import ptf.testutils as testutils
@@ -24,13 +23,29 @@ from ptf.mask import Mask
 
 from tests.common.helpers.assertions import pytest_assert
 from tests.common.helpers.assertions import pytest_assert
-
+from trex_utils import *
+from scapy.layers.inet6 import IPv6ExtHdrSegmentRouting
 logger = logging.getLogger(__name__)
 
 #
 # log directory inside each vsonic. vsonic starts with admin as user.
 #
 test_log_dir = "/home/admin/testlogs/"
+
+sender_mac = "52:54:00:df:1c:5e" # From PE3
+
+ptf_port_for_backplane = 18
+
+ptf_port_for_p2_to_p1 = 16
+ptf_port_for_p2_to_p3 = 36
+ptf_port_for_p4_to_p1 = 17
+ptf_port_for_p4_to_p3 = 37
+ptf_port_for_pe3_to_p2 = 39
+ptf_port_for_pe3_to_p4 = 40
+ptf_port_for_p1_to_pe1 = 28
+ptf_port_for_p1_to_pe2 = 29
+ptf_port_for_p3_to_pe1 = 34
+ptf_port_for_p3_to_pe2 = 35
 
 class MaskException(Exception):
     """Generic Mask Exception"""
@@ -687,54 +702,8 @@ def collect_frr_debugfile(duthosts, rand_one_dut_hostname, nbrhosts, filename, v
     cmd = "docker cp bgp:{} {}".format(filename, test_log_dir)
     nbrhost.shell(cmd, module_ignore_errors=True)
 
-def CheckNodesonPath(exp_pkt_lst, dst_port_lst, ptfadapter):
-    rcv_pkt = True
-    for i in range(len(exp_pkt_lst)):
-        try:
-            testutils.verify_packet(ptfadapter, exp_pkt_lst[i], dst_port_lst[i])
-        except Exception as e:
-            rcv_pkt = False
-            logging.debug("Error: packet not received on dst port {}.".format(dst_port_lst[i]))
-
-    return rcv_pkt
-
-def runSendReceiveCheckForSinglePath(pkt, src_port, exp_pkt_lst, dst_port_lst, ptfadapter):
-    """
-    @summary Send packet and verify it is received/not received on the expected ports
-    @param pkt: The packet that will be injected into src_port
-    @param src_ports: The port into which the pkt will be injected
-    @param exp_pkt: The packet that will be received on one of the dst_ports
-    @param dst_ports: The ports on which the exp_pkt may be received
-    @param pkt_expected: Indicated whether it is expected to receive the exp_pkt on one of the dst_ports
-    @param ptfadapter: The ptfadapter fixture
-    """
-
-    # Send the packet and poll on destination ports
-    testutils.send_packet(ptfadapter, src_port, pkt, 1)
-    logger.debug("Sent packet: " + pkt.summary())
-    pytest_assert(len(exp_pkt_lst) == len(dst_port_lst))
-
-    rcv_pkt = CheckNodesonPath(exp_pkt_lst, dst_port_lst, ptfadapter)
-
-    if not rcv_pkt:
-        raise Exception("No packets traverse either path!")
-
-def generate_encapsulated_packet(sid,hlim,pkt,seglst = None):
-    exp_encap_pkt = Ether(dst="00:11:22:33:44:55", src="aa:bb:cc:dd:ee:ff", type=0x86dd) / IPv6(src="2064:100::1f",dst=sid,hlim=hlim)
-    exp_encap_pkt.nh = 4
-    if seglst:
-        exp_encap_pkt = Ether(dst="00:11:22:33:44:55", src="aa:bb:cc:dd:ee:ff", type=0x86dd) / IPv6(src="2064:100::1f",dst=sid,hlim=hlim) / IPv6ExtHdrSegmentRouting(addresses=seglst, nh=4, segleft=1)
-        exp_encap_pkt.nh = 43
-    masked2recv_encap = Mask(exp_encap_pkt)
-    masked2recv_encap.set_do_not_care_scapy(scapy.Ether, "dst")
-    masked2recv_encap.set_do_not_care_scapy(scapy.Ether, "src")
-    # Mask flow label
-    masked2recv_encap.set_do_not_care(128, 16)
-    return masked2recv_encap
-
 def check_vpn_route_info(nbrhost,  prefix_list, color_flag, endpoint, color, vrf="", is_v6=False):
     pytest_assert(check_vpn_route_info_func(nbrhost,  prefix_list, color_flag, endpoint, color,vrf,is_v6))
-
 
 def check_vpn_route_info_func(duthost, prefix_list, color_flag, endpoint, color,vrf, is_v6=False):
 
@@ -875,33 +844,6 @@ def check_route_nexthop_gruop_func(duthost, id, weight_count):
 
     return True
 
-def check_vpn_route_sid_func(nbrhost, prefix, remote_sid, is_v6 = False):
-    if is_v6:
-        cmd = "vtysh -c 'show bgp ipv6 vpn {} json'".format(prefix)
-    else:
-        cmd = "vtysh -c 'show bgp ipv4 vpn {} json'".format(prefix)
-    try:
-        text = nbrhost.command(cmd)["stdout"]
-    except Exception as e:
-        logger.debug('The command is nil: exception {}'.format(e))
-        return False
-
-    if not text:
-        return False
-
-    json_str_cleaned = text.strip()
-    json_data = json.loads(json_str_cleaned)
-    if not json_data:
-        return False
-    if not json_data["2:2"]:
-        return False
-
-    json_remote_sid  = json_data["2:2"]["paths"][0]["remoteSid"]
-
-    if remote_sid  == json_remote_sid:
-        return True
-    return False
-
 def check_static_route_func(nbrhost, prefix, action):
     # Idle/Established
     cmd = "vtysh -c 'show ipv6 route {} json'".format(prefix)
@@ -920,6 +862,15 @@ def check_static_route_func(nbrhost, prefix, action):
         return False
 
     if not json_data[prefix]:
+        return False
+
+    if 'nexthops' not in json_data[prefix][0]:
+        return False
+
+    if  'seg6local' not in  json_data[prefix][0]["nexthops"][0]:
+        return False
+
+    if 'action' not in json_data[prefix][0]["nexthops"][0]["seg6local"]:
         return False
 
     seg6local_action = json_data[prefix][0]["nexthops"][0]["seg6local"]["action"]
@@ -956,66 +907,59 @@ def check_vpn_route_is_te(nbrhost,  prefix_list, vrf,is_v6=False):
 
     return is_te_flag
 
-def check_bgp_route_is_exist(duthost, cmd):
-    command = "vtysh -c '{}'".format(cmd)
-    try:
-        text = duthost.command(command)["stdout"]
-    except Exception as e:
-        logger.debug('The command is nil: exception {}'.format(e))
-        return False
+def check_traffic_single_flow(ptfadapter, port, sid, seglst,traffic_check):
+    #add trex stream check
+    #trex sync mode example: run trex with a fixed duration, will block and wait the result
+    #   result = trex_run(test_ipv4_dip, duration = 10)
+    #   result example {'ptf_tot_tx': 10000, 'ptf_tot_rx': 10000, 'P12_tx_to_PE12': 2500, 'P12_tx_to_PE11': 2500, 'P11_tx_to_PE12': 2500, 'P11_tx_to_PE11': 2500}
 
-    if not text or 'Network not in table' in text:
-        return False
+    #trex async mode example: start trex and stop trex at your choice, stop will return the result
+    #   trex_start(test_ipv4_dip)
+    #   sleep(10) or do something else here
+    #   result = trex_stop(test_ipv4_dip)
+    #   result example {'ptf_tot_tx': 10000, 'ptf_tot_rx': 10000, 'P12_tx_to_PE12': 2500, 'P12_tx_to_PE11': 2500, 'P11_tx_to_PE12': 2500, 'P11_tx_to_PE11': 2500}
 
-    return True
+    test_ipv4_dip = "192.100.0.2"
+    reset_topo_pkt_counter(ptfadapter) #reset counters before each run
+    result = trex_run(test_ipv4_dip, duration = 10)
+    #result example {'ptf_tot_tx': 10000, 'ptf_tot_rx': 10000, 'P12_tx_to_PE12': 2500, 'P12_tx_to_PE11': 2500, 'P11_tx_to_PE12': 2500, 'P11_tx_to_PE11': 2500}
+    logger.info("check_traffic_single_flow vrf ip:{} test result:{}, expect_list:{}".format(test_ipv4_dip, result, traffic_check))
+    pytest_assert(thresh_check(result, traffic_check))
+    #check raw CE packet on your link
+    check_topo_recv_pkt_raw(ptfadapter, port=ptf_port_for_backplane, dst_ip=test_ipv4_dip)
+    #optional check VPN packet on your link
+    #check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_p12_to_pe11, dst_ip=test_ipv4_dip, vpnsid = seglst[0])
+    #optional TE+VPN packet on your link
+    check_topo_recv_pkt_srh_te(ptfadapter, port=port, dst_ip=test_ipv4_dip, vpnsid = seglst[0], segment = sid, no_vlan=True)
+    reset_topo_pkt_counter(ptfadapter)
+    return
 
-def check_bgp_route_is_exist(duthost, cmd):
-    command = "vtysh -c '{}'".format(cmd)
-    try:
-        text = duthost.command(command)["stdout"]
-    except Exception as e:
-        logger.debug('The command is nil: exception {}'.format(e))
-        return False
+def check_traffic_double_flow(ptfadapter, sid1, seglst1, sid2, seglst2,traffic_check):
+    #add trex stream check
+    test_ipv4_dip = "192.100.0.2"
+    reset_topo_pkt_counter(ptfadapter) #reset counters before each run
+    result = trex_run(test_ipv4_dip, duration = 10)
+    #result example {'ptf_tot_tx': 10000, 'ptf_tot_rx': 10000, 'P12_tx_to_PE12': 2500, 'P12_tx_to_PE11': 2500, 'P11_tx_to_PE12': 2500, 'P11_tx_to_PE11': 2500}
+    logger.info("check_traffic_double_flow vrf ip:{} test result:{}, expect_list:{}".format(test_ipv4_dip, result, traffic_check))
+    pytest_assert(thresh_check(result, traffic_check))
+    check_topo_recv_pkt_raw(ptfadapter, port=ptf_port_for_backplane, dst_ip=test_ipv4_dip)
+    check_topo_recv_pkt_srh_te(ptfadapter, port=39, dst_ip=test_ipv4_dip, vpnsid = seglst1[0], segment = sid1, no_vlan=True)
+    check_topo_recv_pkt_srh_te(ptfadapter, port=40, dst_ip=test_ipv4_dip, vpnsid = seglst2[0], segment = sid2, no_vlan=True)
+    reset_topo_pkt_counter(ptfadapter)
+    return
 
-    if not text or 'Network not in table' in text:
-        return False
-
-    return True
-
-def check_locator_sid_count(nbrhost, sid_name, sid_count):
-    cmd = "vtysh -c 'show segment-routing srv6 locator {} detail'".format(sid_name)
-    try:
-        text = nbrhost.command(cmd)["stdout"]
-    except Exception as e:
-        logger.debug('The command is nil: exception {}'.format(e))
-        return False
-
-    if not text:
-        return False
-
-    sidaction = text.count('sidaction')
-
-    logger.debug("sidaction: {}, sid_count: {}".format(sidaction, sid_count))
-    if (sidaction == sid_count):
-        return True
-
-    return False
-
-def check_locator_dt46_sid_count(nbrhost, sid_name, sid_count):
-    cmd = "vtysh -c 'show segment-routing srv6 locator {} detail'".format(sid_name)
-    try:
-        text = nbrhost.command(cmd)["stdout"]
-    except Exception as e:
-        logger.debug('The command is nil: exception {}'.format(e))
-        return False
-    dt46_count = text.count('End.DT46\r\n')
-    dt4_count = text.count("End.DT4\r\n")
-    dt6_count = text.count("End.DT6\r\n")
-    logger.debug("DT46: {}, DT4: {}, DT6: {}, sid_count: {}".format(dt46_count, dt4_count, dt6_count, sid_count))
-    if (dt46_count+dt4_count+dt6_count == sid_count):
-        return True
-
-    return False
+def check_traffic_be_flow(ptfadapter, vpnsid, traffic_check):
+    #add trex stream check
+    test_ipv4_dip = "192.100.0.2"
+    reset_topo_pkt_counter(ptfadapter) #reset counters before each run
+    result = trex_run(test_ipv4_dip, duration = 10)
+    #result example {'ptf_tot_tx': 10000, 'ptf_tot_rx': 10000, 'P12_tx_to_PE12': 2500, 'P12_tx_to_PE11': 2500, 'P11_tx_to_PE12': 2500, 'P11_tx_to_PE11': 2500}
+    logger.info("check_traffic_double_flow vrf ip:{} test result:{}, expect_list:{}".format(test_ipv4_dip, result, traffic_check))
+    pytest_assert(thresh_check(result, traffic_check))
+    check_topo_recv_pkt_raw(ptfadapter, port=ptf_port_for_backplane, dst_ip=test_ipv4_dip)
+    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p4, dst_ip=test_ipv4_dip, vpnsid = vpnsid, no_vlan=True)
+    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p2, dst_ip=test_ipv4_dip, vpnsid = vpnsid,  no_vlan=True)
+    reset_topo_pkt_counter(ptfadapter)
 
 # example: sbfdname_list = ["bfd1", "bfd2"], status_list = ["up", "down"]
 def check_sbfd_status(duthost, sbfdname_list = [], status_list = []):

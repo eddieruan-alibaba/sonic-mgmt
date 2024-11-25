@@ -24,6 +24,7 @@ from tests.common.utilities import wait_until
 
 from srv6_utils import *
 from common_utils import *
+from trex_utils import *
 
 logger = logging.getLogger(__name__)
 
@@ -35,13 +36,21 @@ pytestmark = [
 ]
 
 test_vm_names = ["PE1", "PE2", "PE3", "P2", "P3", "P4"]
-sender_mac = "52:54:00:df:1c:5e" # From PE3
 
 #
 # The port used by ptf to connect with backplane. This number is different from 3 ndoe case.
 #
 ptf_port_for_backplane = 18
-ptf_port_for_pe21_to_p21 = 39
+ptf_port_for_p2_to_p1 = 16
+ptf_port_for_p2_to_p3 = 36
+ptf_port_for_p4_to_p1 = 17
+ptf_port_for_p4_to_p3 = 37
+ptf_port_for_pe3_to_p2 = 39
+ptf_port_for_pe3_to_p4 = 40
+ptf_port_for_p1_to_pe1 = 28
+ptf_port_for_p1_to_pe2 = 29
+ptf_port_for_p3_to_pe1 = 34
+ptf_port_for_p3_to_pe2 = 35
 
 # The number of routes published by each CE
 num_ce_routes = 10
@@ -77,8 +86,9 @@ bgp_neighbor_down_wait_time = 30
 #
 def setup_config(duthosts, rand_one_dut_hostname, nbrhosts, ptfhost):
 
+    logger.info("step 0 - install trex on PTF")
+    trex_install(ptfhost)
     setup_config_for_testbed(duthosts, rand_one_dut_hostname, nbrhosts, ptfhost, test_vm_names, "7nodes_te")
-
     time.sleep(300)
     logger.info("Announce routes from CEs")
     ptfip = ptfhost.mgmt_ip
@@ -115,12 +125,34 @@ def setup_config(duthosts, rand_one_dut_hostname, nbrhosts, ptfhost):
     )
 
 #
-# Testbed set up and tear down
+# Testbed set up
 #
 @pytest.fixture(scope="module", autouse=True)
 def srv6_te_config(duthosts, rand_one_dut_hostname, nbrhosts, ptfhost):
     setup_config(duthosts, rand_one_dut_hostname, nbrhosts, ptfhost)
 
+def revert_setting_for_test_traffic_multi_policy_check_5(rand_one_dut_hostname,duthosts,nbrhosts):
+    dut = duthosts[rand_one_dut_hostname]
+    dut.command("sudo vtysh -c 'configure terminal' -c 'no ipv6 prefix-list srv6_right seq 50 permit fd00:201:201:fff1:1::/80 le 128' ")
+    dut.command("sudo vtysh -c 'configure terminal' -c 'no ipv6 prefix-list srv6_right_to_05 seq 50 permit fd00:201:201:fff1:1::/80 le 128' ")
+    nbrhosts["P2"]["host"].command("sudo vtysh -c 'configure terminal' -c 'no ipv6 prefix-list srv6_right seq 50 permit fd00:201:201:fff1:1::/80 le 128' ")
+    nbrhosts["P3"]["host"].command("sudo vtysh -c 'configure terminal' -c 'no ipv6 prefix-list srv6_right seq 50 permit fd00:201:201:fff1:1::/80 le 128' ")
+    nbrhosts["P3"]["host"].command("sudo vtysh -c 'configure terminal' -c 'no ipv6 prefix-list srv6_right_to_06 seq 50 permit fd00:201:201:fff1:1::/80 le 128' ")
+    nbrhosts["P4"]["host"].command("sudo vtysh -c 'configure terminal' -c 'no ipv6 prefix-list srv6_right seq 50 permit fd00:201:201:fff1:1::/80 le 128' ")
+    nbrhost=nbrhosts["PE3"]["host"]
+    nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'no policy color 1 endpoint 2064:100::1d' ")
+    nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'no policy color 3 endpoint 2064:200::1e' ")
+    nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'policy color 1 endpoint 2064:100::1d' -c ' candidate-path preference 1 name a explicit-srv6 segment-list a weight 1 '")
+    nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'policy color 1 endpoint 2064:100::1d' -c ' candidate-path preference 1 name b explicit-srv6 segment-list b weight 1 '")
+    nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'policy color 3 endpoint 2064:200::1e' -c ' candidate-path preference 1 name c explicit-srv6 segment-list c weight 1 '")
+    nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'policy color 3 endpoint 2064:200::1e' -c ' candidate-path preference 1 name d explicit-srv6 segment-list d weight 1 '")
+    nbrhosts['P4']['host'].shell("sudo vtysh -c  'configure terminal' -c 'router bgp 65103' -c 'address-family ipv6 unicast' -c 'redistribute static route-map srv6_r'")
+    nbrhosts['P2']['host'].shell("sudo vtysh -c 'configure terminal' -c 'router bgp 65102' -c 'address-family ipv6 unicast' -c ' redistribute static route-map srv6_r'")
+
+
+#
+# Test case: check number of Ethnernet interfaces
+#
 def test_interface_on_each_node(duthosts, rand_one_dut_hostname, nbrhosts):
     for vm_name in test_vm_names:
         nbrhost = nbrhosts[vm_name]['host']
@@ -134,7 +166,9 @@ def test_interface_on_each_node(duthosts, rand_one_dut_hostname, nbrhosts):
     logger.debug("Get {} interfaces on {}, hwsku {}".format(num, "dut", hwsku))
     if hwsku == "cisco-8101-p4-32x100-vs":
         pytest_assert(num == 32)
-
+#
+# Test Case: Check BGP neighbors
+#
 def test_check_bgp_neighbors(duthosts, rand_one_dut_hostname, nbrhosts):
     logger.info("Check BGP Neighbors")
     # From PE3
@@ -167,7 +201,9 @@ def test_check_bgp_neighbors(duthosts, rand_one_dut_hostname, nbrhosts):
     # From P4
     nbrhost = nbrhosts["P4"]['host']
     check_bgp_neighbors(nbrhost, ['fc01::86', 'fc04::2', 'fc07::2', 'fc06::1'])
-
+#
+# Test Case: Check te policy route info
+#
 def test_check_te_policy_route_info(nbrhosts):
     logger.info("Check route information")
     nbrhost = nbrhosts["PE3"]['host']
@@ -187,120 +223,115 @@ def test_check_te_policy_route_info(nbrhosts):
     #check_route_nexthop_group(nbrhost, nexthop_id, 3)
     #check_route_nexthop_group(nbrhost, pic_id, 1)
     logger.info("End test_check_te_policy_route_info")
+#
+# Test Case: Check static route of DT46
+#
+def test_te_policy_func_dt46(nbrhosts):
+    ret = check_static_route_func(nbrhosts["PE1"]['host'], 'fd00:201:201:fff1:1::/80', 'End.DT46')
+    pytest_assert(ret == True, "No static route")
+    ret = check_vpn_route_is_te(nbrhosts["PE3"]['host'], ['192.100.0.1'],vrf="Vrf1")
+    pytest_assert(ret == True, "Check 192.100.0.1 is not te")
+    logger.info("End test_te_policy_func_dt46")
+#
+# Test Case: Check static route of DTX
+#
+def test_te_policy_func_endx(nbrhosts):
+    nbrhosts["PE1"]['host'].command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'srv6' -c 'locators' -c "
+                                    + "'locator lsid1' -c ' prefix fd00:201:201::/48 block-len 32 node-len 16 func-bits 32 ' -c 'opcode ::fff1:3:0:0:0 end-x interface Ethernet2 nexthop 120.2.0.2' ")
+    ret = check_static_route_func(nbrhosts["PE1"]['host'], 'fd00:201:201:fff1:3::/80', 'End.X')
+    pytest_assert(ret == True, "No static fd00:201:201:fff1:3::/80 route")
+    nbrhosts["PE1"]['host'].command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'srv6' -c 'locators' -c "
+                                    + "'locator lsid1' -c ' prefix fd00:201:201::/48 block-len 32 node-len 16 func-bits 32 ' -c 'opcode ::fff1:4:0:0:0 end-x interface Ethernet4 nexthop fc02::2' ")
+    ret = check_static_route_func(nbrhosts["PE1"]['host'], 'fd00:201:201:fff1:4::/80', 'End.X')
+    pytest_assert(ret == True, "No static fd00:201:201:fff1:4::/80 route")
+
+    nbrhosts["PE1"]['host'].command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'srv6' -c 'locators' -c "
+                                    + "'locator lsid1' -c ' prefix fd00:201:201::/48 block-len 32 node-len 16 func-bits 32 ' -c 'no opcode ::fff1:3:0:0:0' ")
+    ret = check_static_route_func(nbrhosts["PE1"]['host'], 'fd00:201:201:fff1:3::/80', 'End.X')
+    pytest_assert(ret == False, "No static fd00:201:201:fff1:3::/80 route")
+    nbrhosts["PE1"]['host'].command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'srv6' -c 'locators' -c "
+                                    + "'locator lsid1' -c ' prefix fd00:201:201::/48 block-len 32 node-len 16 func-bits 32 ' -c 'no opcode ::fff1:4:0:0:0' ")
+    ret = check_static_route_func(nbrhosts["PE1"]['host'], 'fd00:201:201:fff1:4::/80', 'End.X')
+    pytest_assert(ret == False, "No static fd00:201:201:fff1:4::/80 route")
+    logger.info("End test_te_policy_func_end_endx")
+#
+# Test Case: Check vpn route recursive with color
+#
+def test_te_policy_func_color(nbrhosts):
+    ret = check_vpn_route_is_te(nbrhosts["PE3"]['host'], ['192.100.0.1'],vrf="Vrf1")
+    pytest_assert(ret == True, "Check 192.100.1.0 is not te")
+    nbrhosts["PE1"]['host'].command("sudo vtysh -c 'configure terminal' -c 'router bgp 64600 vrf Vrf1' -c 'address-family ipv4 unicast' -c 'no route-map vpn export sr1'")
+    nbrhosts["PE2"]['host'].command("sudo vtysh -c 'configure terminal' -c 'router bgp 64601 vrf Vrf1' -c 'address-family ipv4 unicast' -c 'no route-map vpn export sr1'")
+    time.sleep(2)
+    ret = check_vpn_route_is_te(nbrhosts["PE3"]['host'], ['192.100.0.1'],vrf="Vrf1")
+    pytest_assert(ret == False, "Check 192.100.1.0 is te")
+    nbrhosts["PE1"]['host'].command("sudo vtysh -c 'configure terminal' -c 'router bgp 64600 vrf Vrf1' -c 'address-family ipv4 unicast' -c 'route-map vpn export sr1'")
+    nbrhosts["PE2"]['host'].command("sudo vtysh -c 'configure terminal' -c 'router bgp 64601 vrf Vrf1' -c 'address-family ipv4 unicast' -c 'route-map vpn export sr1'")
+    time.sleep(2)
+    ret = check_vpn_route_is_te(nbrhosts["PE3"]['host'], ['192.100.0.1'],vrf="Vrf1")
+    pytest_assert(ret == True, "Check 192.100.1.0 is not te")
+    logger.info("End test_te_policy_func_color")
+#
+# Test Case: Check traffic of single policy with different preference
+#
 def test_traffic_single_policy_check_1(tbinfo, duthosts, rand_one_dut_hostname, ptfhost, nbrhosts, ptfadapter):
-    tcp_pkt0 = simple_tcp_packet(
-        ip_src="192.200.0.2",
-        ip_dst="192.100.0.1",
-        tcp_sport=8888,
-        tcp_dport=6666,
-        ip_ttl=64
-    )
-    pkt = tcp_pkt0.copy()
-    pkt['Ether'].dst = sender_mac
-
-    exp_pkt = tcp_pkt0.copy()
-    exp_pkt['IP'].ttl -= 4
-    masked2recv = Mask(exp_pkt)
-    masked2recv.set_do_not_care_scapy(scapy.Ether, "dst")
-    masked2recv.set_do_not_care_scapy(scapy.Ether, "src")
-
-    # Enable tcpdump for debugging purpose, file_loc is host file location
-    intf_list = ["VM0102-t1", "VM0102-t3"]
-    file_loc = "~/sonic-mgmt/tests/logs/"
-    prefix = "test_traffic_check"
-    enable_tcpdump(intf_list, file_loc, prefix, True, True)
-    nbrhost=nbrhosts["PE3"]["host"]
 
     nbrhost=nbrhosts["PE3"]["host"]
     nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'no policy color 3 endpoint 2064:200::1e' ")
     nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'no policy color 100 endpoint 2064:100::1d' ")
     nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'no policy color 1 endpoint 2064:100::1d' ")
-    nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'policy color 1 endpoint 2064:100::1d' -c ' candidate-path preference 1 name b explicit-srv6 segment-list b weight 1 bfd-name bfd-b'")
-    nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'policy color 1 endpoint 2064:100::1d' -c ' candidate-path preference 2 name c explicit-srv6 segment-list c weight 1 bfd-name bfd-c'")
-
-
+    nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'policy color 1 endpoint 2064:100::1d' -c ' candidate-path preference 2 name b explicit-srv6 segment-list b weight 1 bfd-name bfd-b'")
+    nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'policy color 1 endpoint 2064:100::1d' -c ' candidate-path preference 1 name c explicit-srv6 segment-list c weight 1 bfd-name bfd-c'")
     pytest_assert(wait_until(100, 1, 0, check_bfd_status, nbrhosts['PE3']['host'], ["b","c"], ["up","up"]),
                   "Bfd not established!")
-    time.sleep(2)
-    # Add retry for debugging purpose
-    count = 0
-    done = False
-    exp_encap_lst = []
-    exp_pkt2 = tcp_pkt0.copy()
-    exp_pkt2 = tcp_pkt0.copy()
-    exp_pkt2['IP'].ttl -= 1
-    hlim = 63
-    #exp_encap_lst.append(generate_encapsulated_packet("fd00:205:205:fff5:5::",hlim, exp_pkt2, "fd00:201:201:fff1:1::"))
-
-    while count < 10 and done == False:
+    expected_list = {"ptf_tot_rx": 10000, "ptf_tot_tx": 10000, "PE3_tx_to_P2": 10000,"PE3_tx_to_P4":0,"P2_tx_to_P1":10000,"P2_tx_to_P3":0, "P1_tx_to_PE1": 5000, "P1_tx_to_PE2": 5000}
+    count=0
+    done=False
+    while done == False and count < 5:
         try:
-            runSendReceive(pkt, ptf_port_for_backplane, masked2recv, [ptf_port_for_backplane], True, ptfadapter)
-            #runSendReceiveCheckForSinglePath(pkt, ptf_port_for_backplane, exp_encap_lst, [ptf_port_for_pe21_to_p21], ptfadapter)
-            logger.info("Done with traffic run")
-            done = True
-        except Exception as e:
+            check_traffic_single_flow(ptfadapter, ptf_port_for_pe3_to_p2, "fd00:205:205:fff5:5::", seglst = ["fd00:201:201:fff1:1::"],traffic_check=expected_list)
+        except BaseException as e:
             count = count + 1
-            logger.info("Retry round {}".format(count))
-            # sleep make sure all forwarding structures are settled down.
-            sleep_duration_for_retry = 60
-            time.sleep(sleep_duration_for_retry)
-            logger.info("Sleep {} seconds to make sure all forwarding structures are settled down".format(sleep_duration_for_retry))
-
-    logger.info("Done {} count {}".format(done, count))
+            logger.info("{}, retry traffic test latter".format(e))
+            time.sleep(60)
+        else:
+            done=True
     if not done:
         raise Exception("Traffic test failed")
 
     nbrhosts['P2']['host'].shell("sudo vtysh -c  'configure terminal' -c 'router bgp 65102' -c 'address-family ipv6 unicast' -c 'no redistribute static route-map srv6_r'")
     pytest_assert(wait_until(100, 1, 0, check_bfd_status, nbrhosts['PE3']['host'], ["b","c"], ["down","up"]),
                   "Bfd not established!")
-
-    count = 0
-    done = False
-    while count < 10 and done == False:
+    expected_list = {"ptf_tot_rx": 10000, "ptf_tot_tx": 10000, "PE3_tx_to_P2": 0,"PE3_tx_to_P4":10000, "P4_tx_to_P3": 10000, "P4_tx_to_P1":0,"P3_tx_to_PE1": 5000,"P3_tx_to_PE2": 5000}
+    count=0
+    done=False
+    while done == False and count < 5:
         try:
-            runSendReceive(pkt, ptf_port_for_backplane, masked2recv, [ptf_port_for_backplane], True, ptfadapter)
-            #runSendReceiveCheckForSinglePath(pkt, ptf_port_for_backplane, exp_encap_lst, [ptf_port_for_pe21_to_p21], ptfadapter)
-            logger.info("Done with traffic run")
-            done = True
-        except Exception as e:
+            check_traffic_single_flow(ptfadapter, ptf_port_for_pe3_to_p4, "fd00:206:206:fff6:6::", seglst = ["fd00:201:201:fff1:1::"],traffic_check=expected_list)
+        except BaseException as e:
             count = count + 1
-            logger.info("Retry round {}".format(count))
-            # sleep make sure all forwarding structures are settled down.
-            sleep_duration_for_retry = 60
-            time.sleep(sleep_duration_for_retry)
-            logger.info("Sleep {} seconds to make sure all forwarding structures are settled down".format(sleep_duration_for_retry))
-
-    logger.info("Done {} count {}".format(done, count))
+            logger.info("{}, retry traffic test latter".format(e))
+            time.sleep(60)
+        else:
+            done=True
     if not done:
+        # rever to previous setting
+        nbrhosts['P2']['host'].shell("sudo vtysh -c  'configure terminal' -c 'router bgp 65102' -c 'address-family ipv6 unicast' -c 'redistribute static route-map srv6_r'")
         raise Exception("Traffic test failed")
-    # Disable tcpdump
-    disable_tcpdump(True)
+
     nbrhosts['P2']['host'].shell("sudo vtysh -c  'configure terminal' -c 'router bgp 65102' -c 'address-family ipv6 unicast' -c 'redistribute static route-map srv6_r'")
     pytest_assert(wait_until(100, 1, 0, check_bfd_status, nbrhosts['PE3']['host'], ["b","c"], ["up","up"]),
                   "Bfd not established!")
-
-
+    logger.info("End test_traffic_single_policy_check_1")
+#
+# Test Case: Check traffic of single policy with same preference
+#
 def test_traffic_single_policy_check_2(tbinfo, duthosts, rand_one_dut_hostname, ptfhost, nbrhosts, ptfadapter):
-    tcp_pkt0 = simple_tcp_packet(
-        ip_src="192.200.0.2",
-        ip_dst="192.100.0.1",
-        tcp_sport=8888,
-        tcp_dport=6666,
-        ip_ttl=64
-    )
-    pkt = tcp_pkt0.copy()
-    pkt['Ether'].dst = sender_mac
-
-    exp_pkt = tcp_pkt0.copy()
-    exp_pkt['IP'].ttl -= 4
-    masked2recv = Mask(exp_pkt)
-    masked2recv.set_do_not_care_scapy(scapy.Ether, "dst")
-    masked2recv.set_do_not_care_scapy(scapy.Ether, "src")
 
     # Enable tcpdump for debugging purpose, file_loc is host file location
     intf_list = ["VM0102-t1", "VM0102-t3"]
     file_loc = "~/sonic-mgmt/tests/logs/"
-    prefix = "test_traffic_check"
+    prefix = "test_traffic_single_policy_check_2"
     enable_tcpdump(intf_list, file_loc, prefix, True, True)
     nbrhost = nbrhosts["PE3"]['host']
     nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'no policy color 3 endpoint 2064:200::1e' ")
@@ -310,49 +341,33 @@ def test_traffic_single_policy_check_2(tbinfo, duthosts, rand_one_dut_hostname, 
     pytest_assert(wait_until(100, 1, 0, check_bfd_status, nbrhosts['PE3']['host'], ["b","c"], ["up","up"]),
                   "Bfd not established!")
 
-    count = 0
-    done = False
-    while count < 10 and done == False:
+    expected_list = {"ptf_tot_rx": 10000, "ptf_tot_tx": 10000, "P1_tx_to_PE1": 2500, "P1_tx_to_PE2": 2500, "P3_tx_to_PE1": 2500, "P3_tx_to_PE2": 2500,"PE3_tx_to_P2": 5000, "PE3_tx_to_P4": 5000,"P2_tx_to_P1": 5000,"P4_tx_to_P3": 5000 }
+    count=0
+    done=False
+    while done == False and count < 5:
         try:
-            runSendReceive(pkt, ptf_port_for_backplane, masked2recv, [ptf_port_for_backplane], True, ptfadapter)
-            #runSendReceiveCheckForSinglePath(pkt, ptf_port_for_backplane, exp_encap_lst, [ptf_port_for_pe21_to_p21], ptfadapter)
-            logger.info("Done with traffic run")
-            done = True
-        except Exception as e:
-            logger.info("Exception {}".format(e))
+            check_traffic_double_flow(ptfadapter, "fd00:205:205:fff5:5::", ["fd00:201:201:fff1:1::"], "fd00:206:206:fff6:6::",["fd00:201:201:fff1:1::"],traffic_check=expected_list)
+        except BaseException as e:
             count = count + 1
-            logger.info("Retry round {}".format(count))
-            # sleep make sure all forwarding structures are settled down.
-            sleep_duration_for_retry = 60
-            time.sleep(sleep_duration_for_retry)
-            logger.info("Sleep {} seconds to make sure all forwarding structures are settled down".format(sleep_duration_for_retry))
-    # Disable tcpdump
-    disable_tcpdump(True)
-    logger.info("Done {} count {}".format(done, count))
+            logger.info("{}, retry traffic test latter".format(e))
+            time.sleep(60)
+        else:
+            done=True
     if not done:
+        disable_tcpdump(True)
         raise Exception("Traffic test failed")
 
+    disable_tcpdump(True)
+    logger.info("End test_traffic_single_policy_check_2")
+#
+# Test Case: Check traffic of multi policy with same preference
+#
 def test_traffic_multi_policy_check_3(tbinfo, duthosts, rand_one_dut_hostname, ptfhost, nbrhosts, ptfadapter):
-    tcp_pkt0 = simple_tcp_packet(
-        ip_src="192.200.0.2",
-        ip_dst="192.100.0.1",
-        tcp_sport=8888,
-        tcp_dport=6666,
-        ip_ttl=64
-    )
-    pkt = tcp_pkt0.copy()
-    pkt['Ether'].dst = sender_mac
-
-    exp_pkt = tcp_pkt0.copy()
-    exp_pkt['IP'].ttl -= 4
-    masked2recv = Mask(exp_pkt)
-    masked2recv.set_do_not_care_scapy(scapy.Ether, "dst")
-    masked2recv.set_do_not_care_scapy(scapy.Ether, "src")
 
     # Enable tcpdump for debugging purpose, file_loc is host file location
     intf_list = ["VM0102-t1", "VM0102-t3"]
     file_loc = "~/sonic-mgmt/tests/logs/"
-    prefix = "test_traffic_check"
+    prefix = "test_traffic_multi_policy_check_3"
     enable_tcpdump(intf_list, file_loc, prefix, True, True)
     nbrhost = nbrhosts["PE3"]['host']
     nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'no policy color 3 endpoint 2064:200::1e' ")
@@ -361,58 +376,27 @@ def test_traffic_multi_policy_check_3(tbinfo, duthosts, rand_one_dut_hostname, p
     nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'policy color 3 endpoint 2064:200::1e' -c ' candidate-path preference 1 name c explicit-srv6 segment-list c weight 1 bfd-name bfd-c'")
     pytest_assert(wait_until(100, 1, 0, check_bfd_status, nbrhosts['PE3']['host'], ["b","c"], ["up","up"]),
                   "Bfd not established!")
-    # Add retry for debugging purpose
-    count = 0
-    done = False
-    exp_encap_lst = []
-    exp_pkt2 = tcp_pkt0.copy()
-    exp_pkt2 = tcp_pkt0.copy()
-    exp_pkt2['IP'].ttl -= 1
-    hlim = 63
-    #exp_encap_lst.append(generate_encapsulated_packet("fd00:205:205:fff5:5::",hlim, exp_pkt2, "fd00:201:201:fff1:1::"))
-
-    while count < 10 and done == False:
+    expected_list = {"ptf_tot_rx": 10000, "ptf_tot_tx": 10000, "P1_tx_to_PE1": 2500, "P1_tx_to_PE2": 2500, "P3_tx_to_PE1": 2500, "P3_tx_to_PE2": 2500,"PE3_tx_to_P2": 5000, "PE3_tx_to_P4": 5000,"P2_tx_to_P1": 5000,"P4_tx_to_P3": 5000 }
+    done=False
+    count=0
+    while done == False and count < 5:
         try:
-            runSendReceive(pkt, ptf_port_for_backplane, masked2recv, [ptf_port_for_backplane], True, ptfadapter)
-            #runSendReceiveCheckForSinglePath(pkt, ptf_port_for_backplane, exp_encap_lst, [ptf_port_for_pe21_to_p21], ptfadapter)
-            logger.info("Done with traffic run")
-            done = True
-        except Exception as e:
+            check_traffic_double_flow(ptfadapter, "fd00:205:205:fff5:5::", ["fd00:201:201:fff1:1::"], "fd00:206:206:fff6:6::",["fd00:201:201:fff1:1::"],traffic_check=expected_list)
+        except BaseException as e:
             count = count + 1
-            logger.info("Retry round {}".format(count))
-            # sleep make sure all forwarding structures are settled down.
-            sleep_duration_for_retry = 60
-            time.sleep(sleep_duration_for_retry)
-            logger.info("Sleep {} seconds to make sure all forwarding structures are settled down".format(sleep_duration_for_retry))
-
-    # Disable tcpdump
-    disable_tcpdump(True)
-    logger.info("Done {} count {}".format(done, count))
+            logger.info("{}, retry traffic test latter".format(e))
+            time.sleep(60)
+        else:
+            done=True
     if not done:
+        disable_tcpdump(True)
         raise Exception("Traffic test failed")
-
+    disable_tcpdump(True)
+    logger.info("End test_traffic_multi_policy_check_3")
+#
+# Test Case: Check traffic of multi policy with sbfd function
+#
 def test_traffic_multi_policy_check_4(tbinfo, duthosts, rand_one_dut_hostname, ptfhost, nbrhosts, ptfadapter):
-    tcp_pkt0 = simple_tcp_packet(
-        ip_src="192.200.0.2",
-        ip_dst="192.100.0.1",
-        tcp_sport=8888,
-        tcp_dport=6666,
-        ip_ttl=64
-    )
-    pkt = tcp_pkt0.copy()
-    pkt['Ether'].dst = sender_mac
-
-    exp_pkt = tcp_pkt0.copy()
-    exp_pkt['IP'].ttl -= 4
-    masked2recv = Mask(exp_pkt)
-    masked2recv.set_do_not_care_scapy(scapy.Ether, "dst")
-    masked2recv.set_do_not_care_scapy(scapy.Ether, "src")
-
-    # Enable tcpdump for debugging purpose, file_loc is host file location
-    intf_list = ["VM0102-t1", "VM0102-t3"]
-    file_loc = "~/sonic-mgmt/tests/logs/"
-    prefix = "test_traffic_check"
-    enable_tcpdump(intf_list, file_loc, prefix, True, True)
     nbrhost = nbrhosts["PE3"]['host']
     nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'no policy color 3 endpoint 2064:200::1e' ")
     nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'no policy color 1 endpoint 2064:100::1d' ")
@@ -420,266 +404,165 @@ def test_traffic_multi_policy_check_4(tbinfo, duthosts, rand_one_dut_hostname, p
     nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'policy color 3 endpoint 2064:200::1e' -c ' candidate-path preference 1 name c explicit-srv6 segment-list c weight 1 bfd-name bfd-c'")
     pytest_assert(wait_until(100, 1, 0, check_bfd_status, nbrhosts['PE3']['host'], ["b","c"], ["up","up"]),
                   "Bfd not established!")
-
-    # Add retry for debugging purpose
-    count = 0
-    done = False
-    exp_encap_lst = []
-    exp_pkt2 = tcp_pkt0.copy()
-    exp_pkt2 = tcp_pkt0.copy()
-    exp_pkt2['IP'].ttl -= 1
-    hlim = 63
-    #exp_encap_lst.append(generate_encapsulated_packet("fd00:205:205:fff5:5::",hlim, exp_pkt2, "fd00:201:201:fff1:1::"))
-
-    while count < 10 and done == False:
+    expected_list = {"ptf_tot_rx": 10000, "ptf_tot_tx": 10000, "P1_tx_to_PE1": 2500, "P1_tx_to_PE2": 2500, "P3_tx_to_PE1": 2500, "P3_tx_to_PE2": 2500,"PE3_tx_to_P2": 5000, "PE3_tx_to_P4": 5000,"P2_tx_to_P1": 5000,"P4_tx_to_P3": 5000 }
+    done=False
+    count=0
+    while done == False and count < 5:
         try:
-            runSendReceive(pkt, ptf_port_for_backplane, masked2recv, [ptf_port_for_backplane], True, ptfadapter)
-            #runSendReceiveCheckForSinglePath(pkt, ptf_port_for_backplane, exp_encap_lst, [ptf_port_for_pe21_to_p21], ptfadapter)
-            logger.info("Done with traffic run")
-            done = True
-        except Exception as e:
+            check_traffic_double_flow(ptfadapter, "fd00:205:205:fff5:5::", ["fd00:201:201:fff1:1::"], "fd00:206:206:fff6:6::",["fd00:201:201:fff1:1::"],traffic_check=expected_list)
+        except BaseException as e:
             count = count + 1
-            logger.info("Retry round {}".format(count))
-            # sleep make sure all forwarding structures are settled down.
-            sleep_duration_for_retry = 60
-            time.sleep(sleep_duration_for_retry)
-            logger.info("Sleep {} seconds to make sure all forwarding structures are settled down".format(sleep_duration_for_retry))
-
-    # Disable tcpdump
-    disable_tcpdump(True)
-    logger.info("Done {} count {}".format(done, count))
+            logger.info("{}, retry traffic test latter".format(e))
+            time.sleep(60)
+        else:
+            done=True
     if not done:
         raise Exception("Traffic test failed")
 
     nbrhosts['P2']['host'].shell("sudo vtysh -c  'configure terminal' -c 'router bgp 65102' -c 'address-family ipv6 unicast' -c 'no redistribute static route-map srv6_r'")
-    pytest_assert(wait_until(100, 1, 0, check_bfd_status, nbrhosts['PE3']['host'], ["b"], ["down"]),
+    pytest_assert(wait_until(100, 1, 0, check_bfd_status, nbrhosts['PE3']['host'], ["b","c"], ["down","up"]),
                   "Bfd not established!")
-
-
-    count = 0
-    done = False
-    while count < 10 and done == False:
+    expected_list = {"ptf_tot_rx": 10000, "ptf_tot_tx": 10000, "P1_tx_to_PE1": 0, "P1_tx_to_PE2": 0, "P3_tx_to_PE1": 5000, "P3_tx_to_PE2": 5000,"PE3_tx_to_P2": 0, "PE3_tx_to_P4": 10000}
+    done=False
+    count=0
+    while done == False and count < 5:
         try:
-            runSendReceive(pkt, ptf_port_for_backplane, masked2recv, [ptf_port_for_backplane], True, ptfadapter)
-            #runSendReceiveCheckForSinglePath(pkt, ptf_port_for_backplane, exp_encap_lst, [ptf_port_for_pe21_to_p21], ptfadapter)
-            logger.info("Done with traffic run")
-            done = True
-        except Exception as e:
+            check_traffic_single_flow(ptfadapter, ptf_port_for_pe3_to_p4, "fd00:206:206:fff6:6::", seglst = ["fd00:201:201:fff1:1::"],traffic_check=expected_list)
+        except BaseException as e:
             count = count + 1
-            logger.info("Retry round {}".format(count))
-            # sleep make sure all forwarding structures are settled down.
-            sleep_duration_for_retry = 60
-            time.sleep(sleep_duration_for_retry)
-            logger.info("Sleep {} seconds to make sure all forwarding structures are settled down".format(sleep_duration_for_retry))
-
-    logger.info("Done {} count {}".format(done, count))
+            logger.info("{}, retry traffic test latter".format(e))
+            time.sleep(60)
+        else:
+            done=True
     if not done:
+        #revert to original setting
+        nbrhosts['P2']['host'].shell("sudo vtysh -c  'configure terminal' -c 'router bgp 65102' -c 'address-family ipv6 unicast' -c ' redistribute static route-map srv6_r'")
         raise Exception("Traffic test failed")
     nbrhosts['P2']['host'].shell("sudo vtysh -c  'configure terminal' -c 'router bgp 65102' -c 'address-family ipv6 unicast' -c ' redistribute static route-map srv6_r'")
     pytest_assert(wait_until(100, 1, 0, check_bfd_status, nbrhosts['PE3']['host'], ["b"], ["up"]),
                   "Bfd not established!")
-
+    logger.info("End test_traffic_multi_policy_check_4")
+#
+# Test Case: Check traffic of SRv6-TE and SRv6-BE hybrid mode
+#
 def test_traffic_multi_policy_check_5(tbinfo, duthosts, rand_one_dut_hostname, ptfhost, nbrhosts, ptfadapter):
-    tcp_pkt0 = simple_tcp_packet(
-        ip_src="192.200.0.2",
-        ip_dst="192.100.0.1",
-        tcp_sport=8888,
-        tcp_dport=6666,
-        ip_ttl=64
-    )
-    pkt = tcp_pkt0.copy()
-    pkt['Ether'].dst = sender_mac
-
-    exp_pkt = tcp_pkt0.copy()
-    exp_pkt['IP'].ttl -= 4
-    masked2recv = Mask(exp_pkt)
-    masked2recv.set_do_not_care_scapy(scapy.Ether, "dst")
-    masked2recv.set_do_not_care_scapy(scapy.Ether, "src")
-
     # Enable tcpdump for debugging purpose, file_loc is host file location
     intf_list = ["VM0102-t1", "VM0102-t3"]
     file_loc = "~/sonic-mgmt/tests/logs/"
-    prefix = "test_traffic_check"
+    prefix = "test_traffic_multi_policy_check_5"
     enable_tcpdump(intf_list, file_loc, prefix, True, True)
-
-    time.sleep(2)
-    # Add retry for debugging purpose
-    count = 0
-    done = False
-    exp_encap_lst = []
-    exp_pkt2 = tcp_pkt0.copy()
-    exp_pkt2 = tcp_pkt0.copy()
-    exp_pkt2['IP'].ttl -= 1
-    hlim = 63
-    #exp_encap_lst.append(generate_encapsulated_packet("fd00:205:205:fff5:5::",hlim, exp_pkt2, "fd00:201:201:fff1:1::"))
     nbrhost=nbrhosts["PE3"]["host"]
     nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'no policy color 3 endpoint 2064:200::1e' ")
     nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'no policy color 1 endpoint 2064:100::1d' ")
-
     nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'policy color 1 endpoint 2064:100::1d' -c ' candidate-path preference 1 name b explicit-srv6 segment-list b weight 1  bfd-name bfd-b'")
     nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'policy color 1 endpoint 2064:100::1d' -c ' candidate-path preference 1 name c explicit-srv6 segment-list c weight 1  bfd-name bfd-c'")
-
-
     dut = duthosts[rand_one_dut_hostname]
     dut.command("sudo vtysh -c 'configure terminal' -c 'ipv6 prefix-list srv6_right seq 50 permit fd00:201:201:fff1:1::/80 le 128' ")
     dut.command("sudo vtysh -c 'configure terminal' -c 'ipv6 prefix-list srv6_right_to_05 seq 50 permit fd00:201:201:fff1:1::/80 le 128' ")
-
     nbrhosts["P2"]["host"].command("sudo vtysh -c 'configure terminal' -c 'ipv6 prefix-list srv6_right seq 50 permit fd00:201:201:fff1:1::/80 le 128' ")
-
     nbrhosts["P3"]["host"].command("sudo vtysh -c 'configure terminal' -c 'ipv6 prefix-list srv6_right seq 50 permit fd00:201:201:fff1:1::/80 le 128' ")
     nbrhosts["P3"]["host"].command("sudo vtysh -c 'configure terminal' -c 'ipv6 prefix-list srv6_right_to_06 seq 50 permit fd00:201:201:fff1:1::/80 le 128' ")
-
     nbrhosts["P4"]["host"].command("sudo vtysh -c 'configure terminal' -c 'ipv6 prefix-list srv6_right seq 50 permit fd00:201:201:fff1:1::/80 le 128' ")
-
     pytest_assert(wait_until(100, 1, 0, check_bfd_status, nbrhosts['PE3']['host'], ["b","c"], ["up","up"]),
                   "Bfd not established!")
-    while count < 10 and done == False:
+    done=False
+    count=0
+    expected_list = {"ptf_tot_rx": 10000, "ptf_tot_tx": 10000, "P1_tx_to_PE1": 2500, "P1_tx_to_PE2": 2500, "P3_tx_to_PE1": 2500, "P3_tx_to_PE2": 2500,"PE3_tx_to_P2": 5000, "PE3_tx_to_P4": 5000,"P2_tx_to_P1": 5000,"P4_tx_to_P3": 5000 }
+    while done == False and count < 5:
         try:
-            runSendReceive(pkt, ptf_port_for_backplane, masked2recv, [ptf_port_for_backplane], True, ptfadapter)
-            #runSendReceiveCheckForSinglePath(pkt, ptf_port_for_backplane, exp_encap_lst, [ptf_port_for_pe21_to_p21], ptfadapter)
-            logger.info("Done with traffic run")
-            done = True
-        except Exception as e:
+            check_traffic_double_flow(ptfadapter, "fd00:205:205:fff5:5::", ["fd00:201:201:fff1:1::"], "fd00:206:206:fff6:6::",["fd00:201:201:fff1:1::"],traffic_check=expected_list)
+        except BaseException as e:
             count = count + 1
-            logger.info("Retry round {}".format(count))
-            # sleep make sure all forwarding structures are settled down.
-            sleep_duration_for_retry = 60
-            time.sleep(sleep_duration_for_retry)
-            logger.info("Sleep {} seconds to make sure all forwarding structures are settled down".format(sleep_duration_for_retry))
-
-    logger.info("Done {} count {}".format(done, count))
+            logger.info("{}, retry traffic test latter".format(e))
+            time.sleep(60)
+        else:
+            done=True
     if not done:
+        revert_setting_for_test_traffic_multi_policy_check_5(rand_one_dut_hostname,duthosts, nbrhosts)
         raise Exception("Traffic test failed")
 
     nbrhosts['P4']['host'].shell("sudo vtysh -c  'configure terminal' -c 'router bgp 65103' -c 'address-family ipv6 unicast' -c 'no redistribute static route-map srv6_r'")
     nbrhosts['P2']['host'].shell("sudo vtysh -c 'configure terminal' -c 'router bgp 65102' -c 'address-family ipv6 unicast' -c 'no redistribute static route-map srv6_r'")
-
     pytest_assert(wait_until(100, 1, 0, check_bfd_status, nbrhosts['PE3']['host'], ["b","c"], ["down","down"]),
                   "Bfd not established!")
-
-    count = 0
-    done = False
-    while count < 10 and done == False:
+    expected_list = {"ptf_tot_rx": 10000, "ptf_tot_tx": 10000, "P2_tx_to_P1": 2500, "P2_tx_to_P3": 2500, "P4_tx_to_P1": 2500, "P4_tx_to_P3": 2500,"PE3_tx_to_P2": 5000, "PE3_tx_to_P4": 5000}
+    done=False
+    count=0
+    while done == False and count < 5:
         try:
-            runSendReceive(pkt, ptf_port_for_backplane, masked2recv, [ptf_port_for_backplane], True, ptfadapter)
-            #runSendReceiveCheckForSinglePath(pkt, ptf_port_for_backplane, exp_encap_lst, [ptf_port_for_pe21_to_p21], ptfadapter)
-            logger.info("Done with traffic run")
-            done = True
-        except Exception as e:
+            check_traffic_be_flow(ptfadapter, "fd00:201:201:fff1:1::", traffic_check=expected_list)
+        except BaseException as e:
             count = count + 1
-            logger.info("Retry round {}".format(count))
-            # sleep make sure all forwarding structures are settled down.
-            sleep_duration_for_retry = 60
-            time.sleep(sleep_duration_for_retry)
-            logger.info("Sleep {} seconds to make sure all forwarding structures are settled down".format(sleep_duration_for_retry))
-
-    logger.info("Done {} count {}".format(done, count))
+            logger.info("{}, retry traffic test latter".format(e))
+            time.sleep(60)
+        else:
+            done=True
     if not done:
+        revert_setting_for_test_traffic_multi_policy_check_5(rand_one_dut_hostname,duthosts, nbrhosts)
         raise Exception("Traffic test failed")
 
-
-    dut.command("sudo vtysh -c 'configure terminal' -c 'no ipv6 prefix-list srv6_right seq 50 permit fd00:201:201:fff1:1::/80 le 128' ")
-    dut.command("sudo vtysh -c 'configure terminal' -c 'no ipv6 prefix-list srv6_right_to_05 seq 50 permit fd00:201:201:fff1:1::/80 le 128' ")
-
-    nbrhosts["P2"]["host"].command("sudo vtysh -c 'configure terminal' -c 'no ipv6 prefix-list srv6_right seq 50 permit fd00:201:201:fff1:1::/80 le 128' ")
-
-    nbrhosts["P3"]["host"].command("sudo vtysh -c 'configure terminal' -c 'no ipv6 prefix-list srv6_right seq 50 permit fd00:201:201:fff1:1::/80 le 128' ")
-    nbrhosts["P3"]["host"].command("sudo vtysh -c 'configure terminal' -c 'no ipv6 prefix-list srv6_right_to_06 seq 50 permit fd00:201:201:fff1:1::/80 le 128' ")
-
-    nbrhosts["P4"]["host"].command("sudo vtysh -c 'configure terminal' -c 'no ipv6 prefix-list srv6_right seq 50 permit fd00:201:201:fff1:1::/80 le 128' ")
-
-    nbrhost=nbrhosts["PE3"]["host"]
-    nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'no policy color 1 endpoint 2064:100::1d' ")
-    nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'no policy color 3 endpoint 2064:200::1e' ")
-    nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'policy color 1 endpoint 2064:100::1d' -c ' candidate-path preference 1 name a explicit-srv6 segment-list a weight 1 '")
-    nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'policy color 1 endpoint 2064:100::1d' -c ' candidate-path preference 1 name b explicit-srv6 segment-list b weight 1 '")
-    nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'policy color 3 endpoint 2064:200::1e' -c ' candidate-path preference 1 name c explicit-srv6 segment-list c weight 1 '")
-    nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'policy color 3 endpoint 2064:200::1e' -c ' candidate-path preference 1 name d explicit-srv6 segment-list d weight 1 '")
-
-
-    nbrhosts['P4']['host'].shell("sudo vtysh -c  'configure terminal' -c 'router bgp 65103' -c 'address-family ipv6 unicast' -c 'redistribute static route-map srv6_r'")
-    nbrhosts['P2']['host'].shell("sudo vtysh -c 'configure terminal' -c 'router bgp 65102' -c 'address-family ipv6 unicast' -c ' redistribute static route-map srv6_r'")
-
+    revert_setting_for_test_traffic_multi_policy_check_5(rand_one_dut_hostname,duthosts, nbrhosts)
     pytest_assert(wait_until(100, 1, 0, check_bfd_status, nbrhosts['PE3']['host'], ["b","c"], ["up","up"]),
                   "Bfd not established!")
-
+    disable_tcpdump(True)
+    logger.info("End test_traffic_multi_policy_check_5")
+#
+# Test Case: Check traffic of multi vpn sid
+#
 def test_traffic_multi_policy_check_6(tbinfo, duthosts, rand_one_dut_hostname, ptfhost, nbrhosts, ptfadapter):
-    tcp_pkt0 = simple_tcp_packet(
-        ip_src="192.200.0.2",
-        ip_dst="192.100.0.1",
-        tcp_sport=8888,
-        tcp_dport=6666,
-        ip_ttl=64
-    )
-    pkt = tcp_pkt0.copy()
-    pkt['Ether'].dst = sender_mac
-
-    exp_pkt = tcp_pkt0.copy()
-    exp_pkt['IP'].ttl -= 4
-    masked2recv = Mask(exp_pkt)
-    masked2recv.set_do_not_care_scapy(scapy.Ether, "dst")
-    masked2recv.set_do_not_care_scapy(scapy.Ether, "src")
-
     # Enable tcpdump for debugging purpose, file_loc is host file location
-    intf_list = ["VM0102-t1", "VM0102-t3"]
-    file_loc = "~/sonic-mgmt/tests/logs/"
-    prefix = "test_traffic_check"
-    count = 0
-    done = False
-    exp_encap_lst = []
-    exp_pkt2 = tcp_pkt0.copy()
-    exp_pkt2 = tcp_pkt0.copy()
-    exp_pkt2['IP'].ttl -= 1
-    hlim = 63
-    #exp_encap_lst.append(generate_encapsulated_packet("fd00:205:205:fff5:5::",hlim, exp_pkt2, "fd00:201:201:fff1:1::"))
     nbrhost=nbrhosts["PE3"]["host"]
     nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'no policy color 3 endpoint 2064:200::1e' ")
     nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'no policy color 1 endpoint 2064:100::1d' ")
     nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'policy color 1 endpoint 2064:100::1d' -c ' candidate-path preference 1 name b explicit-srv6 segment-list b weight 1  bfd-name bfd-b'")
-    nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'policy color 1 endpoint 2064:100::1d' -c ' candidate-path preference 1 name c explicit-srv6 segment-list c weight 1  bfd-name bfd-c'")
+    nbrhost.command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'traffic-eng' -c 'policy color 3 endpoint 2064:200::1e' -c ' candidate-path preference 1 name c explicit-srv6 segment-list c weight 1  bfd-name bfd-c'")
     nbrhosts["PE2"]["host"].command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'srv6' -c 'locators' -c 'no locator lsid1' ")
     nbrhosts["PE2"]["host"].command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'srv6' -c 'locators' -c 'locator lsid1 ' -c 'prefix fd00:202:202::/48 block-len 32  node-len 16 func-bits 32'  -c 'opcode ::fff2:2:0:0:0  end-dt46 vrf Vrf1' ")
     pytest_assert(wait_until(100, 1, 0, check_bfd_status, nbrhosts['PE3']['host'], ["b","c"], ["up","up"]),
                   "Bfd not established!")
-    while count < 10 and done == False:
-        try:
-            runSendReceive(pkt, ptf_port_for_backplane, masked2recv, [ptf_port_for_backplane], True, ptfadapter)
-            #runSendReceiveCheckForSinglePath(pkt, ptf_port_for_backplane, exp_encap_lst, [ptf_port_for_pe21_to_p21], ptfadapter)
-            logger.info("Done with traffic run")
-            done = True
-        except Exception as e:
-            count = count + 1
-            logger.info("Retry round {}".format(count))
-            # sleep make sure all forwarding structures are settled down.
-            sleep_duration_for_retry = 60
-            time.sleep(sleep_duration_for_retry)
-            logger.info("Sleep {} seconds to make sure all forwarding structures are settled down".format(sleep_duration_for_retry))
 
-    logger.info("Done {} count {}".format(done, count))
+    expected_list = {"ptf_tot_rx": 10000, "ptf_tot_tx": 10000, "P1_tx_to_PE1": 5000, "P1_tx_to_PE2": 0, "P3_tx_to_PE1": 0, "P3_tx_to_PE2": 5000,"PE3_tx_to_P2": 5000, "PE3_tx_to_P4": 5000}
+    done=False
+    count=0
+    while done == False and count < 5:
+        try:
+            check_traffic_double_flow(ptfadapter, "fd00:205:205:fff5:5::", ["fd00:201:201:fff1:1::"], "fd00:206:206:fff6:6::",["fd00:202:202:fff2:2::"],traffic_check=expected_list)
+        except BaseException as e:
+            count = count + 1
+            logger.info("{}, retry traffic test latter".format(e))
+            time.sleep(60)
+        else:
+            done=True
     if not done:
+        nbrhosts["PE2"]["host"].command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'srv6' -c 'locators' -c 'no locator lsid1' ")
+        nbrhosts["PE2"]["host"].command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'srv6' -c 'locators' -c 'locator lsid1 ' -c 'prefix fd00:201:201::/48 block-len 32  node-len 16 func-bits 32'  -c 'opcode ::fff1:1:0:0:0  end-dt46 vrf Vrf1' ")
         raise Exception("Traffic test failed")
 
     nbrhosts['P4']['host'].shell("sudo vtysh -c 'configure terminal' -c 'router bgp 65103' -c 'address-family ipv6 unicast' -c 'no redistribute static route-map srv6_r'")
-
     pytest_assert(wait_until(100, 1, 0, check_bfd_status, nbrhosts['PE3']['host'], ["b","c"], ["up","down"]),
                   "Bfd not established!")
-
-    count = 0
-    done = False
-    while count < 10 and done == False:
+    expected_list = {"ptf_tot_rx": 10000, "ptf_tot_tx": 10000, "P1_tx_to_PE1": 10000, "P1_tx_to_PE2": 0, "P3_tx_to_PE1": 0, "P3_tx_to_PE2": 0,"PE3_tx_to_P2": 10000, "PE3_tx_to_P4": 0}
+    done=False
+    count=0
+    while done == False and count < 5:
         try:
-            runSendReceive(pkt, ptf_port_for_backplane, masked2recv, [ptf_port_for_backplane], True, ptfadapter)
-            #runSendReceiveCheckForSinglePath(pkt, ptf_port_for_backplane, exp_encap_lst, [ptf_port_for_pe21_to_p21], ptfadapter)
-            logger.info("Done with traffic run")
-            done = True
-        except Exception as e:
+            check_traffic_single_flow(ptfadapter, ptf_port_for_pe3_to_p2, "fd00:205:205:fff5:5::", seglst = ["fd00:201:201:fff1:1::"],traffic_check=expected_list)
+        except BaseException as e:
             count = count + 1
-            logger.info("Retry round {}".format(count))
-            # sleep make sure all forwarding structures are settled down.
-            sleep_duration_for_retry = 60
-            time.sleep(sleep_duration_for_retry)
-            logger.info("Sleep {} seconds to make sure all forwarding structures are settled down".format(sleep_duration_for_retry))
-
-    logger.info("Done {} count {}".format(done, count))
+            logger.info("{}, retry traffic test latter".format(e))
+            time.sleep(60)
+        else:
+            done=True
     if not done:
+        nbrhosts['P4']['host'].shell("sudo vtysh -c 'configure terminal' -c 'router bgp 65103' -c 'address-family ipv6 unicast' -c 'redistribute static route-map srv6_r'")
+        nbrhosts["PE2"]["host"].command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'srv6' -c 'locators' -c 'no locator lsid1' ")
+        nbrhosts["PE2"]["host"].command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'srv6' -c 'locators' -c 'locator lsid1 ' -c 'prefix fd00:201:201::/48 block-len 32  node-len 16 func-bits 32'  -c 'opcode ::fff1:1:0:0:0  end-dt46 vrf Vrf1' ")
         raise Exception("Traffic test failed")
+
+    nbrhosts['P4']['host'].shell("sudo vtysh -c 'configure terminal' -c 'router bgp 65103' -c 'address-family ipv6 unicast' -c 'redistribute static route-map srv6_r'")
+    nbrhosts["PE2"]["host"].command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'srv6' -c 'locators' -c 'no locator lsid1' ")
+    nbrhosts["PE2"]["host"].command("sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'srv6' -c 'locators' -c 'locator lsid1 ' -c 'prefix fd00:201:201::/48 block-len 32  node-len 16 func-bits 32'  -c 'opcode ::fff1:1:0:0:0  end-dt46 vrf Vrf1' ")
+    logger.info("End test_traffic_multi_policy_check_6")
+
+
+
