@@ -12,6 +12,7 @@ import getpass
 import ptf
 import time
 import requests
+from scapy.layers.inet6 import IPv6ExtHdrSegmentRouting
 import ptf.packet as packet
 import ptf.packet as scapy
 import ptf.testutils as testutils
