@@ -17,6 +17,7 @@ from srv6_utils import check_routes
 from srv6_utils import recording_fwding_chain
 from srv6_utils import turn_on_off_frr_debug
 from srv6_utils import collect_frr_debugfile
+from srv6_utils import check_sbfd_status
 
 from srv6_utils import *
 from trex_utils import *
@@ -491,3 +492,39 @@ def test_traffic_check_remote_bgp_fail_case(tbinfo, duthosts, rand_one_dut_hostn
         check_bgp_neighbors_func, pe3,
         ['2064:100::1d', '2064:200::1e', 'fc08::2', 'fc06::2']),
         "wait for PE3 BGP neighbors up")
+
+def test_sbfd_functions(tbinfo, duthosts, rand_one_dut_hostname, ptfhost, nbrhosts, ptfadapter):
+    vm = "PE3"
+    pe3 = nbrhosts["PE3"]['host']
+    p2 =  nbrhosts["P2"]['host']
+
+    cmd = "sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'srv6' -c 'locators' -c 'locator lsid1' \
+                      -c 'prefix fd00:203:203::/48 block-len 32 node-len 16 func-bits 32' -c 'opcode ::fff1:11:0:0:0 end-x interface Ethernet4 nexthop fc08::2' "
+    pe3.command(cmd)
+    cmd = "sudo vtysh -c 'configure terminal' -c 'bfd' -c 'peer fc08::2 bfd-mode sbfd-echo bfd-name bfd1 local-address fc08::2 encap-type SRv6 encap-data fd00:203:203:fff1:11:: source-ipv6 fc08::2'"
+    p2.command(cmd)
+
+    time.sleep(2)
+    pytest_assert(check_sbfd_status(p2, sbfdname_list = ['bfd1'], status_list = ['up']))
+
+    cmd = "sudo ifconfig Ethernet12 down"
+    p2.command(cmd)
+    time.sleep(2)
+    pytest_assert(check_sbfd_status(p2, sbfdname_list = ['bfd1'], status_list = ['down']))
+
+    cmd = "sudo ifconfig Ethernet12 up"
+    p2.command(cmd)
+    time.sleep(2)
+    pytest_assert(check_sbfd_status(p2, sbfdname_list = ['bfd1'], status_list = ['up']))
+
+    time.sleep(10)
+    pytest_assert(check_sbfd_status(p2, sbfdname_list = ['bfd1'], status_list = ['up']))
+
+    cmd = "sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'srv6' -c 'locators' -c 'locator lsid1' \
+                      -c 'prefix fd00:203:203::/48 block-len 32 node-len 16 func-bits 32' -c 'no opcode ::fff1:11:0:0:0'"
+    pe3.command(cmd)
+    time.sleep(3)
+    pytest_assert(check_sbfd_status(p2, sbfdname_list = ['bfd1'], status_list = ['down']))
+
+    cmd = "sudo vtysh -c 'configure terminal' -c 'bfd' -c 'no peer fc08::2 bfd-mode sbfd-echo bfd-name bfd1 local-address fc08::2 encap-type SRv6 encap-data fd00:203:203:fff1:11:: source-ipv6 fc08::2'"
+    p2.command(cmd)

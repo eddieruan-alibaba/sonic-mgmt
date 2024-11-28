@@ -1016,3 +1016,23 @@ def check_locator_dt46_sid_count(nbrhost, sid_name, sid_count):
         return True
 
     return False
+
+# example: sbfdname_list = ["bfd1", "bfd2"], status_list = ["up", "down"]
+def check_sbfd_status(duthost, sbfdname_list = [], status_list = []):
+    flag = True
+    for i in range(0, len(sbfdname_list)):
+        bfd = sbfdname_list[i]
+        bfd_context = duthost.command("vtysh -c 'show bfd bfd-name {}'".format(bfd))["stdout"]
+
+        pattern_status = r"Status: {}".format(status_list[i])
+        if pattern_status not in bfd_context:
+            flag = False
+            logger.debug('check_sbfd_status fail on bfdname: {}, status expected: {}'.format(bfd, status_list[i]))
+            # time.sleep(5)
+            # bfd_context = duthost.command("cli -c 'show bfd peer name {} detail'".format(bfd))["stdout"]
+            # logger.debug('check_sbfd_status fail on bfdname: {}, current detail info: {}'.format(bfd, bfd_context))
+            # bfd_context = duthost.command("cli -c 'show bfd peer name {} counters'".format(bfd))["stdout"]
+            # logger.debug('check_sbfd_status fail on bfdname: {}, current counter info: {}'.format(bfd, bfd_context))
+            break
+
+    return flag
