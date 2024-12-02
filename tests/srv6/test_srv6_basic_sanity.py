@@ -501,29 +501,29 @@ def test_sbfd_functions(tbinfo, duthosts, rand_one_dut_hostname, ptfhost, nbrhos
     cmd = "sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'srv6' -c 'locators' -c 'locator lsid1' \
                       -c 'prefix fd00:203:203::/48 block-len 32 node-len 16 func-bits 32' -c 'opcode ::fff1:11:0:0:0 end-x interface Ethernet4 nexthop fc08::2' "
     pe3.command(cmd)
-    cmd = "sudo vtysh -c 'configure terminal' -c 'bfd' -c 'peer fc08::2 bfd-mode sbfd-echo bfd-name bfd1 local-address fc08::2 encap-type SRv6 encap-data fd00:203:203:fff1:11:: source-ipv6 fc08::2'"
+    cmd = "sudo vtysh -c 'configure terminal' -c 'bfd' -c 'peer fc08::2 bfd-mode sbfd-echo bfd-name bfd1 local-address fc08::2 encap-type SRv6 encap-data fd00:203:203:fff1:11:: source-ipv6 fc08::2' -c 'echo transmit-interval 1000' "
     p2.command(cmd)
 
-    time.sleep(2)
+    time.sleep(5)
     pytest_assert(check_sbfd_status(p2, sbfdname_list = ['bfd1'], status_list = ['up']))
 
     cmd = "sudo ifconfig Ethernet12 down"
     p2.command(cmd)
-    time.sleep(2)
+    time.sleep(5)
     pytest_assert(check_sbfd_status(p2, sbfdname_list = ['bfd1'], status_list = ['down']))
 
     cmd = "sudo ifconfig Ethernet12 up"
     p2.command(cmd)
-    time.sleep(2)
+    time.sleep(5)
     pytest_assert(check_sbfd_status(p2, sbfdname_list = ['bfd1'], status_list = ['up']))
 
-    time.sleep(10)
+    time.sleep(15)
     pytest_assert(check_sbfd_status(p2, sbfdname_list = ['bfd1'], status_list = ['up']))
 
     cmd = "sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'srv6' -c 'locators' -c 'locator lsid1' \
                       -c 'prefix fd00:203:203::/48 block-len 32 node-len 16 func-bits 32' -c 'no opcode ::fff1:11:0:0:0'"
     pe3.command(cmd)
-    time.sleep(3)
+    time.sleep(10)
     pytest_assert(check_sbfd_status(p2, sbfdname_list = ['bfd1'], status_list = ['down']))
 
     cmd = "sudo vtysh -c 'configure terminal' -c 'bfd' -c 'no peer fc08::2 bfd-mode sbfd-echo bfd-name bfd1 local-address fc08::2 encap-type SRv6 encap-data fd00:203:203:fff1:11:: source-ipv6 fc08::2'"
