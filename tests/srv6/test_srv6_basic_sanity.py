@@ -245,8 +245,8 @@ def test_traffic_check(tbinfo, duthosts, rand_one_dut_hostname, ptfhost, nbrhost
     exp_pkt = tcp_pkt0.copy()
     exp_pkt['IP'].ttl -= 4
     masked2recv = Mask(exp_pkt)
-    masked2recv.set_do_not_care_scapy(scapy.Ether, "dst")
-    masked2recv.set_do_not_care_scapy(scapy.Ether, "src")
+    masked2recv.set_do_not_care_packet(scapy.Ether, "dst")
+    masked2recv.set_do_not_care_packet(scapy.Ether, "src")
 
     # Enable tcpdump for debugging purpose, file_loc is host file location
     intf_list = ["VM0102-t1", "VM0102-t3"]
