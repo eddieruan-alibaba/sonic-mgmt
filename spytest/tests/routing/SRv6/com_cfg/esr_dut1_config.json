@@ -1,0 +1,132 @@
+{
+    "BGP_GLOBALS": {
+        "default": {
+            "local_asn": "100",
+            "bgp_router_id": "1.1.1.179",
+            "keepalive": "10",
+            "hold_time": "30"
+        },
+        "Vrf1": {
+            "local_asn": "100",
+            "srv6_locator": "lsid1",
+            "keepalive": "10",
+            "hold_time": "30"
+        },
+        "Vrf2": {
+            "local_asn": "100",
+            "bgp_router_id": "2.2.2.179",
+            "srv6_locator": "lsid1",
+            "keepalive": "10",
+            "hold_time": "30"
+        }
+    },
+    "BGP_GLOBALS_AF": {
+        "Vrf2|ipv4_unicast": {
+            "rd_vpn_export": "2:2",
+            "rt_vpn_export": "3:3",
+            "export_vpn": "true",
+            "import_vpn": "true"
+        }
+    },
+    "BGP_NEIGHBOR": {
+        "Vrf2|101.1.0.2": {
+            "admin_status": "true",
+            "asn": "999"
+        },
+        "Vrf2|101.2.0.2": {
+            "admin_status": "true",
+            "asn": "998"
+        },
+        "default|2000::178": {
+            "admin_status": "true",
+            "asn": "100",
+            "capability_ext_nexthop": "true",
+            "local_addr": "2000::179"
+        },
+        "default|2033::178": {
+            "admin_status": "true",
+            "asn": "100"
+        },
+        "default|2044::178": {
+            "admin_status": "true",
+            "asn": "100"
+        }
+    },
+    "BGP_NEIGHBOR_AF": {
+        "Vrf2|101.1.0.2|ipv4_unicast": {
+            "admin_status": "true"
+        },
+        "Vrf2|101.1.0.2|ipv6_unicast": {
+            "admin_status": "true"
+        },
+        "Vrf2|101.2.0.2|ipv4_unicast": {
+            "admin_status": "true"
+        },
+        "Vrf2|101.2.0.2|ipv6_unicast": {
+            "admin_status": "true"
+        },
+        "default|2000::178|ipv4_vpn": {
+            "admin_status": "true"
+        },
+        "default|2033::178|ipv6_unicast": {
+            "admin_status": "true"
+        },
+        "default|2044::178|ipv6_unicast": {
+            "admin_status": "true"
+        }
+    },
+    "BGP_GLOBALS_AF_NETWORK": {
+        "default|ipv6_unicast|2000::179/128": {},
+        "default|ipv6_unicast|fd00:201:201:fff1:1::/80": {},
+        "default|ipv6_unicast|fd00:201:201:fff1:11::/80": {}
+    },
+    "DEVICE_METADATA": {
+        "localhost": {
+            "frr_mgmt_framework_config": "true",
+            "docker_routing_config_mode": "unified",
+            "nexthop_group": "enabled",
+            "bgp_asn": "100"
+        }
+    },
+    "INTERFACE": {
+        "Ethernet3": {},
+        "Ethernet3|2033::179/64": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "Ethernet4": {},
+        "Ethernet4|2044::179/64": {
+            "family": "IPv6",
+            "scope": "global"
+        }
+    },
+    "LOOPBACK_INTERFACE": {
+        "Loopback1": {},
+        "Loopback1|2000::179/128": {}
+    },
+    "SRV6_LOCATOR": {
+        "lsid1": {
+            "argu_len": "48",
+            "block_len": "32",
+            "func_len": "32",
+            "node_len": "16",
+            "opcode_prefix": [
+                "::fff1:1:0:0:0",
+                "::fff1:11:0:0:0"
+            ],
+            "opcode_act": [
+                "end-dt46",
+                "end-dt46"
+            ],
+            "opcode_data": [
+                "vrf Vrf1",
+                "vrf Vrf2"
+            ],
+            "prefix": "fd00:201:201::/48"
+        }
+    },
+    "VRF": {
+        "Vrf1": {},
+        "Vrf2": {}
+    }
+}
