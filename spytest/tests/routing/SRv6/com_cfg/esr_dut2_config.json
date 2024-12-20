@@ -2,13 +2,13 @@
     "BGP_GLOBALS": {
         "default": {
             "local_asn": "100",
-            "bgp_router_id": "1.1.1.178",
+            "router_id": "1.1.1.178",
             "keepalive": "10",
             "hold_time": "30"
         },
         "Vrf1": {
             "local_asn": "100",
-            "bgp_router_id": "2.2.2.178",
+            "router_id": "2.2.2.178",
             "keepalive": "10",
             "hold_time": "30"
         }
