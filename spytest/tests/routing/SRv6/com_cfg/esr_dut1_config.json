@@ -4,20 +4,20 @@
             "local_asn": "100",
             "router_id": "1.1.1.179",
             "keepalive": "10",
-            "hold_time": "30"
+            "holdtime": "30"
         },
         "Vrf1": {
             "local_asn": "100",
             "srv6_locator": "lsid1",
             "keepalive": "10",
-            "hold_time": "30"
+            "holdtime": "30"
         },
         "Vrf2": {
             "local_asn": "100",
             "router_id": "2.2.2.179",
             "srv6_locator": "lsid1",
             "keepalive": "10",
-            "hold_time": "30"
+            "holdtime": "30"
         }
     },
     "BGP_GLOBALS_AF": {
