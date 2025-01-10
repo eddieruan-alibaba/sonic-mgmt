@@ -554,7 +554,7 @@
         "Vrf_PRIVAT-TC10|ipv4_unicast": {
             "export_vpn": "true",
             "rt_vpn_export": "1:10",
-            "rd_vpn_export": "2:2"
+            "rd_vpn_export": "2:10"
         },
         "Vrf_PUBLIC-TC11|ipv4_unicast": {
             "export_vpn": "true",
@@ -604,7 +604,7 @@
         "Vrf_PUBLIC-TC20|ipv4_unicast": {
             "export_vpn": "true",
             "rt_vpn_export": "1:20",
-            "rd_vpn_export": "2:2"
+            "rd_vpn_export": "2:20"
         },
         "Vrf_SX-CM-TC21|ipv4_unicast": {
             "export_vpn": "true",
@@ -804,7 +804,7 @@
         "Vrf_ACTN-TC60|ipv4_unicast": {
             "export_vpn": "true",
             "rt_vpn_export": "1:60",
-            "rd_vpn_export": "2:2"
+            "rd_vpn_export": "2:60"
         },
         "Vrf_ACTN-TC61|ipv4_unicast": {
             "export_vpn": "true",

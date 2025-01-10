@@ -503,8 +503,9 @@
         },
         "Vrf_PUBLIC-TC20|ipv4_unicast": {
             "import_vpn": "true",
-            "rt_vpn_import": "1:20",
-            "rd_vpn_export": "2:2"
+            "rt_vpn_import": "1:10 1:20",
+            "rd_vpn_export": "2:2",
+            "max_ebgp_paths": "8"
         },
         "Vrf_SX-CM-TC21|ipv4_unicast": {
             "import_vpn": "true",
