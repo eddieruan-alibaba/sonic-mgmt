@@ -1683,8 +1683,12 @@
         }
     },
     "INTERFACE": {
-        "Ethernet3": {},
-        "Ethernet4": {},
+        "Ethernet3": {
+            "ipv6_use_link_local_only": "enable"
+        },
+        "Ethernet4": {
+            "ipv6_use_link_local_only": "enable"
+        },
         "Ethernet3|2033::178/64": {
             "family": "IPv6", 
             "scope": "global"
