@@ -5,502 +5,502 @@
             "router_id": "1.1.1.179"
         },
         "Vrf_Vrf1": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.1",
             "srv6_locator": "lsid1"
         },
         "Vrf_Vrf2": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.2",
             "srv6_locator": "lsid1"
         },
         "Vrf_PRIVAT-TC3": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.3",
             "srv6_locator": "lsid1"
         },
         "Vrf_PRIVAT-TC4": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.4",
             "srv6_locator": "lsid1"
         },
         "Vrf_PRIVAT-TC5": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.5",
             "srv6_locator": "lsid1"
         },
         "Vrf_PRIVAT-TC6": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.6",
             "srv6_locator": "lsid1"
         },
         "Vrf_PRIVAT-TC7": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.7",
             "srv6_locator": "lsid1"
         },
         "Vrf_PRIVAT-TC8": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.8",
             "srv6_locator": "lsid1"
         },
         "Vrf_PRIVAT-TC9": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.9",
             "srv6_locator": "lsid1"
         },
         "Vrf_PRIVAT-TC10": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.10",
             "srv6_locator": "lsid1"
         },
         "Vrf_PUBLIC-TC11": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.11",
             "srv6_locator": "lsid1"
         },
         "Vrf_PUBLIC-TC12": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.12",
             "srv6_locator": "lsid1"
         },
         "Vrf_PUBLIC-TC13": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.13",
             "srv6_locator": "lsid1"
         },
         "Vrf_PUBLIC-TC14": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.14",
             "srv6_locator": "lsid1"
         },
         "Vrf_PUBLIC-TC15": {
-            "local_asn": "100",
-            "router_id": "13.3.3.10",
+            "local_asn": "101",
+            "router_id": "13.3.3.15",
             "srv6_locator": "lsid1"
         },
         "Vrf_PUBLIC-TC16": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.16",
             "srv6_locator": "lsid1"
         },
         "Vrf_PUBLIC-TC17": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.17",
             "srv6_locator": "lsid1"
         },
         "Vrf_PUBLIC-TC18": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.18",
             "srv6_locator": "lsid1"
         },
         "Vrf_PUBLIC-TC19": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.19",
             "srv6_locator": "lsid1"
         },
         "Vrf_PUBLIC-TC20": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.20",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC21": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.21",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC22": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.22",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC23": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.23",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC24": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.24",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC25": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.25",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC26": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.26",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC27": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.27",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC28": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.28",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC29": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.29",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC30": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.30",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC31": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.31",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC32": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.32",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC33": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.33",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC34": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.34",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC35": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.35",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC36": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.36",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC37": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.37",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC38": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.38",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC39": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.39",
             "srv6_locator": "lsid1"
         },
         "Vrf_SX-CM-TC40": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.40",
             "srv6_locator": "lsid1"
         },
         "Vrf_ACTN-TC41": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.41",
             "srv6_locator": "lsid1"
         },
         "Vrf_ACTN-TC42": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.42",
             "srv6_locator": "lsid1"
         },
         "Vrf_ACTN-TC43": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.43",
             "srv6_locator": "lsid1"
         },
         "Vrf_ACTN-TC44": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.44",
             "srv6_locator": "lsid1"
         },
         "Vrf_ACTN-TC45": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.45",
             "srv6_locator": "lsid1"
         },
         "Vrf_ACTN-TC46": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.46",
             "srv6_locator": "lsid1"
         },
         "Vrf_ACTN-TC47": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.47",
             "srv6_locator": "lsid1"
         },
         "Vrf_ACTN-TC48": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.48",
             "srv6_locator": "lsid1"
         },
         "Vrf_ACTN-TC49": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.49",
             "srv6_locator": "lsid1"
         },
         "Vrf_ACTN-TC50": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.50",
             "srv6_locator": "lsid1"
         },
         "Vrf_ACTN-TC51": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.51",
             "srv6_locator": "lsid2"
         },
         "Vrf_ACTN-TC52": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.52",
             "srv6_locator": "lsid2"
         },
         "Vrf_ACTN-TC53": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.53",
             "srv6_locator": "lsid2"
         },
         "Vrf_ACTN-TC54": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.54",
             "srv6_locator": "lsid2"
         },
         "Vrf_ACTN-TC55": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.55",
             "srv6_locator": "lsid2"
         },
         "Vrf_ACTN-TC56": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.56",
             "srv6_locator": "lsid2"
         },
         "Vrf_ACTN-TC57": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.57",
             "srv6_locator": "lsid2"
         },
         "Vrf_ACTN-TC58": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.58",
             "srv6_locator": "lsid2"
         },
         "Vrf_ACTN-TC59": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.59",
             "srv6_locator": "lsid2"
         },
         "Vrf_ACTN-TC60": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.60",
             "srv6_locator": "lsid2"
         },
         "Vrf_ACTN-TC61": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.61",
             "srv6_locator": "lsid2"
         },
         "Vrf_ACTN-TC62": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.62",
             "srv6_locator": "lsid2"
         },
         "Vrf_ACTN-TC63": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.63",
             "srv6_locator": "lsid2"
         },
         "Vrf_ACTN-TC64": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.64",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN1": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.65",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN2": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.66",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN3": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.67",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN4": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.68",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN5": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.69",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN6": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.70",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN7": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.71",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN8": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.72",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN9": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.73",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN10": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.74",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN11": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.75",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN12": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.76",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN13": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.77",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN14": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.78",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN15": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.79",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN16": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.80",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN17": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.81",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN18": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.82",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN19": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.83",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN20": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.84",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN21": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.85",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN22": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.86",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN23": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.87",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN24": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.88",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN25": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.89",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN26": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.90",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN27": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.91",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN28": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.92",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN29": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.93",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN30": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.94",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN31": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.95",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN32": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.96",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN33": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.97",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN34": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.98",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN35": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.99",
             "srv6_locator": "lsid2"
         },
         "Vrf_VPN36": {
-            "local_asn": "100",
+            "local_asn": "101",
             "router_id": "13.3.3.100",
             "srv6_locator": "lsid2"
         }
