@@ -1655,30 +1655,30 @@
         "Loopback2": {},
         "Loopback1|2000::178/128": {},
         "Loopback2|3000::178/128": {}
-    }, 
+    },
     "PREFIX_SET": {
-        "U2": {                                          
+        "U2": {
             "mode": "ipv6"
-        }, 
+        },
         "U3": {
             "mode": "ipv6"
         }
-    }, 
+    },
     "PREFIX": {
-        "U2|2000::179/128|exact": {                                          
+        "U2|2000::179/128|exact": {
             "action": "permit"
-        }, 
+        },
         "U3|3000::179/128|exact": {
             "action": "permit"
         }
-    }, 
+    },
     "ROUTE_MAP": {
         "SRVPN-33|10": {
-            "route_operation": "permit", 
+            "route_operation": "permit",
             "match_prefix_set": "U2"
-        }, 
+        },
         "SRVPN-44|10": {
-            "route_operation": "permit", 
+            "route_operation": "permit",
             "match_prefix_set": "U3"
         }
     },
@@ -1690,14 +1690,14 @@
             "ipv6_use_link_local_only": "enable"
         },
         "Ethernet3|2033::178/64": {
-            "family": "IPv6", 
+            "family": "IPv6",
             "scope": "global"
-        }, 
+        },
         "Ethernet4|2044::178/64": {
-            "family": "IPv6", 
+            "family": "IPv6",
             "scope": "global"
         }
-    }, 
+    },
     "VLAN_SUB_INTERFACE":{
         "Ethernet21.100|100.1.0.1/24":{
             "family":"IPv4",

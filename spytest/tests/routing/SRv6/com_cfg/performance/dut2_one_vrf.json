@@ -65,7 +65,7 @@
             "scope": "global"
         },
         "Ethernet21": {
-            "vrf_name": "Vrf1" 
+            "vrf_name": "Vrf1"
         },
         "Ethernet21|100.1.0.1/24": {
             "family": "IPv4",
@@ -77,21 +77,21 @@
         "Loopback1|2000::178/128": {}
     },
     "PREFIX_SET": {
-        "U2": {                                          
+        "U2": {
             "mode": "ipv6"
-        }, 
+        },
         "U3": {
             "mode": "ipv6"
         }
-    }, 
+    },
     "PREFIX": {
-        "U2|2000::179/128|exact": {                                          
+        "U2|2000::179/128|exact": {
             "action": "permit"
-        }, 
+        },
         "U3|3000::179/128|exact": {
             "action": "permit"
         }
-    }, 
+    },
     "VRF": {
         "Vrf1": {}
     }

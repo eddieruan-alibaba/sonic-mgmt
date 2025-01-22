@@ -1853,25 +1853,25 @@
         "PASS_ALL|1": {
             "route_operation": "permit"
         }
-    },	
+    },
     "LOOPBACK_INTERFACE": {
         "Loopback1": {},
         "Loopback2": {},
         "Loopback1|2000::179/128": {},
         "Loopback2|3000::179/128": {}
-    }, 
+    },
     "INTERFACE": {
         "Ethernet3": {},
         "Ethernet4": {},
         "Ethernet3|2033::179/64": {
-            "family": "IPv6", 
+            "family": "IPv6",
             "scope": "global"
-        }, 
+        },
         "Ethernet4|2044::179/64": {
-            "family": "IPv6", 
+            "family": "IPv6",
             "scope": "global"
         }
-    }, 
+    },
     "VLAN_SUB_INTERFACE":{
         "Ethernet21.100|101.1.0.1/24":{
             "family":"IPv4",
@@ -2690,10 +2690,10 @@
     },
     "SRV6_LOCATOR": {
         "lsid1": {
-            "argu_len": "48", 
-            "block_len": "32", 
-            "func_len": "32", 
-            "node_len": "16", 
+            "argu_len": "48",
+            "block_len": "32",
+            "func_len": "32",
+            "node_len": "16",
             "opcode_prefix": [
                 "::fff1:1:0:0:0",
                 "::fff1:2:0:0:0",
@@ -2745,7 +2745,7 @@
                 "::fff1:48:0:0:0",
                 "::fff1:49:0:0:0",
                 "::fff1:50:0:0:0"
-            ], 
+            ],
             "opcode_act": [
                 "end-dt46",
                 "end-dt46",
@@ -2797,7 +2797,7 @@
                 "end-dt46",
                 "end-dt46",
                 "end-dt46"
-            ], 
+            ],
             "opcode_data": [
                 "vrf Vrf_Vrf1",
                 "vrf Vrf_Vrf2",
@@ -2849,14 +2849,14 @@
                 "vrf Vrf_ACTN-TC48",
                 "vrf Vrf_ACTN-TC49",
                 "vrf Vrf_ACTN-TC50"
-            ], 
+            ],
             "prefix": "fd00:201:201::/48"
         },
         "lsid2": {
-            "argu_len": "48", 
-            "block_len": "32", 
-            "func_len": "32", 
-            "node_len": "16", 
+            "argu_len": "48",
+            "block_len": "32",
+            "func_len": "32",
+            "node_len": "16",
             "opcode_prefix": [
                 "::fff1:51:0:0:0",
                 "::fff1:52:0:0:0",
@@ -2908,7 +2908,7 @@
                 "::fff2:34:0:0:0",
                 "::fff2:35:0:0:0",
                 "::fff2:36:0:0:0"
-            ], 
+            ],
             "opcode_act": [
                 "end-dt46",
                 "end-dt46",
@@ -2960,7 +2960,7 @@
                 "end-dt46",
                 "end-dt46",
                 "end-dt46"
-            ], 
+            ],
             "opcode_data": [
                 "vrf Vrf_ACTN-TC51",
                 "vrf Vrf_ACTN-TC52",
@@ -3012,14 +3012,14 @@
                 "vrf Vrf_VPN34",
                 "vrf Vrf_VPN35",
                 "vrf Vrf_VPN36"
-            ], 
+            ],
             "prefix": "fd00:201:202::/48"
         },
         "lsid3": {
-            "argu_len": "48", 
-            "block_len": "32", 
-            "func_len": "32", 
-            "node_len": "16", 
+            "argu_len": "48",
+            "block_len": "32",
+            "func_len": "32",
+            "node_len": "16",
             "opcode_prefix": [
                 "::fff1:1:0:0:0",
                 "::fff1:2:0:0:0",
@@ -3071,7 +3071,7 @@
                 "::fff1:48:0:0:0",
                 "::fff1:49:0:0:0",
                 "::fff1:50:0:0:0"
-            ], 
+            ],
             "opcode_act": [
                 "end-dt46",
                 "end-dt46",
@@ -3123,7 +3123,7 @@
                 "end-dt46",
                 "end-dt46",
                 "end-dt46"
-            ], 
+            ],
             "opcode_data": [
                 "vrf Vrf_Vrf1",
                 "vrf Vrf_Vrf2",
@@ -3175,14 +3175,14 @@
                 "vrf Vrf_ACTN-TC48",
                 "vrf Vrf_ACTN-TC49",
                 "vrf Vrf_ACTN-TC50"
-            ], 
+            ],
             "prefix": "fd00:201:203::/48"
         },
         "lsid4": {
-            "argu_len": "48", 
-            "block_len": "32", 
-            "func_len": "32", 
-            "node_len": "16", 
+            "argu_len": "48",
+            "block_len": "32",
+            "func_len": "32",
+            "node_len": "16",
             "opcode_prefix": [
                 "::fff1:51:0:0:0",
                 "::fff1:52:0:0:0",
@@ -3234,7 +3234,7 @@
                 "::fff2:34:0:0:0",
                 "::fff2:35:0:0:0",
                 "::fff2:36:0:0:0"
-            ], 
+            ],
             "opcode_act": [
                 "end-dt46",
                 "end-dt46",
@@ -3286,7 +3286,7 @@
                 "end-dt46",
                 "end-dt46",
                 "end-dt46"
-            ], 
+            ],
             "opcode_data": [
                 "vrf Vrf_ACTN-TC51",
                 "vrf Vrf_ACTN-TC52",
@@ -3338,7 +3338,7 @@
                 "vrf Vrf_VPN34",
                 "vrf Vrf_VPN35",
                 "vrf Vrf_VPN36"
-            ], 
+            ],
             "prefix": "fd00:201:204::/48"
         }
     },

@@ -56,7 +56,7 @@
         "PASS_ALL|1": {
             "route_operation": "permit"
         }
-    },	
+    },
     "DEVICE_METADATA": {
         "localhost": {
             "frr_mgmt_framework_config": "true",
@@ -72,7 +72,7 @@
             "scope": "global"
         },
         "Ethernet21": {
-            "vrf_name": "Vrf1" 
+            "vrf_name": "Vrf1"
         },
         "Ethernet21|101.1.0.1/24": {
             "family": "IPv4",
