@@ -1,0 +1,107 @@
+{
+    "BGP_GLOBALS": {
+        "default": {
+            "local_asn": "100",
+            "router_id": "1.1.1.179"
+        },
+        "Vrf1": {
+            "local_asn": "101",
+            "router_id": "13.3.3.1",
+            "keepalive": "1200",
+            "holdtime": "3600",
+            "srv6_locator": "lsid1"
+        }
+    },
+    "BGP_GLOBALS_AF": {
+        "Vrf1|ipv4_unicast": {
+            "export_vpn": "true",
+            "rd_vpn_export": "2:2",
+            "rt_vpn_export": "1:1"
+        }
+    },
+    "BGP_NEIGHBOR": {
+        "Vrf1|101.1.0.2": {
+            "admin_status": "true",
+            "asn": "9000"
+        },
+        "default|2000::178": {
+            "admin_status": "true",
+            "asn": "100",
+            "capability_ext_nexthop": "true",
+            "local_addr": "2000::179"
+        },
+        "default|2033::178": {
+            "admin_status": "true",
+            "asn": "100"
+        }
+    },
+    "BGP_NEIGHBOR_AF": {
+        "Vrf1|101.1.0.2|ipv4_unicast": {
+            "route_map_in": "PASS_ALL",
+            "admin_status": "true"
+        },
+        "default|2000::178|ipv4_vpn": {
+            "admin_status": "true"
+        },
+        "default|2033::178|ipv6_unicast": {
+            "admin_status": "true"
+        }
+    },
+    "BGP_GLOBALS_AF_NETWORK": {
+        "default|ipv6_unicast|2000::179/128": {},
+        "default|ipv6_unicast|fd00:201:201:fff1:1::/80": {},
+        "default|ipv6_unicast|fd00:201:201:fff1:11::/80": {}
+    },
+    "ROUTE_MAP": {
+        "PASS_ALL|1": {
+            "route_operation": "permit"
+        }
+    },	
+    "DEVICE_METADATA": {
+        "localhost": {
+            "frr_mgmt_framework_config": "true",
+            "docker_routing_config_mode": "unified",
+            "nexthop_group": "enabled",
+            "bgp_asn": "100"
+        }
+    },
+    "INTERFACE": {
+        "Ethernet3": {},
+        "Ethernet3|2033::179/64": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "Ethernet21": {
+            "vrf_name": "Vrf1" 
+        },
+        "Ethernet21|101.1.0.1/24": {
+            "family": "IPv4",
+            "scope": "global"
+        }
+    },
+    "LOOPBACK_INTERFACE": {
+        "Loopback1": {},
+        "Loopback1|2000::179/128": {}
+    },
+    "SRV6_LOCATOR": {
+        "lsid1": {
+            "argu_len": "48",
+            "block_len": "32",
+            "func_len": "32",
+            "node_len": "16",
+            "opcode_prefix": [
+                "::fff1:1:0:0:0"
+            ],
+            "opcode_act": [
+                "end-dt46"
+            ],
+            "opcode_data": [
+                "vrf Vrf1"
+            ],
+            "prefix": "fd00:201:201::/48"
+        }
+    },
+    "VRF": {
+        "Vrf1": {}
+    }
+}
