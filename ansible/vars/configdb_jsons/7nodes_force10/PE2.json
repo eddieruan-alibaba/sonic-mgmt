@@ -1,21 +1,21 @@
 {
     "BGP_GLOBALS": {
-        "Vrf1": {
-            "local_asn": "64601",
-            "router_id": "100.1.0.30 ",
-            "log_nbr_state_changes": "true",
-            "load_balance_mp_relax": "true",
-            "srv6_locator": "lsid1",
-            "keepalive": "10",
-            "holdtime": "30"
+        "Vrf1" : {
+            "local_asn" : "64601",
+            "router_id" : "100.1.0.30 ",
+            "log_nbr_state_changes" : "true",
+            "load_balance_mp_relax" : "true",
+            "keepalive" : "10",
+            "holdtime" : "30"
         },
-        "default": {
-            "local_asn": "64601",
-            "router_id": "100.1.0.30",
-            "log_nbr_state_changes": "true",
-            "load_balance_mp_relax": "true",
-            "keepalive": "10",
-            "holdtime": "30"
+        "default" : {
+            "local_asn" : "64601",
+            "router_id" : "100.1.0.30",
+            "log_nbr_state_changes" : "true",
+            "load_balance_mp_relax" : "true",
+            "srv6_locator": "lsid1",
+            "keepalive" : "10",
+            "holdtime" : "30"
         }
     },
     "ROUTE_MAP": {
