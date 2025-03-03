@@ -1179,7 +1179,8 @@ def _paramiko_ssh(ip_address, username, passwords):
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(ip_address, username=username, password=password,
-                        allow_agent=False, look_for_keys=False, timeout=10)
+                        allow_agent=False, look_for_keys=False, timeout=10,
+                        disabled_algorithms={"pubkeys": []}  # Allow all key types including ssh-rsa)
             return ssh, password
         except AuthenticationException:
             continue
