@@ -147,7 +147,7 @@
   when: package_installation|bool
 
 - name: Install requests package
-  pip: name=requests version=2.32.3 state=present executable={{ pip_executable }}
+  pip: name=requests version=2.31.0 state=present executable={{ pip_executable }}
   become: yes
   environment: "{{ proxy_env | default({}) }}"
   when: pip_executable=="pip3"
