@@ -5,7 +5,7 @@ declare -r SCRIPT_PATH="$(readlink -f "${0}")"
 declare -r SCRIPT_DIR="$(dirname "${SCRIPT_PATH}")"
 
 declare -r DOCKER_REGISTRY="sonicdev-microsoft.azurecr.io:443"
-declare -r DOCKER_SONIC_MGMT="docker-sonic-mgmt:latest"
+declare -r DOCKER_SONIC_MGMT="docker-sonic-mgmt"
 declare -r LOCAL_IMAGE_NAME="docker-sonic-mgmt-$(echo "${USER}" | tr '[:upper:]' '[:lower:]')"
 declare -r LOCAL_IMAGE_TAG="master"
 declare -r LOCAL_IMAGE="${LOCAL_IMAGE_NAME}:${LOCAL_IMAGE_TAG}"
@@ -257,6 +257,14 @@ RUN if ! pip3 list | grep -c pytest >/dev/null && \
 /bin/bash -c '${HOME}/env-python3/bin/pip install pip --upgrade'; \
 /bin/bash -c '${HOME}/env-python3/bin/pip install wheel'; \
 /bin/bash -c '${HOME}/env-python3/bin/pip install $(/var/AzDevOps/env-python3/bin/pip freeze | grep -vE "distro|PyGObject|python-apt|unattended-upgrades|dbus-python")'; \
+fi
+
+RUN if ! pip3 list | grep -c pytest >/dev/null && \
+[ '{{ USER_NAME }}' != 'AzDevOps' ] && \
+[ -d /var/AzDevOps/env-python3 ]; then \
+/bin/bash -c 'python3 -m venv ${HOME}/env-python3'; \
+/bin/bash -c '${HOME}/env-python3/bin/pip install pip --upgrade'; \
+/bin/bash -c '${HOME}/env-python3/bin/pip install upgrade paramiko'; \
 fi
 
 EOF
