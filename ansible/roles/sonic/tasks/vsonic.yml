@@ -81,6 +81,9 @@
       copy :
         src: "{{ playbook_dir }}/{{ configuration[hostname].cfg_file_loc }}"
         dest: /tmp/config_db.json
+    - name: Set net.vrf.strict_mode
+      shell: sysctl -w net.vrf.strict_mode=1
+      become: yes
     - name: Overwrite config_db.json
       shell: cat /tmp/config_db.json > /etc/sonic/config_db.json
       become: yes

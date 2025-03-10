@@ -452,6 +452,9 @@
         - name: Overwrite config_db.json
           shell: cat /tmp/config_db.json > /etc/sonic/config_db.json
           become: yes
+        - name: Set net.vrf.strict_mode
+          shell: sysctl -w net.vrf.strict_mode=1
+          become: yes
         when: dut_cfg_file_loc is defined
 
       - name: Test if configlet script exist
