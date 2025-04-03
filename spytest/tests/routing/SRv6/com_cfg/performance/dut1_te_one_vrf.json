@@ -16,6 +16,7 @@
         "Vrf1|ipv4_unicast": {
             "export_vpn": "true",
             "rd_vpn_export": "2:2",
+            "rmap_vpn_export": "sr1",
             "rt_vpn_export": "1:1"
         }
     },
@@ -54,6 +55,14 @@
         "default|ipv6_unicast|fd00:201:201:fff1:11::/80": {}
     },
     "ROUTE_MAP": {
+        "sr1|10": {
+            "route_operation": "permit",
+            "set_ext_community_inline": "color:1"
+        },
+        "sr2|10": {
+            "route_operation": "permit",
+            "set_ext_community_inline": "color:2"
+        },
         "pass_all|1": {
             "route_operation": "permit"
         },
