@@ -1837,9 +1837,11 @@
             "admin_status": "true"
         },
         "default|2033::178|ipv6_unicast": {
+            "route_map_in": "set_ipv6_nh",
             "admin_status": "true"
         },
         "default|2044::178|ipv6_unicast": {
+            "route_map_in": "set_ipv6_nh",
             "admin_status": "true"
         }
     },
@@ -1852,6 +1854,10 @@
     "ROUTE_MAP": {
         "PASS_ALL|1": {
             "route_operation": "permit"
+        },
+        "set_ipv6_nh|1": {
+            "route_operation": "permit",
+            "set_ipv6_next_hop_prefer_global": "true"
         }
     },
     "LOOPBACK_INTERFACE": {

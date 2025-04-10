@@ -1675,20 +1675,18 @@
     "ROUTE_MAP": {
         "SRVPN-33|10": {
             "route_operation": "permit",
-            "match_prefix_set": "U2"
+            "match_prefix_set": "U2",
+            "set_ipv6_next_hop_prefer_global": "true"
         },
         "SRVPN-44|10": {
             "route_operation": "permit",
-            "match_prefix_set": "U3"
+            "match_prefix_set": "U3",
+            "set_ipv6_next_hop_prefer_global": "true"
         }
     },
     "INTERFACE": {
-        "Ethernet3": {
-            "ipv6_use_link_local_only": "enable"
-        },
-        "Ethernet4": {
-            "ipv6_use_link_local_only": "enable"
-        },
+        "Ethernet3": {},
+        "Ethernet4": {},
         "Ethernet3|2033::178/64": {
             "family": "IPv6",
             "scope": "global"
