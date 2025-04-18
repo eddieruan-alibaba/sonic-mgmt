@@ -435,7 +435,9 @@
         }
     },
     "SRV6_MY_SOURCE": {
-        "source-address" : "2064:300::1f"
+        "tunnel-sounce" : {
+            "source-address" : "2064:300::1f"
+        }
     },
     "SRV6_MY_LOCATORS": {
         "lsid1": {
