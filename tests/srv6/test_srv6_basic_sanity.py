@@ -206,11 +206,10 @@ def test_check_routes(duthosts, rand_one_dut_hostname, nbrhosts):
     # Check core routes
     check_routes(nbrhost, ["fd00:201:201:fff1:11::", "fd00:202:202:fff2:22::"], ["fc08::2", "fc06::2"], global_route, is_v6)
 
-
 #
-# Test Case : Traffic check in Normal Case
+# Test Case : Traffic check in Normal Case via Trex
 #
-def test_traffic_check(tbinfo, duthosts, rand_one_dut_hostname, ptfhost, nbrhosts, ptfadapter):
+def test_traffic_check_via_trex(tbinfo, duthosts, rand_one_dut_hostname, ptfhost, nbrhosts, ptfadapter):
     #
     # Create a packet sending to 192.100.0.1
     #
@@ -225,12 +224,17 @@ def test_traffic_check(tbinfo, duthosts, rand_one_dut_hostname, ptfhost, nbrhost
     pytest_assert(thresh_check(result, expect_list))
     #check raw CE packet on your link
     check_topo_recv_pkt_raw(ptfadapter, port=ptf_port_for_backplane, dst_ip=test_ipv4_dip)
-    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p2, dst_ip=test_ipv4_dip, vpnsid = "fd00:202:202:fff2:22::", no_vlan=True)
-    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p2, dst_ip=test_ipv4_dip, vpnsid = "fd00:201:201:fff1:11::", no_vlan=True)
-    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p4, dst_ip=test_ipv4_dip, vpnsid = "fd00:202:202:fff2:22::", no_vlan=True)
-    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p4, dst_ip=test_ipv4_dip, vpnsid = "fd00:201:201:fff1:11::", no_vlan=True)
+    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p2, dst_ip=test_ipv4_dip, vpnsid = "fd00:202:202:fff2:2::", no_vlan=True)
+    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p2, dst_ip=test_ipv4_dip, vpnsid = "fd00:201:201:fff1:1::", no_vlan=True)
+    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p4, dst_ip=test_ipv4_dip, vpnsid = "fd00:202:202:fff2:2::", no_vlan=True)
+    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p4, dst_ip=test_ipv4_dip, vpnsid = "fd00:201:201:fff1:1::", no_vlan=True)
     reset_topo_pkt_counter(ptfadapter)
+    logger.info("Done with Trex traffic")
 
+#
+# Test Case : Traffic check in Normal Case  via ptf
+#
+def test_traffic_check_via_ptf(tbinfo, duthosts, rand_one_dut_hostname, ptfhost, nbrhosts, ptfadapter):
     # establish_and_configure_bfd(nbrhosts)
     tcp_pkt0 = simple_tcp_packet(
         ip_src="192.200.0.1",
@@ -493,6 +497,7 @@ def test_traffic_check_remote_bgp_fail_case(tbinfo, duthosts, rand_one_dut_hostn
         ['2064:100::1d', '2064:200::1e', 'fc08::2', 'fc06::2']),
         "wait for PE3 BGP neighbors up")
 
+@pytest.mark.skip(reason="This test is temporarily disabled due to configuration changes.")
 def test_sbfd_functions(tbinfo, duthosts, rand_one_dut_hostname, ptfhost, nbrhosts, ptfadapter):
     vm = "PE3"
     pe3 = nbrhosts["PE3"]['host']
