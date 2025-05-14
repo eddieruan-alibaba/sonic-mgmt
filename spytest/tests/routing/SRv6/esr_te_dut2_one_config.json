@@ -1,0 +1,623 @@
+{
+    "ASPATH_ACCESS_LIST": {
+        "as_list": {
+            "permit": [
+                "200"
+            ]
+        }
+    },
+    "BGP_NEIGHBOR": {
+        "1000::179|global": {
+            "asn": "100",
+            "extnh": "true",
+            "update_source": "1000::178"
+        },
+        "1000::179|ipv4_vpn": {
+            "activate": "true",
+            "route_map_out": "as-map"
+        },
+        "1000::179|ipv6_vpn": {
+            "activate": "true",
+            "route_map_out": "as-map"
+        },
+        "2011::179|global": {
+            "asn": "100",
+            "update_source": "2011::178"
+        },
+        "2011::179|ipv6": {
+            "activate": "true",
+            "route_map_out": "1"
+        },
+        "2022::179|global": {
+            "asn": "100",
+            "update_source": "2022::178"
+        },
+        "2022::179|ipv6": {
+            "activate": "true",
+            "route_map_out": "2"
+        },
+        "2033::179|global": {
+            "asn": "100",
+            "update_source": "2033::178"
+        },
+        "2033::179|ipv6": {
+            "activate": "true",
+            "route_map_out": "3"
+        },
+        "2044::179|global": {
+            "asn": "100",
+            "update_source": "2044::178"
+        },
+        "2044::179|ipv6": {
+            "activate": "true",
+            "route_map_out": "4"
+        }
+    },
+    "BGP_PARAMETERS": {
+        "100|global": {
+            "bgp_router_id": "2.1.0.178",
+            "bgp_timers": "10 30"
+        },
+        "100|global|Vrf1": {
+            "bgp_router_id": "1.1.1.179"
+        },
+        "100|ipv4|Vrf1": {
+            "export_vpn": "true",
+            "import_vpn": "true",
+            "rt_import": "1:1",
+            "rd": "1:1"
+        }
+    },
+    "BGP_NETWORK": {
+        "1000::178/128|ipv6": {},
+        "2000::178/128|ipv6": {}
+    },
+    "BGP_REDIST": {
+        "static|ipv6": {}
+    },
+    "DEVICE_METADATA": {
+        "localhost": {
+            "asic": "cisco",
+            "docker_routing_config_mode": "separated",
+            "hostname": "MC-59",
+            "port_form": "64x100G+32x200G+4x10G",
+            "type": "MetroCoreRouter"
+        }
+    },
+    "IPV6_PREFIX_LIST": {
+        "1|seq|10": {
+            "permit": "1000::178/128"
+        },
+        "1|seq|20": {
+            "permit": "2000::178/128"
+        }
+    },
+    "LOOPBACK_INTERFACE": {
+        "Loopback1|1000::178/128": {},
+        "Loopback1|2000::178/128": {}
+    },
+    "MGMT_INTERFACE": {
+        "eth0|21.135.163.59/26": {
+            "gwaddr": "21.135.163.62"
+        }
+    },
+    "PORT": {
+        "Ethernet1": {
+            "admin_status": "up",
+            "alias": "Ethernet1"
+        },
+        "Ethernet10": {
+            "admin_status": "up",
+            "alias": "Ethernet10"
+        },
+        "Ethernet100": {
+            "admin_status": "up",
+            "alias": "Ethernet100"
+        },
+        "Ethernet101": {
+            "admin_status": "up",
+            "alias": "Ethernet101"
+        },
+        "Ethernet102": {
+            "admin_status": "up",
+            "alias": "Ethernet102"
+        },
+        "Ethernet103": {
+            "admin_status": "up",
+            "alias": "Ethernet103"
+        },
+        "Ethernet104": {
+            "admin_status": "up",
+            "alias": "Ethernet104"
+        },
+        "Ethernet105": {
+            "admin_status": "up",
+            "alias": "Ethernet105"
+        },
+        "Ethernet106": {
+            "admin_status": "up",
+            "alias": "Ethernet106"
+        },
+        "Ethernet107": {
+            "admin_status": "up",
+            "alias": "Ethernet107"
+        },
+        "Ethernet108": {
+            "admin_status": "up",
+            "alias": "Ethernet108"
+        },
+        "Ethernet109": {
+            "admin_status": "up",
+            "alias": "Ethernet109"
+        },
+        "Ethernet11": {
+            "admin_status": "up",
+            "alias": "Ethernet11"
+        },
+        "Ethernet110": {
+            "admin_status": "up",
+            "alias": "Ethernet110"
+        },
+        "Ethernet111": {
+            "admin_status": "up",
+            "alias": "Ethernet111"
+        },
+        "Ethernet112": {
+            "admin_status": "up",
+            "alias": "Ethernet112"
+        },
+        "Ethernet12": {
+            "admin_status": "up",
+            "alias": "Ethernet12"
+        },
+        "Ethernet13": {
+            "admin_status": "up",
+            "alias": "Ethernet13"
+        },
+        "Ethernet14": {
+            "admin_status": "up",
+            "alias": "Ethernet14"
+        },
+        "Ethernet15": {
+            "admin_status": "up",
+            "alias": "Ethernet15"
+        },
+        "Ethernet16": {
+            "admin_status": "up",
+            "alias": "Ethernet16"
+        },
+        "Ethernet17": {
+            "admin_status": "up",
+            "alias": "Ethernet17"
+        },
+        "Ethernet18": {
+            "admin_status": "up",
+            "alias": "Ethernet18"
+        },
+        "Ethernet19": {
+            "admin_status": "up",
+            "alias": "Ethernet19"
+        },
+        "Ethernet2": {
+            "admin_status": "up",
+            "alias": "Ethernet2"
+        },
+        "Ethernet20": {
+            "admin_status": "up",
+            "alias": "Ethernet20"
+        },
+        "Ethernet21": {
+            "admin_status": "up",
+            "alias": "Ethernet21"
+        },
+        "Ethernet22": {
+            "admin_status": "up",
+            "alias": "Ethernet22"
+        },
+        "Ethernet23": {
+            "admin_status": "up",
+            "alias": "Ethernet23"
+        },
+        "Ethernet24": {
+            "admin_status": "up",
+            "alias": "Ethernet24"
+        },
+        "Ethernet25": {
+            "admin_status": "up",
+            "alias": "Ethernet25"
+        },
+        "Ethernet26": {
+            "admin_status": "up",
+            "alias": "Ethernet26"
+        },
+        "Ethernet27": {
+            "admin_status": "up",
+            "alias": "Ethernet27"
+        },
+        "Ethernet28": {
+            "admin_status": "up",
+            "alias": "Ethernet28"
+        },
+        "Ethernet29": {
+            "admin_status": "up",
+            "alias": "Ethernet29"
+        },
+        "Ethernet3": {
+            "admin_status": "up",
+            "alias": "Ethernet3"
+        },
+        "Ethernet30": {
+            "admin_status": "up",
+            "alias": "Ethernet30"
+        },
+        "Ethernet31": {
+            "admin_status": "up",
+            "alias": "Ethernet31"
+        },
+        "Ethernet32": {
+            "admin_status": "up",
+            "alias": "Ethernet32"
+        },
+        "Ethernet33": {
+            "admin_status": "up",
+            "alias": "Ethernet33"
+        },
+        "Ethernet34": {
+            "admin_status": "up",
+            "alias": "Ethernet34"
+        },
+        "Ethernet35": {
+            "admin_status": "up",
+            "alias": "Ethernet35"
+        },
+        "Ethernet36": {
+            "admin_status": "up",
+            "alias": "Ethernet36"
+        },
+        "Ethernet37": {
+            "admin_status": "up",
+            "alias": "Ethernet37"
+        },
+        "Ethernet38": {
+            "admin_status": "up",
+            "alias": "Ethernet38"
+        },
+        "Ethernet39": {
+            "admin_status": "up",
+            "alias": "Ethernet39"
+        },
+        "Ethernet4": {
+            "admin_status": "up",
+            "alias": "Ethernet4"
+        },
+        "Ethernet40": {
+            "admin_status": "up",
+            "alias": "Ethernet40"
+        },
+        "Ethernet41": {
+            "admin_status": "up",
+            "alias": "Ethernet41"
+        },
+        "Ethernet42": {
+            "admin_status": "up",
+            "alias": "Ethernet42"
+        },
+        "Ethernet43": {
+            "admin_status": "up",
+            "alias": "Ethernet43"
+        },
+        "Ethernet44": {
+            "admin_status": "up",
+            "alias": "Ethernet44"
+        },
+        "Ethernet45": {
+            "admin_status": "up",
+            "alias": "Ethernet45"
+        },
+        "Ethernet46": {
+            "admin_status": "up",
+            "alias": "Ethernet46"
+        },
+        "Ethernet47": {
+            "admin_status": "up",
+            "alias": "Ethernet47"
+        },
+        "Ethernet48": {
+            "admin_status": "up",
+            "alias": "Ethernet48"
+        },
+        "Ethernet49": {
+            "admin_status": "up",
+            "alias": "Ethernet49"
+        },
+        "Ethernet5": {
+            "admin_status": "up",
+            "alias": "Ethernet5"
+        },
+        "Ethernet50": {
+            "admin_status": "up",
+            "alias": "Ethernet50"
+        },
+        "Ethernet51": {
+            "admin_status": "up",
+            "alias": "Ethernet51"
+        },
+        "Ethernet52": {
+            "admin_status": "up",
+            "alias": "Ethernet52"
+        },
+        "Ethernet53": {
+            "admin_status": "up",
+            "alias": "Ethernet53"
+        },
+        "Ethernet54": {
+            "admin_status": "up",
+            "alias": "Ethernet54"
+        },
+        "Ethernet55": {
+            "admin_status": "up",
+            "alias": "Ethernet55"
+        },
+        "Ethernet56": {
+            "admin_status": "up",
+            "alias": "Ethernet56"
+        },
+        "Ethernet57": {
+            "admin_status": "up",
+            "alias": "Ethernet57"
+        },
+        "Ethernet58": {
+            "admin_status": "up",
+            "alias": "Ethernet58"
+        },
+        "Ethernet59": {
+            "admin_status": "up",
+            "alias": "Ethernet59"
+        },
+        "Ethernet6": {
+            "admin_status": "up",
+            "alias": "Ethernet6"
+        },
+        "Ethernet60": {
+            "admin_status": "up",
+            "alias": "Ethernet60"
+        },
+        "Ethernet61": {
+            "admin_status": "up",
+            "alias": "Ethernet61"
+        },
+        "Ethernet62": {
+            "admin_status": "up",
+            "alias": "Ethernet62"
+        },
+        "Ethernet63": {
+            "admin_status": "up",
+            "alias": "Ethernet63"
+        },
+        "Ethernet64": {
+            "admin_status": "up",
+            "alias": "Ethernet64"
+        },
+        "Ethernet65_1": {
+            "admin_status": "up",
+            "alias": "Ethernet65_1"
+        },
+        "Ethernet65_2": {
+            "admin_status": "up",
+            "alias": "Ethernet65_2"
+        },
+        "Ethernet65_3": {
+            "admin_status": "up",
+            "alias": "Ethernet65_3"
+        },
+        "Ethernet65_4": {
+            "admin_status": "up",
+            "alias": "Ethernet65_4"
+        },
+        "Ethernet7": {
+            "admin_status": "up",
+            "alias": "Ethernet7"
+        },
+        "Ethernet8": {
+            "admin_status": "up",
+            "alias": "Ethernet8"
+        },
+        "Ethernet81": {
+            "admin_status": "up",
+            "alias": "Ethernet81"
+        },
+        "Ethernet82": {
+            "admin_status": "up",
+            "alias": "Ethernet82"
+        },
+        "Ethernet83": {
+            "admin_status": "up",
+            "alias": "Ethernet83"
+        },
+        "Ethernet84": {
+            "admin_status": "up",
+            "alias": "Ethernet84"
+        },
+        "Ethernet85": {
+            "admin_status": "up",
+            "alias": "Ethernet85"
+        },
+        "Ethernet86": {
+            "admin_status": "up",
+            "alias": "Ethernet86"
+        },
+        "Ethernet87": {
+            "admin_status": "up",
+            "alias": "Ethernet87"
+        },
+        "Ethernet88": {
+            "admin_status": "up",
+            "alias": "Ethernet88"
+        },
+        "Ethernet89": {
+            "admin_status": "up",
+            "alias": "Ethernet89"
+        },
+        "Ethernet9": {
+            "admin_status": "up",
+            "alias": "Ethernet9"
+        },
+        "Ethernet90": {
+            "admin_status": "up",
+            "alias": "Ethernet90"
+        },
+        "Ethernet91": {
+            "admin_status": "up",
+            "alias": "Ethernet91"
+        },
+        "Ethernet92": {
+            "admin_status": "up",
+            "alias": "Ethernet92"
+        },
+        "Ethernet93": {
+            "admin_status": "up",
+            "alias": "Ethernet93"
+        },
+        "Ethernet94": {
+            "admin_status": "up",
+            "alias": "Ethernet94"
+        },
+        "Ethernet95": {
+            "admin_status": "up",
+            "alias": "Ethernet95"
+        },
+        "Ethernet96": {
+            "admin_status": "up",
+            "alias": "Ethernet96"
+        },
+        "Ethernet98": {
+            "admin_status": "up",
+            "alias": "Ethernet98"
+        },
+        "Ethernet99": {
+            "admin_status": "up",
+            "alias": "Ethernet99"
+        }
+    },
+    "PORTCHANNEL": {
+        "PortChannel1": {
+            "admin_status": "up"
+        },
+        "PortChannel2": {
+            "admin_status": "up"
+        },
+        "PortChannel3": {
+            "admin_status": "up"
+        },
+        "PortChannel4": {
+            "admin_status": "up"
+        }
+    },
+    "PORTCHANNEL_INTERFACE": {
+        "PortChannel1|2011::178/64": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "PortChannel2|2022::178/64": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "PortChannel3|2033::178/64": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "PortChannel4|2044::178/64": {
+            "family": "IPv6",
+            "scope": "global"
+        }
+    },
+    "PORTCHANNEL_MEMBER": {
+        "PortChannel1|Ethernet1": {},
+        "PortChannel2|Ethernet2": {},
+        "PortChannel3|Ethernet3": {},
+        "PortChannel4|Ethernet4": {}
+    },
+    "PORTCHANNEL_PARAMETERS": {
+        "global": {
+            "fast_rate": "true",
+            "remove_delay": "2",
+            "set_lacp_key": "true"
+        }
+    },
+    "SUB_INTERFACE": {
+        "Eth33.1001|101.1.0.1/24": {
+            "family": "IPv4",
+            "scope": "global"
+        }
+    },
+    "SUB_PORT": {
+        "Eth33.1001": {
+            "admin_status": "up",
+            "vrf_name": "Vrf1"
+        }
+    },
+    "ROUTE_MAP": {
+        "1|deny|20": {},
+        "1|permit|10": {
+            "match_ipv6_address_prefix_list": "1"
+        },
+        "2|deny|20": {},
+        "3|deny|20": {},
+        "4|deny|20": {},
+        "as-map|deny|10": {
+            "match_as_path": "as_list"
+        }
+    },
+    "SRV6_POLICY": {
+        "1|1000::179": {},
+        "1|1000::179|1|a": {
+            "seg_name": "a",
+            "weight": "1"
+        },
+        "1|1000::179|2|b": {
+            "seg_name": "b",
+            "weight": "2"
+        },
+        "1|1000::179|3|c": {
+            "seg_name": "c",
+            "weight": "3"
+        },
+        "1|1000::179|4|d": {
+            "seg_name": "d",
+            "weight": "4"
+        }
+    },
+    "SRV6_SID_LIST": {
+        "a": {
+            "1": "fd00:202:202:fff1:115::"
+        },
+        "b": {
+            "1": "fd00:202:202:fff1:116::"
+        },
+        "c": {
+            "1": "fd00:202:202:fff1:117::"
+        },
+        "d": {
+            "1": "fd00:202:202:fff1:118::"
+        }
+    },
+    "SWITCH": {
+        "FDB": {
+            "fdb_aging_time": "1800",
+            "fdb_broadcast_miss_packet_action": "forward",
+            "fdb_multicast_miss_packet_action": "forward",
+            "fdb_unicast_miss_packet_action": "forward"
+        }
+    },
+    "USER_METADATA": {
+        "admin": {
+            "groups": "sudo,docker",
+            "role": "ADMIN",
+            "secret": "$1$WFtM/P.X$vXxpA7rUt1h7TL0WfcUuF/",
+            "shell": "/bin/bash"
+        }
+    },
+    "VRF": {
+        "Vrf1": {}
+    }
+}
