@@ -596,7 +596,7 @@
         when: dut_cfg_file_loc is not defined
 
       - name: SONiC config reload to pick up config_db.json
-        command: config reload -y
+        command: config reload -y -f
         become: yes
         when: dut_cfg_file_loc is defined
 
