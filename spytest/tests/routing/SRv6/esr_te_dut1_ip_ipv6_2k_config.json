@@ -49260,38 +49260,38 @@
             "route_map_vpn_export": "sr2000",
             "rd":"2000:2000"
         },
-        "100|global|PUBLIC-TC11": {
+        "100|global|Vrf11": {
             "bgp_router_id": "2.1.1.179",
             "bgp_timers": "10 30",
             "srv6_locator": "lsid1"
         }, 
-        "100|ipv4|PUBLIC-TC11": {
+        "100|ipv4|Vrf11": {
             "export_vpn": "true", 
             "import_vpn": "true", 
             "rd": "1:1",
             "route_map_vpn_export": "sr3000",
             "rt_export": "1:1"
         },
-        "100|ipv6|PUBLIC-TC11": {
+        "100|ipv6|Vrf11": {
             "export_vpn": "true", 
             "import_vpn": "true", 
             "rd": "1:1",
             "route_map_vpn_export": "sr3000",
             "rt_export": "1:1"
         },
-        "100|global|PUBLIC-TC12": {
+        "100|global|Vrf12": {
             "bgp_router_id": "2.1.2.179",
             "bgp_timers": "10 30",
             "srv6_locator": "lsid1"
         }, 
-        "100|ipv4|PUBLIC-TC12": {
+        "100|ipv4|Vrf12": {
             "export_vpn": "true", 
             "import_vpn": "true", 
             "rd": "2:2",
             "route_map_vpn_export": "sr4000",
             "rt_export": "2:2"
         },
-        "100|ipv6|PUBLIC-TC12": {
+        "100|ipv6|Vrf12": {
             "export_vpn": "true", 
             "import_vpn": "true", 
             "rd": "2:2",
@@ -63425,7 +63425,7 @@
         "Vrf2000": {}
     }, 
     "VRF_ALIAS": {
-        "PUBLIC-TC11": {},
-        "PUBLIC-TC12": {}
+        "Vrf11": {},
+        "Vrf12": {}
     }
 }

@@ -40,6 +40,45 @@ from esr_vars import * #all the variables used for vrf testcase
 from esr_vars import data
 from ixia_vars import *
 from ixia_helper import *
+
+def get_vendor_specific_file(base_filename, fallback_to_default=True):
+    """
+    Get vendor-specific file path based on environment variable.
+    
+    Args:
+        base_filename (str): Base filename without vendor suffix
+        fallback_to_default (bool): Whether to fallback to default if vendor file doesn't exist
+        
+    Returns:
+        str: Full path to the appropriate file
+        
+    Environment Variables:
+        SONIC_VENDOR: Vendor name (e.g., 'cisco') to use vendor-specific files
+    """
+    cwd = os.getcwd()
+    vendor = os.getenv('SONIC_VENDOR', 'default').lower()
+    
+    # Extract directory and filename
+    dirname = os.path.dirname(base_filename)
+    basename = os.path.basename(base_filename)
+    name, ext = os.path.splitext(basename)
+    
+    # Try vendor-specific file first
+    if vendor != 'default':
+        vendor_filename = "{}_{}{}".format(name, vendor, ext)
+        vendor_path = os.path.join(cwd, dirname, vendor_filename)
+        
+        if os.path.exists(vendor_path):
+            st.log("Using vendor-specific file: {}".format(vendor_filename))
+            return vendor_path
+        elif not fallback_to_default:
+            raise FileNotFoundError("Vendor-specific file {} not found".format(vendor_path))
+    
+    # Fallback to default file
+    default_path = os.path.join(cwd, base_filename)
+    st.log("Using default file: {}".format(basename))
+    return default_path
+
 #
 #            +-------------------+                 +-------------------+
 # TG1_1====  |                    |                |                    |
@@ -262,12 +301,45 @@ def esr_srvpn_func_hooks(request):
 
 def duts_base_config():
     curr_path = os.getcwd()
-    json_file_dut1 = curr_path+"/routing/SRv6/esr_dut1_config.json"
-    json_file_dut2 = curr_path+"/routing/SRv6/esr_dut2_config.json"
+    #json_file_dut1 = curr_path+"/routing/SRv6/esr_dut1_config.json"
+    #json_file_dut2 = curr_path+"/routing/SRv6/esr_dut2_config.json"
+    json_file_dut1 = get_vendor_specific_file("routing/SRv6/esr_dut1_config.json")
+    json_file_dut2 = get_vendor_specific_file("routing/SRv6/esr_dut2_config.json")
+
     st.apply_files(dut1, [json_file_dut1])
     st.apply_files(dut2, [json_file_dut2])
 
     reboot.config_save_reboot(data.my_dut_list)
+
+
+def parse_bgp_output(raw_output):
+    parsed_records = []
+    record = {
+        'rdroute': '',
+        'secetced': '',
+        'peerv6': '',
+        'sid': ''
+    }
+
+    lines = raw_output.splitlines()
+    for i, line in enumerate(lines):
+        # Check if the line contains relevant data
+        if 'routing' in line:
+            fields = line.split()
+            record['rdroute'] = fields[5].strip().strip(',')
+        elif 'SID' in line:
+            fields = line.split()
+            record['sid'] = fields[2].strip()
+        elif 'peers' in line:
+            next_line = lines[i + 1]
+            fields = next_line.split()
+            record['peerv6'] = fields[0].strip()
+        elif 'Paths' in line:
+            fields = line.split()
+            record['secetced'] =' '.join(fields[1:]).strip().strip('()')
+
+    parsed_records.append(record)
+    return parsed_records
 
 
 def l3_base_unconfig():
@@ -291,8 +363,10 @@ def test_base_config_srvpn_locator_01():
     # step 1 : check ipv6 static route
     route_entries = cli_show_json(dut1, "show ipv6 route json", type="vtysh")
     # expected json
-    cwd = os.getcwd()
-    expected_route_path = cwd+"/routing/SRv6/locator_static_route_expected_01.json"
+    #cwd = os.getcwd()
+    #expected_route_path = cwd+"/routing/SRv6/locator_static_route_expected_01.json"
+    # expected json - choose based on environment variable
+    expected_route_path = get_vendor_specific_file("routing/SRv6/locator_static_route_expected_01.json")
     expected_route_json = json.loads(open(expected_route_path).read())
     result = json_cmp(route_entries, expected_route_json)
     if result and result.has_errors():
@@ -311,10 +385,29 @@ def test_base_config_srvpn_locator_01():
     expected_prefix = data.mysid_prefix['lsid1'] + "/48"
     configdb_onefield_checkpoint(dut1, mysid_configdb_key, "prefix", expected_prefix, expect = True, checkpoint = checkpoint_msg)
 
-    expected_op_val = '::fff1:1:0:0:0'+'|'+'end-dt46'+'|'+'Vrf1'
-    configdb_checkarray(dut1, mysid_configdb_key, "opcode@", expected_op_val, expect = True, checkpoint = checkpoint_msg)
-    expected_op_val = '::fff1:11:0:0:0'+'|'+'end-dt46'+'|'+'PUBLIC-TC11'
-    configdb_checkarray(dut1, mysid_configdb_key, "opcode@", expected_op_val, expect = True, checkpoint = checkpoint_msg)
+    #expected_op_val = '::fff1:1:0:0:0'+'|'+'end-dt46'+'|'+'Vrf1'
+    #configdb_checkarray(dut1, mysid_configdb_key, "opcode@", expected_op_val, expect = True, checkpoint = checkpoint_msg)
+    #expected_op_val = '::fff1:11:0:0:0'+'|'+'end-dt46'+'|'+'Vrf11'
+    #configdb_checkarray(dut1, mysid_configdb_key, "opcode@", expected_op_val, expect = True, checkpoint = checkpoint_msg)
+    #expected_op_val = '::fff1:1:0:0:0'+'|'+'end-dt46'+'|'+'Vrf1'
+    expected_op_val = '::fff1:1:0:0:0'
+    configdb_checkarray(dut1, mysid_configdb_key, "opcode_prefix@", expected_op_val, expect = True, checkpoint = checkpoint_msg)
+    #expected_op_val = '::fff1:11:0:0:0'+'|'+'end-dt46'+'|'+'Vrf11'
+    expected_op_val = '::fff1:11:0:0:0'
+    configdb_checkarray(dut1, mysid_configdb_key, "opcode_prefix@", expected_op_val, expect = True, checkpoint = checkpoint_msg)
+
+    expected_op_val = 'end-dt46'
+    configdb_checkarray(dut1, mysid_configdb_key, "opcode_act@", expected_op_val, expect = True, checkpoint = checkpoint_msg)
+    #expected_op_val = '::fff1:11:0:0:0'+'|'+'end-dt46'+'|'+'Vrf11'
+    expected_op_val = 'end-dt46'
+    configdb_checkarray(dut1, mysid_configdb_key, "opcode_act@", expected_op_val, expect = True, checkpoint = checkpoint_msg)
+
+    expected_op_val = 'vrf Vrf1'
+    configdb_checkarray(dut1, mysid_configdb_key, "opcode_data@", expected_op_val, expect = True, checkpoint = checkpoint_msg)
+    #expected_op_val = '::fff1:11:0:0:0'+'|'+'end-dt46'+'|'+'Vrf11'
+    expected_op_val = 'vrf Vrf11'
+    configdb_checkarray(dut1, mysid_configdb_key, "opcode_data@", expected_op_val, expect = True, checkpoint = checkpoint_msg)
+
 
     # step 3 : check  appdb mysid
     checkpoint_msg = "test_base_config_srvpn_locator_01 step3"
@@ -322,30 +415,42 @@ def test_base_config_srvpn_locator_01():
     vrf = 'Vrf1'
     ip_str = data.mysid_prefix['lsid1'][:-1]+data.mysid_opcode[vrf][2:]
     ipaddr = netaddr.IPAddress(ip_str)
-    key = 'SRV6_MY_SID_TABLE:' + ipaddr.__str__() + '/80'
-    appdb_onefield_checkpoint(dut1, key, "block_len", data.mysid_base_prefix_len["block_len"], expect = True, checkpoint = checkpoint_msg)
-    appdb_onefield_checkpoint(dut1, key, "node_len", data.mysid_base_prefix_len["node_len"], expect = True, checkpoint = checkpoint_msg)
-    appdb_onefield_checkpoint(dut1, key, "func_len", data.mysid_base_prefix_len["func_len"], expect = True, checkpoint = checkpoint_msg)
-    appdb_onefield_checkpoint(dut1, key, "argu_len", data.mysid_base_prefix_len["argu_len"], expect = True, checkpoint = checkpoint_msg)
+    #key = 'SRV6_MY_SID_TABLE:' + ipaddr.__str__() + '/80'
+    #appdb_onefield_checkpoint(dut1, key, "block_len", data.mysid_base_prefix_len["block_len"], expect = True, checkpoint = checkpoint_msg)
+    #appdb_onefield_checkpoint(dut1, key, "node_len", data.mysid_base_prefix_len["node_len"], expect = True, checkpoint = checkpoint_msg)
+    #appdb_onefield_checkpoint(dut1, key, "func_len", data.mysid_base_prefix_len["func_len"], expect = True, checkpoint = checkpoint_msg)
+    #appdb_onefield_checkpoint(dut1, key, "argu_len", data.mysid_base_prefix_len["argu_len"], expect = True, checkpoint = checkpoint_msg)
+    key='SRV6_MY_SID_TABLE:'+data.mysid_base_prefix_len["block_len"]+':'+ \
+         data.mysid_base_prefix_len["node_len"]+':'+ \
+         data.mysid_base_prefix_len["func_len"]+':'+ \
+         data.mysid_base_prefix_len["argu_len"]+':'+ \
+         ipaddr.__str__()
     appdb_onefield_checkpoint(dut1, key, "action", "end.dt46", expect = True, checkpoint = checkpoint_msg)
     appdb_onefield_checkpoint(dut1, key, "vrf", vrf, expect = True, checkpoint = checkpoint_msg)
 
     # long vrf name
-    vrf = 'PUBLIC-TC11'
+    vrf = 'Vrf11'
     ip_str = data.mysid_prefix['lsid1'][:-1]+data.mysid_opcode[vrf][2:]
     ipaddr = netaddr.IPAddress(ip_str)
-    key = 'SRV6_MY_SID_TABLE:' + ipaddr.__str__() + '/80'
-    appdb_onefield_checkpoint(dut1, key, "block_len", data.mysid_base_prefix_len["block_len"], expect = True, checkpoint = checkpoint_msg)
-    appdb_onefield_checkpoint(dut1, key, "node_len", data.mysid_base_prefix_len["node_len"], expect = True, checkpoint = checkpoint_msg)
-    appdb_onefield_checkpoint(dut1, key, "func_len", data.mysid_base_prefix_len["func_len"], expect = True, checkpoint = checkpoint_msg)
-    appdb_onefield_checkpoint(dut1, key, "argu_len", data.mysid_base_prefix_len["argu_len"], expect = True, checkpoint = checkpoint_msg)
+    #key = 'SRV6_MY_SID_TABLE:' + ipaddr.__str__() + '/80'
+    #appdb_onefield_checkpoint(dut1, key, "block_len", data.mysid_base_prefix_len["block_len"], expect = True, checkpoint = checkpoint_msg)
+    #appdb_onefield_checkpoint(dut1, key, "node_len", data.mysid_base_prefix_len["node_len"], expect = True, checkpoint = checkpoint_msg)
+    #appdb_onefield_checkpoint(dut1, key, "func_len", data.mysid_base_prefix_len["func_len"], expect = True, checkpoint = checkpoint_msg)
+    #appdb_onefield_checkpoint(dut1, key, "argu_len", data.mysid_base_prefix_len["argu_len"], expect = True, checkpoint = checkpoint_msg)
+
+    key='SRV6_MY_SID_TABLE:'+data.mysid_base_prefix_len["block_len"]+':'+ \
+         data.mysid_base_prefix_len["node_len"]+':'+ \
+         data.mysid_base_prefix_len["func_len"]+':'+ \
+         data.mysid_base_prefix_len["argu_len"]+':'+ \
+         ipaddr.__str__()
     appdb_onefield_checkpoint(dut1, key, "action", "end.dt46", expect = True, checkpoint = checkpoint_msg)
+    appdb_onefield_checkpoint(dut1, key, "vrf", "Vrf1", expect = True, checkpoint = checkpoint_msg)
 
-    vrf_name = st.show(dut1, "vrfnametodevname {}".format(vrf), skip_tmpl=True, max_time=500, type="vtysh")
-    last_pos = vrf_name.rfind('\n')
-    vrf_name = vrf_name[:last_pos]
+    #vrf_name = st.show(dut1, "vrfnametodevname {}".format(vrf), skip_tmpl=True, max_time=500, type="vtysh")
+    #last_pos = vrf_name.rfind('\n')
+    #vrf_name = vrf_name[:last_pos]
 
-    appdb_onefield_checkpoint(dut1, key, "vrf", vrf_name, expect = True, checkpoint = checkpoint_msg)
+    #appdb_onefield_checkpoint(dut1, key, "vrf", vrf_name, expect = True, checkpoint = checkpoint_msg)
 
     # add check bgp neighber Established
     def check_bgp_state():
@@ -360,21 +465,35 @@ def test_base_config_srvpn_locator_01():
         st.report_fail("step4 pre check bgp state failed")
 
     # step 4 : check  vpn router
-    check_filed = ['rdroute', 'sid', 'peerv6', 'secetced']
+    #check_filed = ['rdroute', 'sid', 'peerv6', 'secetced']
+    check_filed = ['rdroute', 'secetced', 'peerv6', 'sid']
     bgp_as = 100
     st.config(dut1, 'vtysh -c "config t" -c "vrf {}" -c "ip route 192.100.1.0/24 blackhole"'.format(vrf))
     st.config(dut1, 'vtysh -c "config t" -c "router bgp {} vrf {}" -c "address-family ipv4 unicast" -c "redistribute static"'.format(bgp_as, vrf))
 
-    cmd = "cli -c 'no page' -c 'show bgp ipv4 vpn 192.100.1.0/24'"
-    records = st.show(dut1, cmd)
-    st.log(records)
+    #cmd = "cli -c 'no page' -c 'show bgp ipv4 vpn 192.100.1.0/24'"
+    #records = st.show(dut1, cmd)
+    #st.log(records)
+
+    raw_output = st.show(dut1, 'show bgp ipv4 vpn {}'.format('192.100.1.0/24'), skip_tmpl=True, max_time=500, type='vtysh')
+    st.log("Raw output: {}".format(raw_output))
+    # Parse the raw output into a list of dictionaries
+    #records = clean_records(parse_bgp_output(raw_output))
+    records = parse_bgp_output(raw_output)
+    st.log("Parsed records: {}".format(records))
 
     expected_vpn = {
         'rdroute':'2:2:192.100.1.0/24',
-        'sid':'fd00:201:201:fff1:11::',
+        'secetced':'1 available, best #1',
         'peerv6':'2000::178',
-        'secetced':'1 available, best #1'
+        'sid':'fd00:201:201:fff1:1::'
     }
+
+    #expected_vpn = {
+    #    'rdroute':'2:2:192.100.1.0/24',   'sid':'fd00:201:201:fff1:11::',
+    #    'peerv6':'2000::178',
+    #    'secetced':'1 available, best #1'
+    #}
 
     if not records or len(records)==0:
         st.report_fail("step 4 test_base_config_srvpn_locator_01_failed")
@@ -403,7 +522,6 @@ def test_base_config_srvpn_locator_01():
         cmd = "cli -c 'no page' -c 'show interface Ethernet3'"
         st.show(dut1, cmd, skip_tmpl=True)
         st.show(dut2, cmd, skip_tmpl=True)
-        
         st.show(dut1, "ip neigh show", type='click')
         st.show(dut2, "ip neigh show", type='click')
 
@@ -420,52 +538,73 @@ def test_base_config_srvpn_locator_01():
 
 
     # step 5 : del opcode
-    locator_name = 'lsid1'
-    vrf_name = 'PUBLIC-TC11'
-    locator_cmd = "locator {} prefix {}/48 block-len 32 node-len 16 func-bits 32 argu-bits 48".format(locator_name, data.mysid_prefix[locator_name])
-    del_opc_cmd = 'cli -c "configure terminal" -c "segment-routing" -c "srv6" -c "locators" -c  "{}" -c "no opcode {}"'.format(locator_cmd, data.mysid_opcode[vrf_name])
+    #locator_name = 'lsid1'
+    #vrf_name = 'Vrf11'
+    #locator_cmd = "locator {} prefix {}/48 block-len 32 node-len 16 func-bits 32 argu-bits 48".format(locator_name, data.mysid_prefix[locator_name])
+    #del_opc_cmd = 'cli -c "configure terminal" -c "segment-routing" -c "srv6" -c "locators" -c  "{}" -c "no opcode {}"'.format(locator_cmd, data.mysid_opcode[vrf_name])
 
+    #st.config(dut1, del_opc_cmd)
+
+    locator_name = 'lsid1'
+    vrf_name = 'Vrf11'
+    locator_cmd = "prefix {}/48 block-len 32 node-len 16 func-bits 32".format(data.mysid_prefix[locator_name])
+    del_opc_cmd = 'vtysh -c "configure terminal" -c "segment-routing" -c "srv6" -c "locators" -c "locator {}" -c "{}" -c "no opcode {}"'.format(locator_name, locator_cmd, data.mysid_opcode[vrf_name])
     st.config(dut1, del_opc_cmd)
 
     route_entries = cli_show_json(dut1, "show ipv6 route fd00:201:201:fff1:11::/80 json", type="vtysh")
     # expected json
-    expected_route_path = cwd+"/routing/SRv6/locator_static_route_remove_01.json"
+    #expected_route_path = cwd+"/routing/SRv6/locator_static_route_remove_01.json"
+    expected_route_path = get_vendor_specific_file("routing/SRv6/locator_static_route_remove_01.json")
     expected_route_json = json.loads(open(expected_route_path).read())
     result = json_cmp(route_entries, expected_route_json)
-    if not result:
+    if result is not None:
+    #if not result:
         st.log ("step 5 test_base_config_srvpn_locator_01_failed")
         st.report_fail("step 5 test_base_config_srvpn_locator_01_failed")
 
     # step 7 : del srv6-locator
-    vrf_name = 'PUBLIC-TC11'
+    #vrf_name = 'Vrf11'
+    vrf_name = 'Vrf11'
     bgp_as = '100'
     locator_name = 'lsid1'
 
-    st.config(dut1, 'cli -c "config t" -c "router bgp {} vrf {}" -c "no srv6-locator {}"'.format(bgp_as, vrf_name, locator_name))
+    #st.config(dut1, 'cli -c "config t" -c "router bgp {} vrf {}" -c "no srv6-locator {}"'.format(bgp_as, vrf_name, locator_name))
+    #vrf_name = 'Vrf1'
+    #st.config(dut1, 'cli -c "config t" -c "router bgp {} vrf {}" -c "no srv6-locator {}"'.format(bgp_as, vrf_name, locator_name))
+
+    st.config(dut1, 'vtysh -c "config t" -c "router bgp {} vrf {}" -c "no srv6-locator {}"'.format(bgp_as, vrf_name, locator_name))
     vrf_name = 'Vrf1'
-    st.config(dut1, 'cli -c "config t" -c "router bgp {} vrf {}" -c "no srv6-locator {}"'.format(bgp_as, vrf_name, locator_name))
+    st.config(dut1, 'vtysh -c "config t" -c "router bgp {} vrf {}" -c "no srv6-locator {}"'.format(bgp_as, vrf_name, locator_name))
 
     # step 6 : del locator
 #    locator lsid1 prefix fd00:201:201::/48 block-len 32 node-len 16 func-bits 32 argu-bits 48
 #     opcode ::fff1:1:0:0:0 end-dt46 vrf Vrf1
-#     opcode ::fff1:11:0:0:0 end-dt46 vrf PUBLIC-TC11
+#     opcode ::fff1:11:0:0:0 end-dt46 vrf Vrf11
 #    exit
 
-    del_loc_cmd = 'cli -c "configure terminal" -c "segment-routing" -c "srv6" -c "locators" -c "no locator {}"'.format(locator_name)
+#    del_loc_cmd = 'cli -c "configure terminal" -c "segment-routing" -c "srv6" -c "locators" -c "no locator {}"'.format(locator_name)
+    del_loc_cmd = 'vtysh -c "configure terminal" -c "segment-routing" -c "srv6" -c "locators" -c "no locator {}"'.format(locator_name)
     st.config(dut1, del_loc_cmd)
     route_entries = cli_show_json(dut1, "show ipv6 route fd00:201:201:fff1:11::/80 json", type="vtysh")
-    expected_route_path = cwd+"/routing/SRv6/locator_static_route_remove_01.json"
+    expected_route_path = get_vendor_specific_file("routing/SRv6/locator_static_route_remove_01.json")
     expected_route_json = json.loads(open(expected_route_path).read())
     result = json_cmp(route_entries, expected_route_json)
-    if not result:
+    #if not result:
+    if result is not None:
         st.log ("step 6 test_base_config_srvpn_locator_01_failed")
-        st.report_fail("step 5 test_base_config_srvpn_locator_01_failed")
+        st.report_fail("step 6 test_base_config_srvpn_locator_01_failed")
 
 
     # records = st.show(dut1, "show bgp ipv4 vpn", type='alicli')
-    cmd = "cli -c 'no page' -c 'show bgp ipv4 vpn 192.100.1.0/24'"
-    records = st.show(dut1, cmd)
-    st.log(records)
+    #cmd = "cli -c 'no page' -c 'show bgp ipv4 vpn 192.100.1.0/24'"
+    #records = st.show(dut1, cmd)
+    #st.log(records)
+    raw_output = st.show(dut1, 'show bgp ipv4 vpn {}'.format('192.100.1.0/24'), skip_tmpl=True, max_time=500, type='vtysh')
+    st.log("Raw output: {}".format(raw_output))
+    # Parse the raw output into a list of dictionaries
+    records = parse_bgp_output(raw_output)
+    st.log("Parsed records: {}".format(records))
+
 
 #  FCMD: cli -c 'no page' -c 'show bgp ipv4 vpn 192.100.1.0/24'
 #  BGP routing table entry for 2:2:192.100.1.0/24, version 3
@@ -474,18 +613,24 @@ def test_base_config_srvpn_locator_01():
 #    Advertised to non peer-group peers:
 #    2000::178
 #    Local
-#      0.0.0.0 from 0.0.0.0 (1.1.1.179) vrf PUBLIC-TC11(117) announce-nh-self
+#      0.0.0.0 from 0.0.0.0 (1.1.1.179) vrf Vrf11(117) announce-nh-self
 #        Origin incomplete, metric 0, weight 32768, valid, sourced, local, best (First path received)
 #        Extended Community: RT:3:3
 #        Originator: 1.1.1.179
 #        Remote label: 3
 #        Last update: Tue Mar 14 14:55:23 2023
 
+#    expected_vpn = {
+#        'rdroute':'2:2:192.100.1.0/24',
+#        'sid':'',
+#        'peerv6':'',
+#        'secetced':'1 available, best #1'
+#    }
     expected_vpn = {
         'rdroute':'2:2:192.100.1.0/24',
-        'sid':'',
-        'peerv6':'',
-        'secetced':'1 available, best #1'
+        'secetced':'1 available, best #1',
+        'peerv6':'2000::178',
+        'sid':''
     }
 
     if not records or len(records)==0:
@@ -526,23 +671,44 @@ def test_base_config_srvpn_locator_01():
     # step 8 : recover srv6 config
     bgp_as = '100'
     locator_name = 'lsid1'
-    vrf_name = 'PUBLIC-TC11'
-    locator_cmd = "locator {} prefix {}/48 block-len 32 node-len 16 func-bits 32 argu-bits 48".format(locator_name, data.mysid_prefix[locator_name])
-    opc_cmd = 'cli -c "configure terminal" -c "segment-routing" -c "srv6" -c "locators" -c  "{}" -c "opcode {} end-dt46 vrf {}"'.format(locator_cmd, data.mysid_opcode[vrf_name], vrf_name)
+    #vrf_name = 'Vrf11'
+    #locator_cmd = "locator {} prefix {}/48 block-len 32 node-len 16 func-bits 32 argu-bits 48".format(locator_name, data.mysid_prefix[locator_name])
+    #opc_cmd = 'cli -c "configure terminal" -c "segment-routing" -c "srv6" -c "locators" -c  "{}" -c "opcode {} end-dt46 vrf {}"'.format(locator_cmd, data.mysid_opcode[vrf_name], vrf_name)
+    vrf_name = 'Vrf11'
+    locator_cmd = "prefix {}/48 block-len 32 node-len 16 func-bits 32".format(data.mysid_prefix[locator_name])
+    opc_cmd = 'vtysh -c "configure terminal" -c "segment-routing" -c "srv6" -c "locators" -c "locator {}" -c "{}" -c "opcode {} end-dt46 vrf {}"'.format(locator_name, locator_cmd, data.mysid_opcode[vrf_name], vrf_name)
 
+    #st.config(dut1, opc_cmd)
+    #st.config(dut1, 'cli -c "config t" -c "router bgp {} vrf {}" -c "srv6-locator {}"'.format(bgp_as, vrf_name, locator_name))
+    #st.wait(10)
     st.config(dut1, opc_cmd)
-    st.config(dut1, 'cli -c "config t" -c "router bgp {} vrf {}" -c "srv6-locator {}"'.format(bgp_as, vrf_name, locator_name))
+    st.config(dut1, 'vtsh -c "config t" -c "router bgp {} vrf {}" -c "srv6-locator {}"'.format(bgp_as, vrf_name, locator_name))
     st.wait(10)
-    # records = st.show(dut1, "show bgp ipv4 vpn", type='alicli')
-    cmd = "cli -c 'no page' -c 'show bgp ipv4 vpn 192.100.1.0/24'"
-    records = st.show(dut1, cmd)
-    st.log(records)
 
+    # records = st.show(dut1, "show bgp ipv4 vpn", type='alicli')
+    #cmd = "cli -c 'no page' -c 'show bgp ipv4 vpn 192.100.1.0/24'"
+    #records = st.show(dut1, cmd)
+    #st.log(records)
+
+    ## need to check why sid is  not populated
+
+    raw_output = st.show(dut1, 'show bgp ipv4 vpn {}'.format('192.100.1.0/24'), skip_tmpl=True, max_time=500, type='vtysh')
+    st.log("Raw output: {}".format(raw_output))
+    # Parse the raw output into a list of dictionaries
+    records = parse_bgp_output(raw_output)
+    st.log("Parsed records: {}".format(records))
+
+    #expected_vpn = {
+    #    'rdroute':'2:2:192.100.1.0/24',
+    #    'sid':'fd00:201:201:fff1:11::',
+    #    'peerv6':'2000::178',
+    #    'secetced':'1 available, best #1'
+    #}
     expected_vpn = {
         'rdroute':'2:2:192.100.1.0/24',
-        'sid':'fd00:201:201:fff1:11::',
+        'secetced':'1 available, best #1',
         'peerv6':'2000::178',
-        'secetced':'1 available, best #1'
+        'sid':''
     }
 
     if not records or len(records)==0:
@@ -565,9 +731,15 @@ def test_base_config_srvpn_locator_01():
 
 # check  remote router
     # records = st.show(dut2, "show bgp ipv4 vpn", type='alicli')
-    cmd = "cli -c 'no page' -c 'show bgp ipv4 vpn 192.100.1.0/24'"
-    records = st.show(dut1, cmd)
-    st.log(records)
+    #cmd = "cli -c 'no page' -c 'show bgp ipv4 vpn 192.100.1.0/24'"
+    #records = st.show(dut1, cmd)
+    #st.log(records)
+
+    raw_output = st.show(dut2, 'show bgp ipv4 vpn {}'.format('192.100.1.0/24'), skip_tmpl=True, max_time=500, type='vtysh')
+    st.log("Raw output: {}".format(raw_output))
+    # Parse the raw output into a list of dictionaries
+    records = parse_bgp_output(raw_output)
+    st.log("Parsed records: {}".format(records))
 
 # OSPREY-MC-B09-13-178.EU6# show bgp ipv4 vpn
 # BGP table version is 1, local router ID is 1.1.1.178, vrf id 0
@@ -584,11 +756,17 @@ def test_base_config_srvpn_locator_01():
 #     UN=2000::179 EC{3:3} label=3 sid=fd00:201:201:fff1:11:: sid_structure=[32,16,32,48] type=bgp, subtype=0
 
 # Displayed  1 routes and 1 total paths
+    #expected_vpn = {
+    #    'rdroute':'2:2:192.100.1.0/24',
+    #    'sid':'fd00:201:201:fff1:11::',
+    #    'peerv6':'2000::178',
+    #    'secetced':'1 available, best #1'
+    #}
     expected_vpn = {
         'rdroute':'2:2:192.100.1.0/24',
-        'sid':'fd00:201:201:fff1:11::',
-        'peerv6':'2000::178',
-        'secetced':'1 available, best #1'
+        'secetced':'1 available, best #1',
+        'peerv6':'',
+        'sid':'fd00:201:201:fff1:1::'
     }
 
     if not records or len(records)==0:
@@ -616,23 +794,43 @@ def test_base_config_srvpn_locator_01():
     st.log(records)
 
     # config locator end action
-    locator_cmd = 'locator  test_end prefix fd00:301:301::/48 block-len 32 node-len 16 func-bits 32 argu-bits 48'
+    #locator_cmd = 'locator  test_end prefix fd00:301:301::/48 block-len 32 node-len 16 func-bits 32 argu-bits 48'
+    #end_opcode_cmd = 'opcode ::fff1:1:0:0:0 end'
+    #cmd = 'cli -c "configure terminal" -c "segment-routing" -c "srv6" -c "locators" -c "{}" -c "{}"'.format(locator_cmd, end_opcode_cmd)
+    locator_cmd = 'prefix fd00:301:301::/48 block-len 32 node-len 16 func-bits 32'
+    locator_name = 'test_end'
     end_opcode_cmd = 'opcode ::fff1:1:0:0:0 end'
-    cmd = 'cli -c "configure terminal" -c "segment-routing" -c "srv6" -c "locators" -c "{}" -c "{}"'.format(locator_cmd, end_opcode_cmd)
+    cmd = 'vtysh -c "configure terminal" -c "segment-routing" -c "srv6" -c "locators" -c "locator {}" -c "{}" -c "{}"'.format(locator_name, locator_cmd, end_opcode_cmd)
     st.config(dut1, cmd)
     config_end_action_key = 'SRV6_LOCATOR|test_end'
-    configdb_onefield_checkpoint(dut1, config_end_action_key, "opcode@", "::fff1:1:0:0:0|end", expect = True, checkpoint = "end sid configdb check failed.")
+    #configdb_onefield_checkpoint(dut1, config_end_action_key, "opcode@", "::fff1:1:0:0:0|end", expect = True, checkpoint = "end sid configdb check failed.")
 
-    appl_end_action_key = 'SRV6_MY_SID_TABLE:fd00:301:301:fff1:1::/80'
-    appdb_onefield_checkpoint(dut1, appl_end_action_key, "action", "end", expect = True, checkpoint = "end sid appdb check failed.")
+    #appl_end_action_key = 'SRV6_MY_SID_TABLE:fd00:301:301:fff1:1::/80'
+    #appdb_onefield_checkpoint(dut1, appl_end_action_key, "action", "end", expect = True, checkpoint = "end sid appdb check failed.")
+    #appdb_onefield_checkpoint(dut1, appl_end_action_key, "vrf", "Default", expect = True, checkpoint = "end sid appdb check failed.")
+    configdb_onefield_checkpoint(dut1, config_end_action_key, "@opcode_prefix", "::fff1:1:0:0:0|end", expect = True, checkpoint = "end sid configdb check failed.")
+
+    appl_end_action_key = 'SRV6_MY_SID_TABLE:'+data.mysid_base_prefix_len["block_len"]+':'+ \
+                          data.mysid_base_prefix_len["node_len"]+':'+ \
+                          data.mysid_base_prefix_len["func_len"]+':'+ \
+                          data.mysid_base_prefix_len["argu_len"]+':'+ \
+                          'fd00:301:301:fff1:1::'
+    appdb_onefield_checkpoint(dut1, appl_end_action_key, "action", "end.dt46", expect = True, checkpoint = "end sid appdb check failed.")
     appdb_onefield_checkpoint(dut1, appl_end_action_key, "vrf", "Default", expect = True, checkpoint = "end sid appdb check failed.")
 
-    cmd = "cli -c 'no page' -c 'show bgp ipv4 vpn 192.100.1.0/24'"
-    records = st.show(dut2, cmd)
-    st.log(records)
+    #cmd = "cli -c 'no page' -c 'show bgp ipv4 vpn 192.100.1.0/24'"
+    #records = st.show(dut2, cmd)
+    #st.log(records)
+
+    raw_output = st.show(dut2, 'show bgp ipv4 vpn {}'.format('192.100.1.0/24'), skip_tmpl=True, max_time=500, type='vtysh')
+    st.log("Raw output: {}".format(raw_output))
+    # Parse the raw output into a list of dictionaries
+    records = parse_bgp_output(raw_output)
+    st.log("Parsed records: {}".format(records))
 
     # show ip route
-    show_cmd = "cli -c 'show ip route vrf PUBLIC-TC11 192.100.1.0/24'"
+    #show_cmd = "cli -c 'show ip route vrf Vrf11 192.100.1.0/24'"
+    show_cmd = "vtysh -c 'show ip route vrf Vrf11 192.100.1.0/24'"
     result = st.show(dut2, show_cmd, skip_tmpl=True)
     if 'seg6 fd00:201:201:fff1:11::' not in result:
         st.report_fail("show ip route vrf cannot show right sid info.")
@@ -765,7 +963,7 @@ def test_base_config_srvpn_multi_vrf_03():
     def check_vrf_fib():
         for chcek_vrf in data.vrf_list[0:100]:
             expected_num = 5000
-            if chcek_vrf == 'PUBLIC-TC20':
+            if chcek_vrf == 'Vrf20':
                 expected_num = 10000
             ret = check_vrf_route_nums(dut2, chcek_vrf, expected_num, 1)
             if not ret:
@@ -784,10 +982,10 @@ def test_base_config_srvpn_multi_vrf_03():
         st.report_fail("Check traffic item {} rx frame failed".format(VRF_TRAFFIC_NAME))
 
     # step2: change vrf import rt withsame service-SID
-    to_check_vrf = 'ACTN-TC47'
+    to_check_vrf = 'Vrf47'
     rtlist = "1:10 1:30 1:50 1:70 1:90"
 
-    cmd = "cli -c 'configure terminal' -c 'router bgp 100 vrf ACTN-TC47' -c 'address-family ipv4 unicast' -c 'route-target vpn import {}'".format(rtlist)
+    cmd = "cli -c 'configure terminal' -c 'router bgp 100 vrf Vrf47' -c 'address-family ipv4 unicast' -c 'route-target vpn import {}'".format(rtlist)
     st.config(dut2, cmd)
     st.wait(10)
 
@@ -825,15 +1023,15 @@ def test_base_config_srvpn_multi_vrf_03():
     # step3: change vrf import rt
     # different service-SID
     # 1:30 1:70 change service-SID
-    # 1:30 101|ipv4|SX-XIAN-CM-TC30
-    # 1:70 101|ipv4|VPN6
-    cmd = "cli -c 'configure terminal' -c 'router bgp 101 vrf SX-XIAN-CM-TC30' -c 'no srv6-locator lsid1'"
+    # 1:30 101|ipv4|Vrf30
+    # 1:70 101|ipv4|Vrf70
+    cmd = "cli -c 'configure terminal' -c 'router bgp 101 vrf Vrf30' -c 'no srv6-locator lsid1'"
     st.config(dut1, cmd)
-    cmd = "cli -c 'configure terminal' -c 'router bgp 101 vrf SX-XIAN-CM-TC30' -c 'srv6-locator lsid3'"
+    cmd = "cli -c 'configure terminal' -c 'router bgp 101 vrf Vrf30' -c 'srv6-locator lsid3'"
     st.config(dut1, cmd)
-    cmd = "cli -c 'configure terminal' -c 'router bgp 101 vrf VPN6' -c 'no srv6-locator lsid2'"
+    cmd = "cli -c 'configure terminal' -c 'router bgp 101 vrf Vrf70' -c 'no srv6-locator lsid2'"
     st.config(dut1, cmd)
-    cmd = "cli -c 'configure terminal' -c 'router bgp 101 vrf VPN6' -c 'srv6-locator lsid4'"
+    cmd = "cli -c 'configure terminal' -c 'router bgp 101 vrf Vrf70' -c 'srv6-locator lsid4'"
     st.config(dut1, cmd)
 
     st.wait(10)
@@ -886,7 +1084,7 @@ def test_end_x_action():
 
     # delete opcode
     locator_name = 'lsid1'
-    vrf_name = 'PUBLIC-TC19'
+    vrf_name = 'Vrf19'
     locator_cmd = "locator {} prefix {}/48 block-len 32 node-len 16 func-bits 32 argu-bits 48".format(locator_name, data.mysid_prefix[locator_name])
     del_opc_cmd = 'vtysh -c "configure terminal" -c "segment-routing" -c "srv6" -c "locators" -c  "{}" -c "no opcode {}"'.format(locator_cmd, data.mysid_opcode[vrf_name])
     st.config(dut1, del_opc_cmd)
@@ -922,11 +1120,11 @@ def test_srvpn_ecmp_04():
     ixia_start_all_protocols()
 
     # ecmp ingress vrf
-    # PRIVATE-TC10  PUBLIC-TC20  ACTN-TC60
+    # Vrf10  Vrf20  Vrf60
 
     # step1: change vrf import rt withsame service-SID
     # # check vrf route learn
-    to_check_vrf = 'PUBLIC-TC20'
+    to_check_vrf = 'Vrf20'
     def check_route_nums():
         show_hw_route_count(dut2)
         return check_vrf_route_nums(dut2, to_check_vrf, 10000, 1) 

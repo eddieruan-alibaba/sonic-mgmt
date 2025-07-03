@@ -1,23 +1,23 @@
 {
     "BGP_NEIGHBOR": {
-        "101.1.0.2|global|PUBLIC-TC11": {
+        "101.1.0.2|global|Vrf11": {
             "asn": "999",
             "connect": "10"
         }, 
-        "101.1.0.2|ipv4|PUBLIC-TC11": {
+        "101.1.0.2|ipv4|Vrf11": {
             "activate": "true"
         }, 
-        "101.1.0.2|ipv6|PUBLIC-TC11": {
+        "101.1.0.2|ipv6|Vrf11": {
             "activate": "true"
         }, 
-        "101.2.0.2|global|PUBLIC-TC11": {
+        "101.2.0.2|global|Vrf11": {
             "asn": "998",
             "connect": "10"
         }, 
-        "101.2.0.2|ipv4|PUBLIC-TC11": {
+        "101.2.0.2|ipv4|Vrf11": {
             "activate": "true"
         }, 
-        "101.2.0.2|ipv6|PUBLIC-TC11": {
+        "101.2.0.2|ipv6|Vrf11": {
             "activate": "true"
         }, 
         "2000::178|global": {
@@ -55,7 +55,7 @@
             "bgp_start_timer": "1",
             "bgp_timers": "10 30"
         }, 
-        "100|global|PUBLIC-TC11": {
+        "100|global|Vrf11": {
             "bgp_router_id": "2.2.2.179",
             "bgp_timers": "10 30",
             "bgp_start_timer": "1",
@@ -65,7 +65,7 @@
             "bgp_start_timer": "1",
             "srv6_locator": "lsid1"
         }, 
-        "100|ipv4|PUBLIC-TC11": {
+        "100|ipv4|Vrf11": {
             "export_vpn": "true", 
             "import_vpn": "true", 
             "rd": "2:2",
@@ -505,7 +505,7 @@
             "node_len": "16", 
             "opcode": [
                 "::fff1:1:0:0:0|end-dt46|Vrf1", 
-                "::fff1:11:0:0:0|end-dt46|PUBLIC-TC11"
+                "::fff1:11:0:0:0|end-dt46|Vrf11"
             ], 
             "prefix": "fd00:201:201::/48"
         }
@@ -531,6 +531,6 @@
         "Vrf2": {}
     }, 
     "VRF_ALIAS": {
-        "PUBLIC-TC11": {}
+        "Vrf11": {}
     }
 }

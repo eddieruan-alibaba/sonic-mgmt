@@ -549,7 +549,7 @@ def appdb_get_onefield_route_related(dut, route_key, field):
 # show ip route vrf VRFNAME summary
 # compare: 1 more than or equal , 0 equal, -1 less than
 
-# show ip route vrf SX-XIAN-CM-TC29 summary
+# show ip route vrf Vrf29 summary
 # Route Source         Routes               FIB  (vrf Vrf10050)
 # connected            1                    1                    
 # static               1                    1                    

@@ -62073,30 +62073,30 @@
             "rt_import": "2000:2000",
             "rd": "2000:2000"
         },
-        "100|global|PUBLIC-TC11": {
+        "100|global|Vrf11": {
             "bgp_router_id": "2.1.1.178",
             "bgp_timers": "10 30"
         },
-        "100|ipv4|PUBLIC-TC11": {
+        "100|ipv4|Vrf11": {
             "import_vpn": "true",
             "rd": "1:1",
             "rt_import": "1:1"
         },
-        "100|ipv6|PUBLIC-TC11": {
+        "100|ipv6|Vrf11": {
             "import_vpn": "true",
             "rd": "1:1",
             "rt_import": "1:1"
         },
-        "100|global|PUBLIC-TC12": {
+        "100|global|Vrf12": {
             "bgp_router_id": "2.1.2.178",
             "bgp_timers": "10 30"
         },
-        "100|ipv4|PUBLIC-TC12": {
+        "100|ipv4|Vrf12": {
             "import_vpn": "true",
             "rd": "2:2",
             "rt_import": "2:2"
         },
-        "100|ipv6|PUBLIC-TC12": {
+        "100|ipv6|Vrf12": {
             "import_vpn": "true",
             "rd": "2:2",
             "rt_import": "2:2"
@@ -111017,7 +111017,7 @@
         "Vrf2000": {}
     },
     "VRF_ALIAS": {
-        "PUBLIC-TC11": {},
-        "PUBLIC-TC12": {}
+        "Vrf11": {},
+        "Vrf12": {}
     }
 }

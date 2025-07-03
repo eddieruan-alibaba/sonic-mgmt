@@ -24,8 +24,9 @@ tg_scapy_pkg_loaded = False
 tg_version_list = dict()
 tgen_obj_dict = {}
 
-IXIA_PORT = 8021
-IXIA_REST_PORT = 12031
+# Dynamic IXIA port assignment - can be overridden via environment variable
+IXIA_PORT = int(os.getenv('IXIA_PORT', '8021'))
+IXIA_REST_PORT = int(os.getenv('IXIA_REST_PORT', '12031'))
 
 def tgen_profiling_start(msg, max_time=300):
     return workarea.profiling_start(msg, max_time)

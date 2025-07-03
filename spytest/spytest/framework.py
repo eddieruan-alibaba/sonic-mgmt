@@ -1657,6 +1657,7 @@ class WorkArea(object):
         if self._trace_exceptions(None, "exception loading image or init config", exceptions):
             os._exit(6)
 
+        time.sleep(20)
         # identify invalid port names given in testbed file
         self.log("building port list and save base config")
         no_recovery = bool(env.get("SPYTEST_RECOVER_INITIAL_SYSTEM_NOT_READY", "0") == "1")

@@ -6,10 +6,10 @@
         "100.1.0.2|ipv4|Vrf1": {
             "activate": "true"
         },
-        "100.2.0.2|global|ACTN-TC51": {
+        "100.2.0.2|global|Vrf51": {
             "asn": "9050"
         },
-        "100.2.0.2|ipv4|ACTN-TC51": {
+        "100.2.0.2|ipv4|Vrf51": {
             "activate": "true"
         },
         "100.1.1.2|global|Vrf2": {
@@ -18,586 +18,586 @@
         "100.1.1.2|ipv4|Vrf2": {
             "activate": "true"
         },
-        "100.2.1.2|global|ACTN-TC52": {
+        "100.2.1.2|global|Vrf52": {
             "asn": "9051"
         },
-        "100.2.1.2|ipv4|ACTN-TC52": {
+        "100.2.1.2|ipv4|Vrf52": {
             "activate": "true"
         },
-        "100.1.2.2|global|PRIVATE-TC3": {
+        "100.1.2.2|global|Vrf3": {
             "asn": "9002"
         },
-        "100.1.2.2|ipv4|PRIVATE-TC3": {
+        "100.1.2.2|ipv4|Vrf3": {
             "activate": "true"
         },
-        "100.2.2.2|global|ACTN-TC53": {
+        "100.2.2.2|global|Vrf53": {
             "asn": "9052"
         },
-        "100.2.2.2|ipv4|ACTN-TC53": {
+        "100.2.2.2|ipv4|Vrf53": {
             "activate": "true"
         },
-        "100.1.3.2|global|PRIVATE-TC4": {
+        "100.1.3.2|global|Vrf4": {
             "asn": "9003"
         },
-        "100.1.3.2|ipv4|PRIVATE-TC4": {
+        "100.1.3.2|ipv4|Vrf4": {
             "activate": "true"
         },
-        "100.2.3.2|global|ACTN-TC54": {
+        "100.2.3.2|global|Vrf54": {
             "asn": "9053"
         },
-        "100.2.3.2|ipv4|ACTN-TC54": {
+        "100.2.3.2|ipv4|Vrf54": {
             "activate": "true"
         },
-        "100.1.4.2|global|PRIVATE-TC5": {
+        "100.1.4.2|global|Vrf5": {
             "asn": "9004"
         },
-        "100.1.4.2|ipv4|PRIVATE-TC5": {
+        "100.1.4.2|ipv4|Vrf5": {
             "activate": "true"
         },
-        "100.2.4.2|global|ACTN-TC55": {
+        "100.2.4.2|global|Vrf55": {
             "asn": "9054"
         },
-        "100.2.4.2|ipv4|ACTN-TC55": {
+        "100.2.4.2|ipv4|Vrf55": {
             "activate": "true"
         },
-        "100.1.5.2|global|PRIVATE-TC6": {
+        "100.1.5.2|global|Vrf6": {
             "asn": "9005"
         },
-        "100.1.5.2|ipv4|PRIVATE-TC6": {
+        "100.1.5.2|ipv4|Vrf6": {
             "activate": "true"
         },
-        "100.2.5.2|global|ACTN-TC56": {
+        "100.2.5.2|global|Vrf56": {
             "asn": "9055"
         },
-        "100.2.5.2|ipv4|ACTN-TC56": {
+        "100.2.5.2|ipv4|Vrf56": {
             "activate": "true"
         },
-        "100.1.6.2|global|PRIVATE-TC7": {
+        "100.1.6.2|global|Vrf7": {
             "asn": "9006"
         },
-        "100.1.6.2|ipv4|PRIVATE-TC7": {
+        "100.1.6.2|ipv4|Vrf7": {
             "activate": "true"
         },
-        "100.2.6.2|global|ACTN-TC57": {
+        "100.2.6.2|global|Vrf57": {
             "asn": "9056"
         },
-        "100.2.6.2|ipv4|ACTN-TC57": {
+        "100.2.6.2|ipv4|Vrf57": {
             "activate": "true"
         },
-        "100.1.7.2|global|PRIVATE-TC8": {
+        "100.1.7.2|global|Vrf8": {
             "asn": "9007"
         },
-        "100.1.7.2|ipv4|PRIVATE-TC8": {
+        "100.1.7.2|ipv4|Vrf8": {
             "activate": "true"
         },
-        "100.2.7.2|global|ACTN-TC58": {
+        "100.2.7.2|global|Vrf58": {
             "asn": "9057"
         },
-        "100.2.7.2|ipv4|ACTN-TC58": {
+        "100.2.7.2|ipv4|Vrf58": {
             "activate": "true"
         },
-        "100.1.8.2|global|PRIVATE-TC9": {
+        "100.1.8.2|global|Vrf9": {
             "asn": "9008"
         },
-        "100.1.8.2|ipv4|PRIVATE-TC9": {
+        "100.1.8.2|ipv4|Vrf9": {
             "activate": "true"
         },
-        "100.2.8.2|global|ACTN-TC59": {
+        "100.2.8.2|global|Vrf59": {
             "asn": "9058"
         },
-        "100.2.8.2|ipv4|ACTN-TC59": {
+        "100.2.8.2|ipv4|Vrf59": {
             "activate": "true"
         },
-        "100.1.9.2|global|PRIVATE-TC10": {
+        "100.1.9.2|global|Vrf10": {
             "asn": "9009"
         },
-        "100.1.9.2|ipv4|PRIVATE-TC10": {
+        "100.1.9.2|ipv4|Vrf10": {
             "activate": "true"
         },
-        "100.2.9.2|global|ACTN-TC60": {
+        "100.2.9.2|global|Vrf60": {
             "asn": "9059"
         },
-        "100.2.9.2|ipv4|ACTN-TC60": {
+        "100.2.9.2|ipv4|Vrf60": {
             "activate": "true"
         },
-        "100.1.10.2|global|PUBLIC-TC11": {
+        "100.1.10.2|global|Vrf11": {
             "asn": "9010"
         },
-        "100.1.10.2|ipv4|PUBLIC-TC11": {
+        "100.1.10.2|ipv4|Vrf11": {
             "activate": "true"
         },
-        "100.2.10.2|global|ACTN-TC61": {
+        "100.2.10.2|global|Vrf61": {
             "asn": "9060"
         },
-        "100.2.10.2|ipv4|ACTN-TC61": {
+        "100.2.10.2|ipv4|Vrf61": {
             "activate": "true"
         },
-        "100.1.11.2|global|PUBLIC-TC12": {
+        "100.1.11.2|global|Vrf12": {
             "asn": "9011"
         },
-        "100.1.11.2|ipv4|PUBLIC-TC12": {
+        "100.1.11.2|ipv4|Vrf12": {
             "activate": "true"
         },
-        "100.2.11.2|global|ACTN-TC62": {
+        "100.2.11.2|global|Vrf62": {
             "asn": "9061"
         },
-        "100.2.11.2|ipv4|ACTN-TC62": {
+        "100.2.11.2|ipv4|Vrf62": {
             "activate": "true"
         },
-        "100.1.12.2|global|PUBLIC-TC13": {
+        "100.1.12.2|global|Vrf13": {
             "asn": "9012"
         },
-        "100.1.12.2|ipv4|PUBLIC-TC13": {
+        "100.1.12.2|ipv4|Vrf13": {
             "activate": "true"
         },
-        "100.2.12.2|global|ACTN-TC63": {
+        "100.2.12.2|global|Vrf63": {
             "asn": "9062"
         },
-        "100.2.12.2|ipv4|ACTN-TC63": {
+        "100.2.12.2|ipv4|Vrf63": {
             "activate": "true"
         },
-        "100.1.13.2|global|PUBLIC-TC14": {
+        "100.1.13.2|global|Vrf14": {
             "asn": "9013"
         },
-        "100.1.13.2|ipv4|PUBLIC-TC14": {
+        "100.1.13.2|ipv4|Vrf14": {
             "activate": "true"
         },
-        "100.2.13.2|global|ACTN-TC64": {
+        "100.2.13.2|global|Vrf64": {
             "asn": "9063"
         },
-        "100.2.13.2|ipv4|ACTN-TC64": {
+        "100.2.13.2|ipv4|Vrf64": {
             "activate": "true"
         },
-        "100.1.14.2|global|PUBLIC-TC15": {
+        "100.1.14.2|global|Vrf15": {
             "asn": "9014"
         },
-        "100.1.14.2|ipv4|PUBLIC-TC15": {
+        "100.1.14.2|ipv4|Vrf15": {
             "activate": "true"
         },
-        "100.2.14.2|global|VPN1": {
+        "100.2.14.2|global|Vrf65": {
             "asn": "9064"
         },
-        "100.2.14.2|ipv4|VPN1": {
+        "100.2.14.2|ipv4|Vrf65": {
             "activate": "true"
         },
-        "100.1.15.2|global|PUBLIC-TC16": {
+        "100.1.15.2|global|Vrf16": {
             "asn": "9015"
         },
-        "100.1.15.2|ipv4|PUBLIC-TC16": {
+        "100.1.15.2|ipv4|Vrf16": {
             "activate": "true"
         },
-        "100.2.15.2|global|VPN2": {
+        "100.2.15.2|global|Vrf66": {
             "asn": "9065"
         },
-        "100.2.15.2|ipv4|VPN2": {
+        "100.2.15.2|ipv4|Vrf66": {
             "activate": "true"
         },
-        "100.1.16.2|global|PUBLIC-TC17": {
+        "100.1.16.2|global|Vrf17": {
             "asn": "9016"
         },
-        "100.1.16.2|ipv4|PUBLIC-TC17": {
+        "100.1.16.2|ipv4|Vrf17": {
             "activate": "true"
         },
-        "100.2.16.2|global|VPN3": {
+        "100.2.16.2|global|Vrf67": {
             "asn": "9066"
         },
-        "100.2.16.2|ipv4|VPN3": {
+        "100.2.16.2|ipv4|Vrf67": {
             "activate": "true"
         },
-        "100.1.17.2|global|PUBLIC-TC18": {
+        "100.1.17.2|global|Vrf18": {
             "asn": "9017"
         },
-        "100.1.17.2|ipv4|PUBLIC-TC18": {
+        "100.1.17.2|ipv4|Vrf18": {
             "activate": "true"
         },
-        "100.2.17.2|global|VPN4": {
+        "100.2.17.2|global|Vrf68": {
             "asn": "9067"
         },
-        "100.2.17.2|ipv4|VPN4": {
+        "100.2.17.2|ipv4|Vrf68": {
             "activate": "true"
         },
-        "100.1.18.2|global|PUBLIC-TC19": {
+        "100.1.18.2|global|Vrf19": {
             "asn": "9018"
         },
-        "100.1.18.2|ipv4|PUBLIC-TC19": {
+        "100.1.18.2|ipv4|Vrf19": {
             "activate": "true"
         },
-        "100.2.18.2|global|VPN5": {
+        "100.2.18.2|global|Vrf69": {
             "asn": "9068"
         },
-        "100.2.18.2|ipv4|VPN5": {
+        "100.2.18.2|ipv4|Vrf69": {
             "activate": "true"
         },
-        "100.1.19.2|global|PUBLIC-TC20": {
+        "100.1.19.2|global|Vrf20": {
             "asn": "9019"
         },
-        "100.1.19.2|ipv4|PUBLIC-TC20": {
+        "100.1.19.2|ipv4|Vrf20": {
             "activate": "true"
         },
-        "100.2.19.2|global|VPN6": {
+        "100.2.19.2|global|Vrf70": {
             "asn": "9069"
         },
-        "100.2.19.2|ipv4|VPN6": {
+        "100.2.19.2|ipv4|Vrf70": {
             "activate": "true"
         },
-        "100.1.20.2|global|SX-XIAN-CM-TC21": {
+        "100.1.20.2|global|Vrf21": {
             "asn": "9020"
         },
-        "100.1.20.2|ipv4|SX-XIAN-CM-TC21": {
+        "100.1.20.2|ipv4|Vrf21": {
             "activate": "true"
         },
-        "100.2.20.2|global|VPN7": {
+        "100.2.20.2|global|Vrf71": {
             "asn": "9070"
         },
-        "100.2.20.2|ipv4|VPN7": {
+        "100.2.20.2|ipv4|Vrf71": {
             "activate": "true"
         },
-        "100.1.21.2|global|SX-XIAN-CM-TC22": {
+        "100.1.21.2|global|Vrf22": {
             "asn": "9021"
         },
-        "100.1.21.2|ipv4|SX-XIAN-CM-TC22": {
+        "100.1.21.2|ipv4|Vrf22": {
             "activate": "true"
         },
-        "100.2.21.2|global|VPN8": {
+        "100.2.21.2|global|Vrf72": {
             "asn": "9071"
         },
-        "100.2.21.2|ipv4|VPN8": {
+        "100.2.21.2|ipv4|Vrf72": {
             "activate": "true"
         },
-        "100.1.22.2|global|SX-XIAN-CM-TC23": {
+        "100.1.22.2|global|Vrf23": {
             "asn": "9022"
         },
-        "100.1.22.2|ipv4|SX-XIAN-CM-TC23": {
+        "100.1.22.2|ipv4|Vrf23": {
             "activate": "true"
         },
-        "100.2.22.2|global|VPN9": {
+        "100.2.22.2|global|Vrf73": {
             "asn": "9072"
         },
-        "100.2.22.2|ipv4|VPN9": {
+        "100.2.22.2|ipv4|Vrf73": {
             "activate": "true"
         },
-        "100.1.23.2|global|SX-XIAN-CM-TC24": {
+        "100.1.23.2|global|Vrf24": {
             "asn": "9023"
         },
-        "100.1.23.2|ipv4|SX-XIAN-CM-TC24": {
+        "100.1.23.2|ipv4|Vrf24": {
             "activate": "true"
         },
-        "100.2.23.2|global|VPN10": {
+        "100.2.23.2|global|Vrf74": {
             "asn": "9073"
         },
-        "100.2.23.2|ipv4|VPN10": {
+        "100.2.23.2|ipv4|Vrf74": {
             "activate": "true"
         },
-        "100.1.24.2|global|SX-XIAN-CM-TC25": {
+        "100.1.24.2|global|Vrf25": {
             "asn": "9024"
         },
-        "100.1.24.2|ipv4|SX-XIAN-CM-TC25": {
+        "100.1.24.2|ipv4|Vrf25": {
             "activate": "true"
         },
-        "100.2.24.2|global|VPN11": {
+        "100.2.24.2|global|Vrf75": {
             "asn": "9074"
         },
-        "100.2.24.2|ipv4|VPN11": {
+        "100.2.24.2|ipv4|Vrf75": {
             "activate": "true"
         },
-        "100.1.25.2|global|SX-XIAN-CM-TC26": {
+        "100.1.25.2|global|Vrf26": {
             "asn": "9025"
         },
-        "100.1.25.2|ipv4|SX-XIAN-CM-TC26": {
+        "100.1.25.2|ipv4|Vrf26": {
             "activate": "true"
         },
-        "100.2.25.2|global|VPN12": {
+        "100.2.25.2|global|Vrf76": {
             "asn": "9075"
         },
-        "100.2.25.2|ipv4|VPN12": {
+        "100.2.25.2|ipv4|Vrf76": {
             "activate": "true"
         },
-        "100.1.26.2|global|SX-XIAN-CM-TC27": {
+        "100.1.26.2|global|Vrf27": {
             "asn": "9026"
         },
-        "100.1.26.2|ipv4|SX-XIAN-CM-TC27": {
+        "100.1.26.2|ipv4|Vrf27": {
             "activate": "true"
         },
-        "100.2.26.2|global|VPN13": {
+        "100.2.26.2|global|Vrf77": {
             "asn": "9076"
         },
-        "100.2.26.2|ipv4|VPN13": {
+        "100.2.26.2|ipv4|Vrf77": {
             "activate": "true"
         },
-        "100.1.27.2|global|SX-XIAN-CM-TC28": {
+        "100.1.27.2|global|Vrf28": {
             "asn": "9027"
         },
-        "100.1.27.2|ipv4|SX-XIAN-CM-TC28": {
+        "100.1.27.2|ipv4|Vrf28": {
             "activate": "true"
         },
-        "100.2.27.2|global|VPN14": {
+        "100.2.27.2|global|Vrf78": {
             "asn": "9077"
         },
-        "100.2.27.2|ipv4|VPN14": {
+        "100.2.27.2|ipv4|Vrf78": {
             "activate": "true"
         },
-        "100.1.28.2|global|SX-XIAN-CM-TC29": {
+        "100.1.28.2|global|Vrf29": {
             "asn": "9028"
         },
-        "100.1.28.2|ipv4|SX-XIAN-CM-TC29": {
+        "100.1.28.2|ipv4|Vrf29": {
             "activate": "true"
         },
-        "100.2.28.2|global|VPN15": {
+        "100.2.28.2|global|Vrf79": {
             "asn": "9078"
         },
-        "100.2.28.2|ipv4|VPN15": {
+        "100.2.28.2|ipv4|Vrf79": {
             "activate": "true"
         },
-        "100.1.29.2|global|SX-XIAN-CM-TC30": {
+        "100.1.29.2|global|Vrf30": {
             "asn": "9029"
         },
-        "100.1.29.2|ipv4|SX-XIAN-CM-TC30": {
+        "100.1.29.2|ipv4|Vrf30": {
             "activate": "true"
         },
-        "100.2.29.2|global|VPN16": {
+        "100.2.29.2|global|Vrf80": {
             "asn": "9079"
         },
-        "100.2.29.2|ipv4|VPN16": {
+        "100.2.29.2|ipv4|Vrf80": {
             "activate": "true"
         },
-        "100.1.30.2|global|SX-XIAN-CM-TC31": {
+        "100.1.30.2|global|Vrf31": {
             "asn": "9030"
         },
-        "100.1.30.2|ipv4|SX-XIAN-CM-TC31": {
+        "100.1.30.2|ipv4|Vrf31": {
             "activate": "true"
         },
-        "100.2.30.2|global|VPN17": {
+        "100.2.30.2|global|Vrf81": {
             "asn": "9080"
         },
-        "100.2.30.2|ipv4|VPN17": {
+        "100.2.30.2|ipv4|Vrf81": {
             "activate": "true"
         },
-        "100.1.31.2|global|SX-XIAN-CM-TC32": {
+        "100.1.31.2|global|Vrf32": {
             "asn": "9031"
         },
-        "100.1.31.2|ipv4|SX-XIAN-CM-TC32": {
+        "100.1.31.2|ipv4|Vrf32": {
             "activate": "true"
         },
-        "100.2.31.2|global|VPN18": {
+        "100.2.31.2|global|Vrf82": {
             "asn": "9081"
         },
-        "100.2.31.2|ipv4|VPN18": {
+        "100.2.31.2|ipv4|Vrf82": {
             "activate": "true"
         },
-        "100.1.32.2|global|SX-XIAN-CM-TC33": {
+        "100.1.32.2|global|Vrf33": {
             "asn": "9032"
         },
-        "100.1.32.2|ipv4|SX-XIAN-CM-TC33": {
+        "100.1.32.2|ipv4|Vrf33": {
             "activate": "true"
         },
-        "100.2.32.2|global|VPN19": {
+        "100.2.32.2|global|Vrf83": {
             "asn": "9082"
         },
-        "100.2.32.2|ipv4|VPN19": {
+        "100.2.32.2|ipv4|Vrf83": {
             "activate": "true"
         },
-        "100.1.33.2|global|SX-XIAN-CM-TC34": {
+        "100.1.33.2|global|Vrf34": {
             "asn": "9033"
         },
-        "100.1.33.2|ipv4|SX-XIAN-CM-TC34": {
+        "100.1.33.2|ipv4|Vrf34": {
             "activate": "true"
         },
-        "100.2.33.2|global|VPN20": {
+        "100.2.33.2|global|Vrf84": {
             "asn": "9083"
         },
-        "100.2.33.2|ipv4|VPN20": {
+        "100.2.33.2|ipv4|Vrf84": {
             "activate": "true"
         },
-        "100.1.34.2|global|SX-XIAN-CM-TC35": {
+        "100.1.34.2|global|Vrf35": {
             "asn": "9034"
         },
-        "100.1.34.2|ipv4|SX-XIAN-CM-TC35": {
+        "100.1.34.2|ipv4|Vrf35": {
             "activate": "true"
         },
-        "100.2.34.2|global|VPN21": {
+        "100.2.34.2|global|Vrf85": {
             "asn": "9084"
         },
-        "100.2.34.2|ipv4|VPN21": {
+        "100.2.34.2|ipv4|Vrf85": {
             "activate": "true"
         },
-        "100.1.35.2|global|SX-XIAN-CM-TC36": {
+        "100.1.35.2|global|Vrf36": {
             "asn": "9035"
         },
-        "100.1.35.2|ipv4|SX-XIAN-CM-TC36": {
+        "100.1.35.2|ipv4|Vrf36": {
             "activate": "true"
         },
-        "100.2.35.2|global|VPN22": {
+        "100.2.35.2|global|Vrf86": {
             "asn": "9085"
         },
-        "100.2.35.2|ipv4|VPN22": {
+        "100.2.35.2|ipv4|Vrf86": {
             "activate": "true"
         },
-        "100.1.36.2|global|SX-XIAN-CM-TC37": {
+        "100.1.36.2|global|Vrf37": {
             "asn": "9036"
         },
-        "100.1.36.2|ipv4|SX-XIAN-CM-TC37": {
+        "100.1.36.2|ipv4|Vrf37": {
             "activate": "true"
         },
-        "100.2.36.2|global|VPN23": {
+        "100.2.36.2|global|Vrf87": {
             "asn": "9086"
         },
-        "100.2.36.2|ipv4|VPN23": {
+        "100.2.36.2|ipv4|Vrf87": {
             "activate": "true"
         },
-        "100.1.37.2|global|SX-XIAN-CM-TC38": {
+        "100.1.37.2|global|Vrf38": {
             "asn": "9037"
         },
-        "100.1.37.2|ipv4|SX-XIAN-CM-TC38": {
+        "100.1.37.2|ipv4|Vrf38": {
             "activate": "true"
         },
-        "100.2.37.2|global|VPN24": {
+        "100.2.37.2|global|Vrf88": {
             "asn": "9087"
         },
-        "100.2.37.2|ipv4|VPN24": {
+        "100.2.37.2|ipv4|Vrf88": {
             "activate": "true"
         },
-        "100.1.38.2|global|SX-XIAN-CM-TC39": {
+        "100.1.38.2|global|Vrf39": {
             "asn": "9038"
         },
-        "100.1.38.2|ipv4|SX-XIAN-CM-TC39": {
+        "100.1.38.2|ipv4|Vrf39": {
             "activate": "true"
         },
-        "100.2.38.2|global|VPN25": {
+        "100.2.38.2|global|Vrf89": {
             "asn": "9088"
         },
-        "100.2.38.2|ipv4|VPN25": {
+        "100.2.38.2|ipv4|Vrf89": {
             "activate": "true"
         },
-        "100.1.39.2|global|SX-XIAN-CM-TC40": {
+        "100.1.39.2|global|Vrf40": {
             "asn": "9039"
         },
-        "100.1.39.2|ipv4|SX-XIAN-CM-TC40": {
+        "100.1.39.2|ipv4|Vrf40": {
             "activate": "true"
         },
-        "100.2.39.2|global|VPN26": {
+        "100.2.39.2|global|Vrf90": {
             "asn": "9089"
         },
-        "100.2.39.2|ipv4|VPN26": {
+        "100.2.39.2|ipv4|Vrf90": {
             "activate": "true"
         },
-        "100.1.40.2|global|ACTN-TC41": {
+        "100.1.40.2|global|Vrf41": {
             "asn": "9040"
         },
-        "100.1.40.2|ipv4|ACTN-TC41": {
+        "100.1.40.2|ipv4|Vrf41": {
             "activate": "true"
         },
-        "100.2.40.2|global|VPN27": {
+        "100.2.40.2|global|Vrf91": {
             "asn": "9090"
         },
-        "100.2.40.2|ipv4|VPN27": {
+        "100.2.40.2|ipv4|Vrf91": {
             "activate": "true"
         },
-        "100.1.41.2|global|ACTN-TC42": {
+        "100.1.41.2|global|Vrf42": {
             "asn": "9041"
         },
-        "100.1.41.2|ipv4|ACTN-TC42": {
+        "100.1.41.2|ipv4|Vrf42": {
             "activate": "true"
         },
-        "100.2.41.2|global|VPN28": {
+        "100.2.41.2|global|Vrf92": {
             "asn": "9091"
         },
-        "100.2.41.2|ipv4|VPN28": {
+        "100.2.41.2|ipv4|Vrf92": {
             "activate": "true"
         },
-        "100.1.42.2|global|ACTN-TC43": {
+        "100.1.42.2|global|Vrf43": {
             "asn": "9042"
         },
-        "100.1.42.2|ipv4|ACTN-TC43": {
+        "100.1.42.2|ipv4|Vrf43": {
             "activate": "true"
         },
-        "100.2.42.2|global|VPN29": {
+        "100.2.42.2|global|Vrf93": {
             "asn": "9092"
         },
-        "100.2.42.2|ipv4|VPN29": {
+        "100.2.42.2|ipv4|Vrf93": {
             "activate": "true"
         },
-        "100.1.43.2|global|ACTN-TC44": {
+        "100.1.43.2|global|Vrf44": {
             "asn": "9043"
         },
-        "100.1.43.2|ipv4|ACTN-TC44": {
+        "100.1.43.2|ipv4|Vrf44": {
             "activate": "true"
         },
-        "100.2.43.2|global|VPN30": {
+        "100.2.43.2|global|Vrf94": {
             "asn": "9093"
         },
-        "100.2.43.2|ipv4|VPN30": {
+        "100.2.43.2|ipv4|Vrf94": {
             "activate": "true"
         },
-        "100.1.44.2|global|ACTN-TC45": {
+        "100.1.44.2|global|Vrf45": {
             "asn": "9044"
         },
-        "100.1.44.2|ipv4|ACTN-TC45": {
+        "100.1.44.2|ipv4|Vrf45": {
             "activate": "true"
         },
-        "100.2.44.2|global|VPN31": {
+        "100.2.44.2|global|Vrf95": {
             "asn": "9094"
         },
-        "100.2.44.2|ipv4|VPN31": {
+        "100.2.44.2|ipv4|Vrf95": {
             "activate": "true"
         },
-        "100.1.45.2|global|ACTN-TC46": {
+        "100.1.45.2|global|Vrf46": {
             "asn": "9045"
         },
-        "100.1.45.2|ipv4|ACTN-TC46": {
+        "100.1.45.2|ipv4|Vrf46": {
             "activate": "true"
         },
-        "100.2.45.2|global|VPN32": {
+        "100.2.45.2|global|Vrf96": {
             "asn": "9095"
         },
-        "100.2.45.2|ipv4|VPN32": {
+        "100.2.45.2|ipv4|Vrf96": {
             "activate": "true"
         },
-        "100.1.46.2|global|ACTN-TC47": {
+        "100.1.46.2|global|Vrf47": {
             "asn": "9046"
         },
-        "100.1.46.2|ipv4|ACTN-TC47": {
+        "100.1.46.2|ipv4|Vrf47": {
             "activate": "true"
         },
-        "100.2.46.2|global|VPN33": {
+        "100.2.46.2|global|Vrf97": {
             "asn": "9096"
         },
-        "100.2.46.2|ipv4|VPN33": {
+        "100.2.46.2|ipv4|Vrf97": {
             "activate": "true"
         },
-        "100.1.47.2|global|ACTN-TC48": {
+        "100.1.47.2|global|Vrf48": {
             "asn": "9047"
         },
-        "100.1.47.2|ipv4|ACTN-TC48": {
+        "100.1.47.2|ipv4|Vrf48": {
             "activate": "true"
         },
-        "100.2.47.2|global|VPN34": {
+        "100.2.47.2|global|Vrf98": {
             "asn": "9097"
         },
-        "100.2.47.2|ipv4|VPN34": {
+        "100.2.47.2|ipv4|Vrf98": {
             "activate": "true"
         },
-        "100.1.48.2|global|ACTN-TC49": {
+        "100.1.48.2|global|Vrf49": {
             "asn": "9048"
         },
-        "100.1.48.2|ipv4|ACTN-TC49": {
+        "100.1.48.2|ipv4|Vrf49": {
             "activate": "true"
         },
-        "100.2.48.2|global|VPN35": {
+        "100.2.48.2|global|Vrf99": {
             "asn": "9098"
         },
-        "100.2.48.2|ipv4|VPN35": {
+        "100.2.48.2|ipv4|Vrf99": {
             "activate": "true"
         },
-        "100.1.49.2|global|ACTN-TC50": {
+        "100.1.49.2|global|Vrf50": {
             "asn": "9049"
         },
-        "100.1.49.2|ipv4|ACTN-TC50": {
+        "100.1.49.2|ipv4|Vrf50": {
             "activate": "true"
         },
-        "100.2.49.2|global|VPN36": {
+        "100.2.49.2|global|Vrf100": {
             "asn": "9099"
         },
-        "100.2.49.2|ipv4|VPN36": {
+        "100.2.49.2|ipv4|Vrf100": {
             "activate": "true"
         },
         "2000::179|global": {
@@ -636,10 +636,10 @@
             "rt_import": "1:1",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC51": {
+        "100|global|Vrf51": {
             "bgp_router_id": "3.3.3.51"
         },
-        "100|ipv4|ACTN-TC51": {
+        "100|ipv4|Vrf51": {
             "import_vpn": "true",
             "rt_import": "1:51",
             "rd": "2:2"
@@ -652,778 +652,778 @@
             "rt_import": "1:2",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC52": {
+        "100|global|Vrf52": {
             "bgp_router_id": "3.3.3.52"
         },
-        "100|ipv4|ACTN-TC52": {
+        "100|ipv4|Vrf52": {
             "import_vpn": "true",
             "rt_import": "1:52",
             "rd": "2:2"
         },
-        "100|global|PRIVATE-TC3": {
+        "100|global|Vrf3": {
             "bgp_router_id": "3.3.3.3"
         },
-        "100|ipv4|PRIVATE-TC3": {
+        "100|ipv4|Vrf3": {
             "import_vpn": "true",
             "rt_import": "1:3",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC53": {
+        "100|global|Vrf53": {
             "bgp_router_id": "3.3.3.53"
         },
-        "100|ipv4|ACTN-TC53": {
+        "100|ipv4|Vrf53": {
             "import_vpn": "true",
             "rt_import": "1:53",
             "rd": "2:2"
         },
-        "100|global|PRIVATE-TC4": {
+        "100|global|Vrf4": {
             "bgp_router_id": "3.3.3.4"
         },
-        "100|ipv4|PRIVATE-TC4": {
+        "100|ipv4|Vrf4": {
             "import_vpn": "true",
             "rt_import": "1:4",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC54": {
+        "100|global|Vrf54": {
             "bgp_router_id": "3.3.3.54"
         },
-        "100|ipv4|ACTN-TC54": {
+        "100|ipv4|Vrf54": {
             "import_vpn": "true",
             "rt_import": "1:54",
             "rd": "2:2"
         },
-        "100|global|PRIVATE-TC5": {
+        "100|global|Vrf5": {
             "bgp_router_id": "3.3.3.5"
         },
-        "100|ipv4|PRIVATE-TC5": {
+        "100|ipv4|Vrf5": {
             "import_vpn": "true",
             "rt_import": "1:5",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC55": {
+        "100|global|Vrf55": {
             "bgp_router_id": "3.3.3.55"
         },
-        "100|ipv4|ACTN-TC55": {
+        "100|ipv4|Vrf55": {
             "import_vpn": "true",
             "rt_import": "1:55",
             "rd": "2:2"
         },
-        "100|global|PRIVATE-TC6": {
+        "100|global|Vrf6": {
             "bgp_router_id": "3.3.3.6"
         },
-        "100|ipv4|PRIVATE-TC6": {
+        "100|ipv4|Vrf6": {
             "import_vpn": "true",
             "rt_import": "1:6",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC56": {
+        "100|global|Vrf56": {
             "bgp_router_id": "3.3.3.56"
         },
-        "100|ipv4|ACTN-TC56": {
+        "100|ipv4|Vrf56": {
             "import_vpn": "true",
             "rt_import": "1:56",
             "rd": "2:2"
         },
-        "100|global|PRIVATE-TC7": {
+        "100|global|Vrf7": {
             "bgp_router_id": "3.3.3.7"
         },
-        "100|ipv4|PRIVATE-TC7": {
+        "100|ipv4|Vrf7": {
             "import_vpn": "true",
             "rt_import": "1:7",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC57": {
+        "100|global|Vrf57": {
             "bgp_router_id": "3.3.3.57"
         },
-        "100|ipv4|ACTN-TC57": {
+        "100|ipv4|Vrf57": {
             "import_vpn": "true",
             "rt_import": "1:57",
             "rd": "2:2"
         },
-        "100|global|PRIVATE-TC8": {
+        "100|global|Vrf8": {
             "bgp_router_id": "3.3.3.8"
         },
-        "100|ipv4|PRIVATE-TC8": {
+        "100|ipv4|Vrf8": {
             "import_vpn": "true",
             "rt_import": "1:8",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC58": {
+        "100|global|Vrf58": {
             "bgp_router_id": "3.3.3.58"
         },
-        "100|ipv4|ACTN-TC58": {
+        "100|ipv4|Vrf58": {
             "import_vpn": "true",
             "rt_import": "1:58",
             "rd": "2:2"
         },
-        "100|global|PRIVATE-TC9": {
+        "100|global|Vrf9": {
             "bgp_router_id": "3.3.3.9"
         },
-        "100|ipv4|PRIVATE-TC9": {
+        "100|ipv4|Vrf9": {
             "import_vpn": "true",
             "rt_import": "1:9",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC59": {
+        "100|global|Vrf59": {
             "bgp_router_id": "3.3.3.59"
         },
-        "100|ipv4|ACTN-TC59": {
+        "100|ipv4|Vrf59": {
             "import_vpn": "true",
             "rt_import": "1:59",
             "rd": "2:2"
         },
-        "100|global|PRIVATE-TC10": {
+        "100|global|Vrf10": {
             "bgp_router_id": "3.3.3.10"
         },
-        "100|ipv4|PRIVATE-TC10": {
+        "100|ipv4|Vrf10": {
             "import_vpn": "true",
             "rt_import": "1:10",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC60": {
+        "100|global|Vrf60": {
             "bgp_router_id": "3.3.3.60"
         },
-        "100|ipv4|ACTN-TC60": {
+        "100|ipv4|Vrf60": {
             "import_vpn": "true",
             "rt_import": "1:60",
             "rd": "2:2"
         },
-        "100|global|PUBLIC-TC11": {
+        "100|global|Vrf11": {
             "bgp_router_id": "3.3.3.11"
         },
-        "100|ipv4|PUBLIC-TC11": {
+        "100|ipv4|Vrf11": {
             "import_vpn": "true",
             "rt_import": "1:11",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC61": {
+        "100|global|Vrf61": {
             "bgp_router_id": "3.3.3.61"
         },
-        "100|ipv4|ACTN-TC61": {
+        "100|ipv4|Vrf61": {
             "import_vpn": "true",
             "rt_import": "1:61",
             "rd": "2:2"
         },
-        "100|global|PUBLIC-TC12": {
+        "100|global|Vrf12": {
             "bgp_router_id": "3.3.3.12"
         },
-        "100|ipv4|PUBLIC-TC12": {
+        "100|ipv4|Vrf12": {
             "import_vpn": "true",
             "rt_import": "1:12",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC62": {
+        "100|global|Vrf62": {
             "bgp_router_id": "3.3.3.62"
         },
-        "100|ipv4|ACTN-TC62": {
+        "100|ipv4|Vrf62": {
             "import_vpn": "true",
             "rt_import": "1:62",
             "rd": "2:2"
         },
-        "100|global|PUBLIC-TC13": {
+        "100|global|Vrf13": {
             "bgp_router_id": "3.3.3.13"
         },
-        "100|ipv4|PUBLIC-TC13": {
+        "100|ipv4|Vrf13": {
             "import_vpn": "true",
             "rt_import": "1:13",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC63": {
+        "100|global|Vrf63": {
             "bgp_router_id": "3.3.3.63"
         },
-        "100|ipv4|ACTN-TC63": {
+        "100|ipv4|Vrf63": {
             "import_vpn": "true",
             "rt_import": "1:63",
             "rd": "2:2"
         },
-        "100|global|PUBLIC-TC14": {
+        "100|global|Vrf14": {
             "bgp_router_id": "3.3.3.14"
         },
-        "100|ipv4|PUBLIC-TC14": {
+        "100|ipv4|Vrf14": {
             "import_vpn": "true",
             "rt_import": "1:14",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC64": {
+        "100|global|Vrf64": {
             "bgp_router_id": "3.3.3.64"
         },
-        "100|ipv4|ACTN-TC64": {
+        "100|ipv4|Vrf64": {
             "import_vpn": "true",
             "rt_import": "1:64",
             "rd": "2:2"
         },
-        "100|global|PUBLIC-TC15": {
+        "100|global|Vrf15": {
             "bgp_router_id": "3.3.3.15"
         },
-        "100|ipv4|PUBLIC-TC15": {
+        "100|ipv4|Vrf15": {
             "import_vpn": "true",
             "rt_import": "1:15",
             "rd": "2:2"
         },
-        "100|global|VPN1": {
+        "100|global|Vrf65": {
             "bgp_router_id": "3.3.3.65"
         },
-        "100|ipv4|VPN1": {
+        "100|ipv4|Vrf65": {
             "import_vpn": "true",
             "rt_import": "1:65",
             "rd": "2:2"
         },
-        "100|global|PUBLIC-TC16": {
+        "100|global|Vrf16": {
             "bgp_router_id": "3.3.3.16"
         },
-        "100|ipv4|PUBLIC-TC16": {
+        "100|ipv4|Vrf16": {
             "import_vpn": "true",
             "rt_import": "1:16",
             "rd": "2:2"
         },
-        "100|global|VPN2": {
+        "100|global|Vrf66": {
             "bgp_router_id": "3.3.3.66"
         },
-        "100|ipv4|VPN2": {
+        "100|ipv4|Vrf66": {
             "import_vpn": "true",
             "rt_import": "1:66",
             "rd": "2:2"
         },
-        "100|global|PUBLIC-TC17": {
+        "100|global|Vrf17": {
             "bgp_router_id": "3.3.3.17"
         },
-        "100|ipv4|PUBLIC-TC17": {
+        "100|ipv4|Vrf17": {
             "import_vpn": "true",
             "rt_import": "1:17",
             "rd": "2:2"
         },
-        "100|global|VPN3": {
+        "100|global|Vrf67": {
             "bgp_router_id": "3.3.3.67"
         },
-        "100|ipv4|VPN3": {
+        "100|ipv4|Vrf67": {
             "import_vpn": "true",
             "rt_import": "1:67",
             "rd": "2:2"
         },
-        "100|global|PUBLIC-TC18": {
+        "100|global|Vrf18": {
             "bgp_router_id": "3.3.3.18"
         },
-        "100|ipv4|PUBLIC-TC18": {
+        "100|ipv4|Vrf18": {
             "import_vpn": "true",
             "rt_import": "1:18",
             "rd": "2:2"
         },
-        "100|global|VPN4": {
+        "100|global|Vrf68": {
             "bgp_router_id": "3.3.3.68"
         },
-        "100|ipv4|VPN4": {
+        "100|ipv4|Vrf68": {
             "import_vpn": "true",
             "rt_import": "1:68",
             "rd": "2:2"
         },
-        "100|global|PUBLIC-TC19": {
+        "100|global|Vrf19": {
             "bgp_router_id": "3.3.3.19"
         },
-        "100|ipv4|PUBLIC-TC19": {
+        "100|ipv4|Vrf19": {
             "import_vpn": "true",
             "rt_import": "1:19",
             "rd": "2:2"
         },
-        "100|global|VPN5": {
+        "100|global|Vrf69": {
             "bgp_router_id": "3.3.3.69"
         },
-        "100|ipv4|VPN5": {
+        "100|ipv4|Vrf69": {
             "import_vpn": "true",
             "rt_import": "1:69",
             "rd": "2:2"
         },
-        "100|global|PUBLIC-TC20": {
+        "100|global|Vrf20": {
             "bgp_router_id": "3.3.3.20"
         },
-        "100|ipv4|PUBLIC-TC20": {
+        "100|ipv4|Vrf20": {
             "import_vpn": "true",
             "rt_import": "1:20",
             "rd": "2:2"
         },
-        "100|global|VPN6": {
+        "100|global|Vrf70": {
             "bgp_router_id": "3.3.3.70"
         },
-        "100|ipv4|VPN6": {
+        "100|ipv4|Vrf70": {
             "import_vpn": "true",
             "rt_import": "1:70",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC21": {
+        "100|global|Vrf21": {
             "bgp_router_id": "3.3.3.21"
         },
-        "100|ipv4|SX-XIAN-CM-TC21": {
+        "100|ipv4|Vrf21": {
             "import_vpn": "true",
             "rt_import": "1:21",
             "rd": "2:2"
         },
-        "100|global|VPN7": {
+        "100|global|Vrf71": {
             "bgp_router_id": "3.3.3.71"
         },
-        "100|ipv4|VPN7": {
+        "100|ipv4|Vrf71": {
             "import_vpn": "true",
             "rt_import": "1:71",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC22": {
+        "100|global|Vrf22": {
             "bgp_router_id": "3.3.3.22"
         },
-        "100|ipv4|SX-XIAN-CM-TC22": {
+        "100|ipv4|Vrf22": {
             "import_vpn": "true",
             "rt_import": "1:22",
             "rd": "2:2"
         },
-        "100|global|VPN8": {
+        "100|global|Vrf72": {
             "bgp_router_id": "3.3.3.72"
         },
-        "100|ipv4|VPN8": {
+        "100|ipv4|Vrf72": {
             "import_vpn": "true",
             "rt_import": "1:72",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC23": {
+        "100|global|Vrf23": {
             "bgp_router_id": "3.3.3.23"
         },
-        "100|ipv4|SX-XIAN-CM-TC23": {
+        "100|ipv4|Vrf23": {
             "import_vpn": "true",
             "rt_import": "1:23",
             "rd": "2:2"
         },
-        "100|global|VPN9": {
+        "100|global|Vrf73": {
             "bgp_router_id": "3.3.3.73"
         },
-        "100|ipv4|VPN9": {
+        "100|ipv4|Vrf73": {
             "import_vpn": "true",
             "rt_import": "1:73",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC24": {
+        "100|global|Vrf24": {
             "bgp_router_id": "3.3.3.24"
         },
-        "100|ipv4|SX-XIAN-CM-TC24": {
+        "100|ipv4|Vrf24": {
             "import_vpn": "true",
             "rt_import": "1:24",
             "rd": "2:2"
         },
-        "100|global|VPN10": {
+        "100|global|Vrf74": {
             "bgp_router_id": "3.3.3.74"
         },
-        "100|ipv4|VPN10": {
+        "100|ipv4|Vrf74": {
             "import_vpn": "true",
             "rt_import": "1:74",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC25": {
+        "100|global|Vrf25": {
             "bgp_router_id": "3.3.3.25"
         },
-        "100|ipv4|SX-XIAN-CM-TC25": {
+        "100|ipv4|Vrf25": {
             "import_vpn": "true",
             "rt_import": "1:25",
             "rd": "2:2"
         },
-        "100|global|VPN11": {
+        "100|global|Vrf75": {
             "bgp_router_id": "3.3.3.75"
         },
-        "100|ipv4|VPN11": {
+        "100|ipv4|Vrf75": {
             "import_vpn": "true",
             "rt_import": "1:75",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC26": {
+        "100|global|Vrf26": {
             "bgp_router_id": "3.3.3.26"
         },
-        "100|ipv4|SX-XIAN-CM-TC26": {
+        "100|ipv4|Vrf26": {
             "import_vpn": "true",
             "rt_import": "1:26",
             "rd": "2:2"
         },
-        "100|global|VPN12": {
+        "100|global|Vrf76": {
             "bgp_router_id": "3.3.3.76"
         },
-        "100|ipv4|VPN12": {
+        "100|ipv4|Vrf76": {
             "import_vpn": "true",
             "rt_import": "1:76",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC27": {
+        "100|global|Vrf27": {
             "bgp_router_id": "3.3.3.27"
         },
-        "100|ipv4|SX-XIAN-CM-TC27": {
+        "100|ipv4|Vrf27": {
             "import_vpn": "true",
             "rt_import": "1:27",
             "rd": "2:2"
         },
-        "100|global|VPN13": {
+        "100|global|Vrf77": {
             "bgp_router_id": "3.3.3.77"
         },
-        "100|ipv4|VPN13": {
+        "100|ipv4|Vrf77": {
             "import_vpn": "true",
             "rt_import": "1:77",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC28": {
+        "100|global|Vrf28": {
             "bgp_router_id": "3.3.3.28"
         },
-        "100|ipv4|SX-XIAN-CM-TC28": {
+        "100|ipv4|Vrf28": {
             "import_vpn": "true",
             "rt_import": "1:28",
             "rd": "2:2"
         },
-        "100|global|VPN14": {
+        "100|global|Vrf78": {
             "bgp_router_id": "3.3.3.78"
         },
-        "100|ipv4|VPN14": {
+        "100|ipv4|Vrf78": {
             "import_vpn": "true",
             "rt_import": "1:78",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC29": {
+        "100|global|Vrf29": {
             "bgp_router_id": "3.3.3.29"
         },
-        "100|ipv4|SX-XIAN-CM-TC29": {
+        "100|ipv4|Vrf29": {
             "import_vpn": "true",
             "rt_import": "1:29",
             "rd": "2:2"
         },
-        "100|global|VPN15": {
+        "100|global|Vrf79": {
             "bgp_router_id": "3.3.3.79"
         },
-        "100|ipv4|VPN15": {
+        "100|ipv4|Vrf79": {
             "import_vpn": "true",
             "rt_import": "1:79",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC30": {
+        "100|global|Vrf30": {
             "bgp_router_id": "3.3.3.30"
         },
-        "100|ipv4|SX-XIAN-CM-TC30": {
+        "100|ipv4|Vrf30": {
             "import_vpn": "true",
             "rt_import": "1:30",
             "rd": "2:2"
         },
-        "100|global|VPN16": {
+        "100|global|Vrf80": {
             "bgp_router_id": "3.3.3.80"
         },
-        "100|ipv4|VPN16": {
+        "100|ipv4|Vrf80": {
             "import_vpn": "true",
             "rt_import": "1:80",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC31": {
+        "100|global|Vrf31": {
             "bgp_router_id": "3.3.3.31"
         },
-        "100|ipv4|SX-XIAN-CM-TC31": {
+        "100|ipv4|Vrf31": {
             "import_vpn": "true",
             "rt_import": "1:31",
             "rd": "2:2"
         },
-        "100|global|VPN17": {
+        "100|global|Vrf81": {
             "bgp_router_id": "3.3.3.81"
         },
-        "100|ipv4|VPN17": {
+        "100|ipv4|Vrf81": {
             "import_vpn": "true",
             "rt_import": "1:81",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC32": {
+        "100|global|Vrf32": {
             "bgp_router_id": "3.3.3.32"
         },
-        "100|ipv4|SX-XIAN-CM-TC32": {
+        "100|ipv4|Vrf32": {
             "import_vpn": "true",
             "rt_import": "1:32",
             "rd": "2:2"
         },
-        "100|global|VPN18": {
+        "100|global|Vrf82": {
             "bgp_router_id": "3.3.3.82"
         },
-        "100|ipv4|VPN18": {
+        "100|ipv4|Vrf82": {
             "import_vpn": "true",
             "rt_import": "1:82",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC33": {
+        "100|global|Vrf33": {
             "bgp_router_id": "3.3.3.33"
         },
-        "100|ipv4|SX-XIAN-CM-TC33": {
+        "100|ipv4|Vrf33": {
             "import_vpn": "true",
             "rt_import": "1:33",
             "rd": "2:2"
         },
-        "100|global|VPN19": {
+        "100|global|Vrf83": {
             "bgp_router_id": "3.3.3.83"
         },
-        "100|ipv4|VPN19": {
+        "100|ipv4|Vrf83": {
             "import_vpn": "true",
             "rt_import": "1:83",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC34": {
+        "100|global|Vrf34": {
             "bgp_router_id": "3.3.3.34"
         },
-        "100|ipv4|SX-XIAN-CM-TC34": {
+        "100|ipv4|Vrf34": {
             "import_vpn": "true",
             "rt_import": "1:34",
             "rd": "2:2"
         },
-        "100|global|VPN20": {
+        "100|global|Vrf84": {
             "bgp_router_id": "3.3.3.84"
         },
-        "100|ipv4|VPN20": {
+        "100|ipv4|Vrf84": {
             "import_vpn": "true",
             "rt_import": "1:84",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC35": {
+        "100|global|Vrf35": {
             "bgp_router_id": "3.3.3.35"
         },
-        "100|ipv4|SX-XIAN-CM-TC35": {
+        "100|ipv4|Vrf35": {
             "import_vpn": "true",
             "rt_import": "1:35",
             "rd": "2:2"
         },
-        "100|global|VPN21": {
+        "100|global|Vrf85": {
             "bgp_router_id": "3.3.3.85"
         },
-        "100|ipv4|VPN21": {
+        "100|ipv4|Vrf85": {
             "import_vpn": "true",
             "rt_import": "1:85",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC36": {
+        "100|global|Vrf36": {
             "bgp_router_id": "3.3.3.36"
         },
-        "100|ipv4|SX-XIAN-CM-TC36": {
+        "100|ipv4|Vrf36": {
             "import_vpn": "true",
             "rt_import": "1:36",
             "rd": "2:2"
         },
-        "100|global|VPN22": {
+        "100|global|Vrf86": {
             "bgp_router_id": "3.3.3.86"
         },
-        "100|ipv4|VPN22": {
+        "100|ipv4|Vrf86": {
             "import_vpn": "true",
             "rt_import": "1:86",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC37": {
+        "100|global|Vrf37": {
             "bgp_router_id": "3.3.3.37"
         },
-        "100|ipv4|SX-XIAN-CM-TC37": {
+        "100|ipv4|Vrf37": {
             "import_vpn": "true",
             "rt_import": "1:37",
             "rd": "2:2"
         },
-        "100|global|VPN23": {
+        "100|global|Vrf87": {
             "bgp_router_id": "3.3.3.87"
         },
-        "100|ipv4|VPN23": {
+        "100|ipv4|Vrf87": {
             "import_vpn": "true",
             "rt_import": "1:87",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC38": {
+        "100|global|Vrf38": {
             "bgp_router_id": "3.3.3.38"
         },
-        "100|ipv4|SX-XIAN-CM-TC38": {
+        "100|ipv4|Vrf38": {
             "import_vpn": "true",
             "rt_import": "1:38",
             "rd": "2:2"
         },
-        "100|global|VPN24": {
+        "100|global|Vrf88": {
             "bgp_router_id": "3.3.3.88"
         },
-        "100|ipv4|VPN24": {
+        "100|ipv4|Vrf88": {
             "import_vpn": "true",
             "rt_import": "1:88",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC39": {
+        "100|global|Vrf39": {
             "bgp_router_id": "3.3.3.39"
         },
-        "100|ipv4|SX-XIAN-CM-TC39": {
+        "100|ipv4|Vrf39": {
             "import_vpn": "true",
             "rt_import": "1:39",
             "rd": "2:2"
         },
-        "100|global|VPN25": {
+        "100|global|Vrf89": {
             "bgp_router_id": "3.3.3.89"
         },
-        "100|ipv4|VPN25": {
+        "100|ipv4|Vrf89": {
             "import_vpn": "true",
             "rt_import": "1:89",
             "rd": "2:2"
         },
-        "100|global|SX-XIAN-CM-TC40": {
+        "100|global|Vrf40": {
             "bgp_router_id": "3.3.3.40"
         },
-        "100|ipv4|SX-XIAN-CM-TC40": {
+        "100|ipv4|Vrf40": {
             "import_vpn": "true",
             "rt_import": "1:40",
             "rd": "2:2"
         },
-        "100|global|VPN26": {
+        "100|global|Vrf90": {
             "bgp_router_id": "3.3.3.90"
         },
-        "100|ipv4|VPN26": {
+        "100|ipv4|Vrf90": {
             "import_vpn": "true",
             "rt_import": "1:90",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC41": {
+        "100|global|Vrf41": {
             "bgp_router_id": "3.3.3.41"
         },
-        "100|ipv4|ACTN-TC41": {
+        "100|ipv4|Vrf41": {
             "import_vpn": "true",
             "rt_import": "1:41",
             "rd": "2:2"
         },
-        "100|global|VPN27": {
+        "100|global|Vrf91": {
             "bgp_router_id": "3.3.3.91"
         },
-        "100|ipv4|VPN27": {
+        "100|ipv4|Vrf91": {
             "import_vpn": "true",
             "rt_import": "1:91",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC42": {
+        "100|global|Vrf42": {
             "bgp_router_id": "3.3.3.42"
         },
-        "100|ipv4|ACTN-TC42": {
+        "100|ipv4|Vrf42": {
             "import_vpn": "true",
             "rt_import": "1:42",
             "rd": "2:2"
         },
-        "100|global|VPN28": {
+        "100|global|Vrf92": {
             "bgp_router_id": "3.3.3.92"
         },
-        "100|ipv4|VPN28": {
+        "100|ipv4|Vrf92": {
             "import_vpn": "true",
             "rt_import": "1:92",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC43": {
+        "100|global|Vrf43": {
             "bgp_router_id": "3.3.3.43"
         },
-        "100|ipv4|ACTN-TC43": {
+        "100|ipv4|Vrf43": {
             "import_vpn": "true",
             "rt_import": "1:43",
             "rd": "2:2"
         },
-        "100|global|VPN29": {
+        "100|global|Vrf93": {
             "bgp_router_id": "3.3.3.93"
         },
-        "100|ipv4|VPN29": {
+        "100|ipv4|Vrf93": {
             "import_vpn": "true",
             "rt_import": "1:93",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC44": {
+        "100|global|Vrf44": {
             "bgp_router_id": "3.3.3.44"
         },
-        "100|ipv4|ACTN-TC44": {
+        "100|ipv4|Vrf44": {
             "import_vpn": "true",
             "rt_import": "1:44",
             "rd": "2:2"
         },
-        "100|global|VPN30": {
+        "100|global|Vrf94": {
             "bgp_router_id": "3.3.3.94"
         },
-        "100|ipv4|VPN30": {
+        "100|ipv4|Vrf94": {
             "import_vpn": "true",
             "rt_import": "1:94",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC45": {
+        "100|global|Vrf45": {
             "bgp_router_id": "3.3.3.45"
         },
-        "100|ipv4|ACTN-TC45": {
+        "100|ipv4|Vrf45": {
             "import_vpn": "true",
             "rt_import": "1:45",
             "rd": "2:2"
         },
-        "100|global|VPN31": {
+        "100|global|Vrf95": {
             "bgp_router_id": "3.3.3.95"
         },
-        "100|ipv4|VPN31": {
+        "100|ipv4|Vrf95": {
             "import_vpn": "true",
             "rt_import": "1:95",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC46": {
+        "100|global|Vrf46": {
             "bgp_router_id": "3.3.3.46"
         },
-        "100|ipv4|ACTN-TC46": {
+        "100|ipv4|Vrf46": {
             "import_vpn": "true",
             "rt_import": "1:46",
             "rd": "2:2"
         },
-        "100|global|VPN32": {
+        "100|global|Vrf96": {
             "bgp_router_id": "3.3.3.96"
         },
-        "100|ipv4|VPN32": {
+        "100|ipv4|Vrf96": {
             "import_vpn": "true",
             "rt_import": "1:96",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC47": {
+        "100|global|Vrf47": {
             "bgp_router_id": "3.3.3.47"
         },
-        "100|ipv4|ACTN-TC47": {
+        "100|ipv4|Vrf47": {
             "import_vpn": "true",
             "rt_import": "1:47",
             "rd": "2:2"
         },
-        "100|global|VPN33": {
+        "100|global|Vrf97": {
             "bgp_router_id": "3.3.3.97"
         },
-        "100|ipv4|VPN33": {
+        "100|ipv4|Vrf97": {
             "import_vpn": "true",
             "rt_import": "1:97",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC48": {
+        "100|global|Vrf48": {
             "bgp_router_id": "3.3.3.48"
         },
-        "100|ipv4|ACTN-TC48": {
+        "100|ipv4|Vrf48": {
             "import_vpn": "true",
             "rt_import": "1:48",
             "rd": "2:2"
         },
-        "100|global|VPN34": {
+        "100|global|Vrf98": {
             "bgp_router_id": "3.3.3.98"
         },
-        "100|ipv4|VPN34": {
+        "100|ipv4|Vrf98": {
             "import_vpn": "true",
             "rt_import": "1:98",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC49": {
+        "100|global|Vrf49": {
             "bgp_router_id": "3.3.3.49"
         },
-        "100|ipv4|ACTN-TC49": {
+        "100|ipv4|Vrf49": {
             "import_vpn": "true",
             "rt_import": "1:49",
             "rd": "2:2"
         },
-        "100|global|VPN35": {
+        "100|global|Vrf99": {
             "bgp_router_id": "3.3.3.99"
         },
-        "100|ipv4|VPN35": {
+        "100|ipv4|Vrf99": {
             "import_vpn": "true",
             "rt_import": "1:99",
             "rd": "2:2"
         },
-        "100|global|ACTN-TC50": {
+        "100|global|Vrf50": {
             "bgp_router_id": "3.3.3.50"
         },
-        "100|ipv4|ACTN-TC50": {
+        "100|ipv4|Vrf50": {
             "import_vpn": "true",
             "rt_import": "1:50",
             "rd": "2:2"
         },
-        "100|global|VPN36": {
+        "100|global|Vrf100": {
             "bgp_router_id": "3.3.3.100"
         },
-        "100|ipv4|VPN36": {
+        "100|ipv4|Vrf100": {
             "import_vpn": "true",
             "rt_import": "1:100",
             "rd": "2:2"
@@ -2263,7 +2263,7 @@
         },
         "Eth34.100": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC51"
+            "vrf_name": "Vrf51"
         },
         "Eth33.101": {
             "admin_status": "up",
@@ -2271,391 +2271,391 @@
         },
         "Eth34.101": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC52"
+            "vrf_name": "Vrf52"
         },
         "Eth33.102": {
             "admin_status": "up",
-            "vrf_name": "PRIVATE-TC3"
+            "vrf_name": "Vrf3"
         },
         "Eth34.102": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC53"
+            "vrf_name": "Vrf53"
         },
         "Eth33.103": {
             "admin_status": "up",
-            "vrf_name": "PRIVATE-TC4"
+            "vrf_name": "Vrf4"
         },
         "Eth34.103": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC54"
+            "vrf_name": "Vrf54"
         },
         "Eth33.104": {
             "admin_status": "up",
-            "vrf_name": "PRIVATE-TC5"
+            "vrf_name": "Vrf5"
         },
         "Eth34.104": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC55"
+            "vrf_name": "Vrf55"
         },
         "Eth33.105": {
             "admin_status": "up",
-            "vrf_name": "PRIVATE-TC6"
+            "vrf_name": "Vrf6"
         },
         "Eth34.105": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC56"
+            "vrf_name": "Vrf56"
         },
         "Eth33.106": {
             "admin_status": "up",
-            "vrf_name": "PRIVATE-TC7"
+            "vrf_name": "Vrf7"
         },
         "Eth34.106": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC57"
+            "vrf_name": "Vrf57"
         },
         "Eth33.107": {
             "admin_status": "up",
-            "vrf_name": "PRIVATE-TC8"
+            "vrf_name": "Vrf8"
         },
         "Eth34.107": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC58"
+            "vrf_name": "Vrf58"
         },
         "Eth33.108": {
             "admin_status": "up",
-            "vrf_name": "PRIVATE-TC9"
+            "vrf_name": "Vrf9"
         },
         "Eth34.108": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC59"
+            "vrf_name": "Vrf59"
         },
         "Eth33.109": {
             "admin_status": "up",
-            "vrf_name": "PRIVATE-TC10"
+            "vrf_name": "Vrf10"
         },
         "Eth34.109": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC60"
+            "vrf_name": "Vrf60"
         },
         "Eth33.110": {
             "admin_status": "up",
-            "vrf_name": "PUBLIC-TC11"
+            "vrf_name": "Vrf11"
         },
         "Eth34.110": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC61"
+            "vrf_name": "Vrf61"
         },
         "Eth33.111": {
             "admin_status": "up",
-            "vrf_name": "PUBLIC-TC12"
+            "vrf_name": "Vrf12"
         },
         "Eth34.111": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC62"
+            "vrf_name": "Vrf62"
         },
         "Eth33.112": {
             "admin_status": "up",
-            "vrf_name": "PUBLIC-TC13"
+            "vrf_name": "Vrf13"
         },
         "Eth34.112": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC63"
+            "vrf_name": "Vrf63"
         },
         "Eth33.113": {
             "admin_status": "up",
-            "vrf_name": "PUBLIC-TC14"
+            "vrf_name": "Vrf14"
         },
         "Eth34.113": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC64"
+            "vrf_name": "Vrf64"
         },
         "Eth33.114": {
             "admin_status": "up",
-            "vrf_name": "PUBLIC-TC15"
+            "vrf_name": "Vrf15"
         },
         "Eth34.114": {
             "admin_status": "up",
-            "vrf_name": "VPN1"
+            "vrf_name": "Vrf65"
         },
         "Eth33.115": {
             "admin_status": "up",
-            "vrf_name": "PUBLIC-TC16"
+            "vrf_name": "Vrf16"
         },
         "Eth34.115": {
             "admin_status": "up",
-            "vrf_name": "VPN2"
+            "vrf_name": "Vrf66"
         },
         "Eth33.116": {
             "admin_status": "up",
-            "vrf_name": "PUBLIC-TC17"
+            "vrf_name": "Vrf17"
         },
         "Eth34.116": {
             "admin_status": "up",
-            "vrf_name": "VPN3"
+            "vrf_name": "Vrf67"
         },
         "Eth33.117": {
             "admin_status": "up",
-            "vrf_name": "PUBLIC-TC18"
+            "vrf_name": "Vrf18"
         },
         "Eth34.117": {
             "admin_status": "up",
-            "vrf_name": "VPN4"
+            "vrf_name": "Vrf68"
         },
         "Eth33.118": {
             "admin_status": "up",
-            "vrf_name": "PUBLIC-TC19"
+            "vrf_name": "Vrf19"
         },
         "Eth34.118": {
             "admin_status": "up",
-            "vrf_name": "VPN5"
+            "vrf_name": "Vrf69"
         },
         "Eth33.119": {
             "admin_status": "up",
-            "vrf_name": "PUBLIC-TC20"
+            "vrf_name": "Vrf20"
         },
         "Eth34.119": {
             "admin_status": "up",
-            "vrf_name": "VPN6"
+            "vrf_name": "Vrf70"
         },
         "Eth33.120": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC21"
+            "vrf_name": "Vrf21"
         },
         "Eth34.120": {
             "admin_status": "up",
-            "vrf_name": "VPN7"
+            "vrf_name": "Vrf71"
         },
         "Eth33.121": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC22"
+            "vrf_name": "Vrf22"
         },
         "Eth34.121": {
             "admin_status": "up",
-            "vrf_name": "VPN8"
+            "vrf_name": "Vrf72"
         },
         "Eth33.122": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC23"
+            "vrf_name": "Vrf23"
         },
         "Eth34.122": {
             "admin_status": "up",
-            "vrf_name": "VPN9"
+            "vrf_name": "Vrf73"
         },
         "Eth33.123": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC24"
+            "vrf_name": "Vrf24"
         },
         "Eth34.123": {
             "admin_status": "up",
-            "vrf_name": "VPN10"
+            "vrf_name": "Vrf74"
         },
         "Eth33.124": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC25"
+            "vrf_name": "Vrf25"
         },
         "Eth34.124": {
             "admin_status": "up",
-            "vrf_name": "VPN11"
+            "vrf_name": "Vrf75"
         },
         "Eth33.125": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC26"
+            "vrf_name": "Vrf26"
         },
         "Eth34.125": {
             "admin_status": "up",
-            "vrf_name": "VPN12"
+            "vrf_name": "Vrf76"
         },
         "Eth33.126": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC27"
+            "vrf_name": "Vrf27"
         },
         "Eth34.126": {
             "admin_status": "up",
-            "vrf_name": "VPN13"
+            "vrf_name": "Vrf77"
         },
         "Eth33.127": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC28"
+            "vrf_name": "Vrf28"
         },
         "Eth34.127": {
             "admin_status": "up",
-            "vrf_name": "VPN14"
+            "vrf_name": "Vrf78"
         },
         "Eth33.128": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC29"
+            "vrf_name": "Vrf29"
         },
         "Eth34.128": {
             "admin_status": "up",
-            "vrf_name": "VPN15"
+            "vrf_name": "Vrf79"
         },
         "Eth33.129": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC30"
+            "vrf_name": "Vrf30"
         },
         "Eth34.129": {
             "admin_status": "up",
-            "vrf_name": "VPN16"
+            "vrf_name": "Vrf80"
         },
         "Eth33.130": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC31"
+            "vrf_name": "Vrf31"
         },
         "Eth34.130": {
             "admin_status": "up",
-            "vrf_name": "VPN17"
+            "vrf_name": "Vrf81"
         },
         "Eth33.131": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC32"
+            "vrf_name": "Vrf32"
         },
         "Eth34.131": {
             "admin_status": "up",
-            "vrf_name": "VPN18"
+            "vrf_name": "Vrf82"
         },
         "Eth33.132": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC33"
+            "vrf_name": "Vrf33"
         },
         "Eth34.132": {
             "admin_status": "up",
-            "vrf_name": "VPN19"
+            "vrf_name": "Vrf83"
         },
         "Eth33.133": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC34"
+            "vrf_name": "Vrf34"
         },
         "Eth34.133": {
             "admin_status": "up",
-            "vrf_name": "VPN20"
+            "vrf_name": "Vrf84"
         },
         "Eth33.134": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC35"
+            "vrf_name": "Vrf35"
         },
         "Eth34.134": {
             "admin_status": "up",
-            "vrf_name": "VPN21"
+            "vrf_name": "Vrf85"
         },
         "Eth33.135": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC36"
+            "vrf_name": "Vrf36"
         },
         "Eth34.135": {
             "admin_status": "up",
-            "vrf_name": "VPN22"
+            "vrf_name": "Vrf86"
         },
         "Eth33.136": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC37"
+            "vrf_name": "Vrf37"
         },
         "Eth34.136": {
             "admin_status": "up",
-            "vrf_name": "VPN23"
+            "vrf_name": "Vrf87"
         },
         "Eth33.137": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC38"
+            "vrf_name": "Vrf38"
         },
         "Eth34.137": {
             "admin_status": "up",
-            "vrf_name": "VPN24"
+            "vrf_name": "Vrf88"
         },
         "Eth33.138": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC39"
+            "vrf_name": "Vrf39"
         },
         "Eth34.138": {
             "admin_status": "up",
-            "vrf_name": "VPN25"
+            "vrf_name": "Vrf89"
         },
         "Eth33.139": {
             "admin_status": "up",
-            "vrf_name": "SX-XIAN-CM-TC40"
+            "vrf_name": "Vrf40"
         },
         "Eth34.139": {
             "admin_status": "up",
-            "vrf_name": "VPN26"
+            "vrf_name": "Vrf90"
         },
         "Eth33.140": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC41"
+            "vrf_name": "Vrf41"
         },
         "Eth34.140": {
             "admin_status": "up",
-            "vrf_name": "VPN27"
+            "vrf_name": "Vrf91"
         },
         "Eth33.141": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC42"
+            "vrf_name": "Vrf42"
         },
         "Eth34.141": {
             "admin_status": "up",
-            "vrf_name": "VPN28"
+            "vrf_name": "Vrf92"
         },
         "Eth33.142": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC43"
+            "vrf_name": "Vrf43"
         },
         "Eth34.142": {
             "admin_status": "up",
-            "vrf_name": "VPN29"
+            "vrf_name": "Vrf93"
         },
         "Eth33.143": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC44"
+            "vrf_name": "Vrf44"
         },
         "Eth34.143": {
             "admin_status": "up",
-            "vrf_name": "VPN30"
+            "vrf_name": "Vrf94"
         },
         "Eth33.144": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC45"
+            "vrf_name": "Vrf45"
         },
         "Eth34.144": {
             "admin_status": "up",
-            "vrf_name": "VPN31"
+            "vrf_name": "Vrf95"
         },
         "Eth33.145": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC46"
+            "vrf_name": "Vrf46"
         },
         "Eth34.145": {
             "admin_status": "up",
-            "vrf_name": "VPN32"
+            "vrf_name": "Vrf96"
         },
         "Eth33.146": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC47"
+            "vrf_name": "Vrf47"
         },
         "Eth34.146": {
             "admin_status": "up",
-            "vrf_name": "VPN33"
+            "vrf_name": "Vrf97"
         },
         "Eth33.147": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC48"
+            "vrf_name": "Vrf48"
         },
         "Eth34.147": {
             "admin_status": "up",
-            "vrf_name": "VPN34"
+            "vrf_name": "Vrf98"
         },
         "Eth33.148": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC49"
+            "vrf_name": "Vrf49"
         },
         "Eth34.148": {
             "admin_status": "up",
-            "vrf_name": "VPN35"
+            "vrf_name": "Vrf99"
         },
         "Eth33.149": {
             "admin_status": "up",
-            "vrf_name": "ACTN-TC50"
+            "vrf_name": "Vrf50"
         },
         "Eth34.149": {
             "admin_status": "up",
-            "vrf_name": "VPN36"
+            "vrf_name": "Vrf100"
         }
     },
     "SRV6_POLICY": {
@@ -3483,131 +3483,131 @@
         "Vrf2": {}
     },
     "VRF_ALIAS": {
-        "PRIVATE-TC3": {},
-        "PRIVATE-TC4": {},
-        "PRIVATE-TC5": {},
-        "PRIVATE-TC6": {},
-        "PRIVATE-TC7": {},
-        "PRIVATE-TC8": {},
-        "PRIVATE-TC9": {},
-        "PRIVATE-TC10": {},
-        "PUBLIC-TC11": {},
-        "PUBLIC-TC12": {},
-        "PUBLIC-TC13": {},
-        "PUBLIC-TC14": {},
-        "PUBLIC-TC15": {},
-        "PUBLIC-TC16": {},
-        "PUBLIC-TC17": {},
-        "PUBLIC-TC18": {},
-        "PUBLIC-TC19": {},
-        "PUBLIC-TC20": {},
-        "SX-XIAN-CM-TC21": {},
-        "SX-XIAN-CM-TC22": {},
-        "SX-XIAN-CM-TC23": {},
-        "SX-XIAN-CM-TC24": {},
-        "SX-XIAN-CM-TC25": {},
-        "SX-XIAN-CM-TC26": {},
-        "SX-XIAN-CM-TC27": {},
-        "SX-XIAN-CM-TC28": {},
-        "SX-XIAN-CM-TC29": {},
-        "SX-XIAN-CM-TC30": {},
-        "SX-XIAN-CM-TC31": {},
-        "SX-XIAN-CM-TC32": {},
-        "SX-XIAN-CM-TC33": {},
-        "SX-XIAN-CM-TC34": {},
-        "SX-XIAN-CM-TC35": {},
-        "SX-XIAN-CM-TC36": {},
-        "SX-XIAN-CM-TC37": {},
-        "SX-XIAN-CM-TC38": {},
-        "SX-XIAN-CM-TC39": {},
-        "SX-XIAN-CM-TC40": {},
-        "ACTN-TC41": {},
-        "ACTN-TC42": {},
-        "ACTN-TC43": {},
-        "ACTN-TC44": {},
-        "ACTN-TC45": {},
-        "ACTN-TC46": {},
-        "ACTN-TC47": {},
-        "ACTN-TC48": {},
-        "ACTN-TC49": {},
-        "ACTN-TC50": {},
-        "ACTN-TC51": {},
-        "ACTN-TC52": {},
-        "ACTN-TC53": {},
-        "ACTN-TC54": {},
-        "ACTN-TC55": {},
-        "ACTN-TC56": {},
-        "ACTN-TC57": {},
-        "ACTN-TC58": {},
-        "ACTN-TC59": {},
-        "ACTN-TC60": {},
-        "ACTN-TC61": {},
-        "ACTN-TC62": {},
-        "ACTN-TC63": {},
-        "ACTN-TC64": {},
-        "VPN1": {},
-        "VPN2": {},
-        "VPN3": {},
-        "VPN4": {},
-        "VPN5": {},
-        "VPN6": {},
-        "VPN7": {},
-        "VPN8": {},
-        "VPN9": {},
-        "VPN10": {},
-        "VPN11": {},
-        "VPN12": {},
-        "VPN13": {},
-        "VPN14": {},
-        "VPN15": {},
-        "VPN16": {},
-        "VPN17": {},
-        "VPN18": {},
-        "VPN19": {},
-        "VPN20": {},
-        "VPN21": {},
-        "VPN22": {},
-        "VPN23": {},
-        "VPN24": {},
-        "VPN25": {},
-        "VPN26": {},
-        "VPN27": {},
-        "VPN28": {},
-        "VPN29": {},
-        "VPN30": {},
-        "VPN31": {},
-        "VPN32": {},
-        "VPN33": {},
-        "VPN34": {},
-        "VPN35": {},
-        "VPN36": {},
-        "VPN37": {},
-        "VPN38": {},
-        "VPN39": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC40": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC41": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC42": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC43": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC44": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC45": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC46": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC47": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC48": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC49": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC50": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC51": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC52": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC53": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC54": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC55": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC56": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC57": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC58": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC59": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC60": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC61": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC62": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC63": {},
-        "ZJ-HANGZHOU-CU-ALIYUN-TC64": {}
+        "Vrf3": {},
+        "Vrf4": {},
+        "Vrf5": {},
+        "Vrf6": {},
+        "Vrf7": {},
+        "Vrf8": {},
+        "Vrf9": {},
+        "Vrf10": {},
+        "Vrf11": {},
+        "Vrf12": {},
+        "Vrf13": {},
+        "Vrf14": {},
+        "Vrf15": {},
+        "Vrf16": {},
+        "Vrf17": {},
+        "Vrf18": {},
+        "Vrf19": {},
+        "Vrf20": {},
+        "Vrf21": {},
+        "Vrf22": {},
+        "Vrf23": {},
+        "Vrf24": {},
+        "Vrf25": {},
+        "Vrf26": {},
+        "Vrf27": {},
+        "Vrf28": {},
+        "Vrf29": {},
+        "Vrf30": {},
+        "Vrf31": {},
+        "Vrf32": {},
+        "Vrf33": {},
+        "Vrf34": {},
+        "Vrf35": {},
+        "Vrf36": {},
+        "Vrf37": {},
+        "Vrf38": {},
+        "Vrf39": {},
+        "Vrf40": {},
+        "Vrf41": {},
+        "Vrf42": {},
+        "Vrf43": {},
+        "Vrf44": {},
+        "Vrf45": {},
+        "Vrf46": {},
+        "Vrf47": {},
+        "Vrf48": {},
+        "Vrf49": {},
+        "Vrf50": {},
+        "Vrf51": {},
+        "Vrf52": {},
+        "Vrf53": {},
+        "Vrf54": {},
+        "Vrf55": {},
+        "Vrf56": {},
+        "Vrf57": {},
+        "Vrf58": {},
+        "Vrf59": {},
+        "Vrf60": {},
+        "Vrf61": {},
+        "Vrf62": {},
+        "Vrf63": {},
+        "Vrf64": {},
+        "Vrf65": {},
+        "Vrf66": {},
+        "Vrf67": {},
+        "Vrf68": {},
+        "Vrf69": {},
+        "Vrf70": {},
+        "Vrf71": {},
+        "Vrf72": {},
+        "Vrf73": {},
+        "Vrf74": {},
+        "Vrf75": {},
+        "Vrf76": {},
+        "Vrf77": {},
+        "Vrf78": {},
+        "Vrf79": {},
+        "Vrf80": {},
+        "Vrf81": {},
+        "Vrf82": {},
+        "Vrf83": {},
+        "Vrf84": {},
+        "Vrf85": {},
+        "Vrf86": {},
+        "Vrf87": {},
+        "Vrf88": {},
+        "Vrf89": {},
+        "Vrf90": {},
+        "Vrf91": {},
+        "Vrf92": {},
+        "Vrf93": {},
+        "Vrf94": {},
+        "Vrf95": {},
+        "Vrf96": {},
+        "Vrf97": {},
+        "Vrf98": {},
+        "Vrf99": {},
+        "Vrf100": {},
+        "Vrf101": {},
+        "Vrf102": {},
+        "Vrf103": {},
+        "Vrf104": {},
+        "Vrf105": {},
+        "Vrf106": {},
+        "Vrf107": {},
+        "Vrf108": {},
+        "Vrf109": {},
+        "Vrf110": {},
+        "Vrf111": {},
+        "Vrf112": {},
+        "Vrf113": {},
+        "Vrf114": {},
+        "Vrf115": {},
+        "Vrf116": {},
+        "Vrf117": {},
+        "Vrf118": {},
+        "Vrf119": {},
+        "Vrf120": {},
+        "Vrf121": {},
+        "Vrf122": {},
+        "Vrf123": {},
+        "Vrf124": {},
+        "Vrf125": {},
+        "Vrf126": {},
+        "Vrf127": {},
+        "Vrf128": {}
     }
 }

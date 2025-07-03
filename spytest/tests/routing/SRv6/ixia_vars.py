@@ -1,6 +1,10 @@
 
-IXIA_HOST = "10.137.91.199"
-IXIA_PORT = 12031
+import os
+
+# Dynamic IXIA configuration - can be overridden via environment variables
+IXIA_HOST = os.getenv('IXIA_HOST', '192.168.122.168')
+# Dynamic IXIA port assignment - can be overridden via environment variable
+IXIA_PORT = int(os.getenv('IXIA_PORT', '443'))
 
 ESR_MULTI_VRF_CONFIG = "esr_multi_vrf.ixncfg"
 ESR_MULTI_VRF_ECMP_CONFIG = "esr_multi_vrf_ecmp.ixncfg"

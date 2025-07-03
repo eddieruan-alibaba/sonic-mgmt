@@ -18,7 +18,7 @@ import argparse
 import subprocess
 import sys
 
-
+g_no_swss_copp_config = True
 g_breakout_native = False
 g_breakout_file = None
 g_debug = False
@@ -310,7 +310,9 @@ def apply_file(filepath, method):
 
     if filepath.endswith('.json'):
         filepath = json_fix(filepath)
-        if method == "full":
+        if g_no_swss_copp_config:
+            pass
+        elif method == "full":
             commands_to_execute.append("cp {} {}".format(filepath, init_config_file))
         else:
             commands_to_execute.append("config load -y {}".format(filepath))
@@ -743,17 +745,19 @@ def apply_ta_config(method, port_init_wait, poll_for_ports, config_type):
         changed_files.append("frr")
 
     # Save and compare the copp.json file
+    if not g_no_swss_copp_config:
     # execute_check_cmd("docker cp swss:{} {}".format(copp_config_file, tmp_copp_file))
-    if not os.path.exists(tmp_copp_file) and os.path.exists(ta_copp_config_file):
-        trace("SWSS COPP File Missing")
-        changed_files.append("copp")
-    elif os.path.exists(tmp_copp_file) and not os.path.exists(ta_copp_config_file):
-        trace("TA COPP File Missing")
-        changed_files.append("copp")
-    elif os.path.exists(tmp_copp_file) and os.path.exists(ta_copp_config_file):
-        if not get_file_diff(tmp_copp_file, ta_copp_config_file, g_debug):
-            trace("COPP File Differs")
+        if not os.path.exists(tmp_copp_file) and os.path.exists(ta_copp_config_file):
+            trace("SWSS COPP File Missing")
             changed_files.append("copp")
+        elif os.path.exists(tmp_copp_file) and not os.path.exists(ta_copp_config_file):
+            trace("TA COPP File Missing")
+            changed_files.append("copp")
+        elif os.path.exists(tmp_copp_file) and os.path.exists(ta_copp_config_file):
+            if not get_file_diff(tmp_copp_file, ta_copp_config_file, g_debug):
+                trace("COPP File Differs")
+                changed_files.append("copp")
+
 
     # If a force method is *NOT* used, check for any entries in changed list
     # If no entries are present(Means no change in configs), Return back.
@@ -779,8 +783,9 @@ def apply_ta_config(method, port_init_wait, poll_for_ports, config_type):
     if os.path.exists(ta_frr_config_file) and "frr" in changed_files:
         execute_check_cmd("cp -f {} {}".format(ta_frr_config_file, frr_config_file))
     if os.path.exists(ta_copp_config_file) and "copp" in changed_files:
-        execute_check_cmd("docker cp {} swss:{}".format(ta_copp_config_file, copp_config_file))
-        method = "force-reboot"
+        if not g_no_swss_copp_config:
+            execute_check_cmd("docker cp {} swss:{}".format(ta_copp_config_file, copp_config_file))
+            method = "force-reboot"
 
     # We copied the changed files to actual files.
     # If reboot related method is used, return back asking for reboot required.
@@ -1252,6 +1257,8 @@ if __name__ == "__main__":
     parser.add_argument("--service-start", action="store", default=None)
     parser.add_argument("--service-stop", action="store", default=None)
     parser.add_argument("--service-get", action="store", default=None)
+    parser.add_argument("--no-swss-copp-config", action="store_true", default=False,
+                                help="Do not use swss copp config.")
 
     args, unknown = parser.parse_known_args()
 
@@ -1261,6 +1268,7 @@ if __name__ == "__main__":
     #g_debug = args.debug
     g_breakout_native = args.breakout_native
     g_breakout_file = args.breakout_file
+    g_no_swss_copp_config = args.no_swss_copp_config
 
     for name, value in args.env:
         os.environ[name] = value
