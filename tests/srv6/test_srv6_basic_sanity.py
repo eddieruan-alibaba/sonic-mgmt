@@ -204,7 +204,7 @@ def test_check_routes(duthosts, rand_one_dut_hostname, nbrhosts):
         dut2_ips.append(ip)
     check_routes(nbrhost, dut2_ips, ["10.10.246.254"], "Vrf1")
     # Check core routes
-    check_routes(nbrhost, ["fd00:201:201:fff1:11::", "fd00:202:202:fff2:22::"], ["fc08::2", "fc06::2"], global_route, is_v6)
+    check_routes(nbrhost, ["fd00:201:201:11::", "fd00:202:202:22::"], ["fc08::2", "fc06::2"], global_route, is_v6)
 
 #
 # Test Case : Traffic check in Normal Case via Trex
@@ -224,10 +224,10 @@ def test_traffic_check_via_trex(tbinfo, duthosts, rand_one_dut_hostname, ptfhost
     pytest_assert(thresh_check(result, expect_list))
     #check raw CE packet on your link
     check_topo_recv_pkt_raw(ptfadapter, port=ptf_port_for_backplane, dst_ip=test_ipv4_dip)
-    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p2, dst_ip=test_ipv4_dip, vpnsid = "fd00:202:202:fff2:2::", no_vlan=True)
-    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p2, dst_ip=test_ipv4_dip, vpnsid = "fd00:201:201:fff1:1::", no_vlan=True)
-    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p4, dst_ip=test_ipv4_dip, vpnsid = "fd00:202:202:fff2:2::", no_vlan=True)
-    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p4, dst_ip=test_ipv4_dip, vpnsid = "fd00:201:201:fff1:1::", no_vlan=True)
+    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p2, dst_ip=test_ipv4_dip, vpnsid = "fd00:202:202:2::", no_vlan=True)
+    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p2, dst_ip=test_ipv4_dip, vpnsid = "fd00:201:201:1::", no_vlan=True)
+    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p4, dst_ip=test_ipv4_dip, vpnsid = "fd00:202:202:2::", no_vlan=True)
+    check_topo_recv_pkt_vpn(ptfadapter, port=ptf_port_for_pe3_to_p4, dst_ip=test_ipv4_dip, vpnsid = "fd00:201:201:1::", no_vlan=True)
     reset_topo_pkt_counter(ptfadapter)
     logger.info("Done with Trex traffic")
 
@@ -504,9 +504,9 @@ def test_sbfd_functions(tbinfo, duthosts, rand_one_dut_hostname, ptfhost, nbrhos
     p2 =  nbrhosts["P2"]['host']
 
     cmd = "sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'srv6' -c 'locators' -c 'locator lsid1' \
-                      -c 'prefix fd00:203:203::/48 block-len 32 node-len 16 func-bits 32' -c 'opcode ::fff1:11:0:0:0 end-x interface Ethernet4 nexthop fc08::2' "
+                      -c 'prefix fd00:203:203::/48 block-len 32 node-len 16 func-bits 16' -c 'opcode ::11:0:0:0:0 end-x interface Ethernet4 nexthop fc08::2' "
     pe3.command(cmd)
-    cmd = "sudo vtysh -c 'configure terminal' -c 'bfd' -c 'peer fc08::2 bfd-mode sbfd-echo bfd-name bfd1 local-address fc08::2 encap-type SRv6 encap-data fd00:203:203:fff1:11:: source-ipv6 fc08::2' -c 'echo transmit-interval 1000' "
+    cmd = "sudo vtysh -c 'configure terminal' -c 'bfd' -c 'peer fc08::2 bfd-mode sbfd-echo bfd-name bfd1 local-address fc08::2 encap-type SRv6 encap-data fd00:203:203:11:: source-ipv6 fc08::2' -c 'echo transmit-interval 1000' "
     p2.command(cmd)
 
     time.sleep(5)
@@ -526,10 +526,10 @@ def test_sbfd_functions(tbinfo, duthosts, rand_one_dut_hostname, ptfhost, nbrhos
     pytest_assert(check_sbfd_status(p2, sbfdname_list = ['bfd1'], status_list = ['up']))
 
     cmd = "sudo vtysh -c 'configure terminal' -c 'segment-routing' -c 'srv6' -c 'locators' -c 'locator lsid1' \
-                      -c 'prefix fd00:203:203::/48 block-len 32 node-len 16 func-bits 32' -c 'no opcode ::fff1:11:0:0:0'"
+                      -c 'prefix fd00:203:203::/48 block-len 32 node-len 16 func-bits 16' -c 'no opcode ::11:0:0:0:0'"
     pe3.command(cmd)
     time.sleep(10)
     pytest_assert(check_sbfd_status(p2, sbfdname_list = ['bfd1'], status_list = ['down']))
 
-    cmd = "sudo vtysh -c 'configure terminal' -c 'bfd' -c 'no peer fc08::2 bfd-mode sbfd-echo bfd-name bfd1 local-address fc08::2 encap-type SRv6 encap-data fd00:203:203:fff1:11:: source-ipv6 fc08::2'"
+    cmd = "sudo vtysh -c 'configure terminal' -c 'bfd' -c 'no peer fc08::2 bfd-mode sbfd-echo bfd-name bfd1 local-address fc08::2 encap-type SRv6 encap-data fd00:203:203:11:: source-ipv6 fc08::2'"
     p2.command(cmd)
