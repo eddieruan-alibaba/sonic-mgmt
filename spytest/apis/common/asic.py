@@ -1,5 +1,6 @@
 
 import re
+import os
 from spytest import st, cutils
 
 def bcm_show(dut, cmd, skip_tmpl=True, max_time=0):
@@ -70,24 +71,77 @@ def get_counters(dut, interface=None, skip_tmpl=False):
     return bcm_show(dut, command, skip_tmpl=skip_tmpl)
 
 def get_ipv4_route_count(dut, timeout=120):
-    #yoapei, repleace by curl
-    command = "curl http://127.0.0.1:12346/route -s | grep ipv4 "
-    output = st.show(dut, command, skip_tmpl=True, max_time=timeout, skip_error_check=True)
-    x = re.findall(r"\d+", output)
-    if x:
-        return int(x[1])
+    """
+    Get IPv4 route count using vendor-specific implementation.
+
+    Args:
+        dut: Device under test
+        timeout: Command timeout in seconds
+
+    Returns:
+        int: Number of IPv4 routes, or -1 if failed to get count
+
+    Environment Variables:
+        SONIC_VENDOR: Vendor name (e.g., 'cisco') to use vendor-specific commands
+    """
+    vendor = os.getenv('SONIC_VENDOR', 'default').lower()
+
+    if vendor == 'cisco':
+        # Cisco-specific implementation using sonic-db-cli
+        command = "sonic-db-cli APPL_DB KEYS 'ROUTE_TABLE:*' | wc -l"
+        output = st.show(dut, command, skip_tmpl=True, max_time=timeout, skip_error_check=True)
+        # Extract the number from wc -l output
+        x = re.findall(r"\d+", output)
+        if x:
+            return int(x[0])  # wc -l returns count as first number
+        else:
+            return -1
     else:
-        return -1
+        # Default implementation using curl
+        command = "curl http://127.0.0.1:12346/route -s | grep ipv4 "
+        output = st.show(dut, command, skip_tmpl=True, max_time=timeout, skip_error_check=True)
+        x = re.findall(r"\d+", output)
+        if x:
+            return int(x[1])  # curl output has count as second number
+        else:
+            return -1
 
 def get_ipv6_route_count(dut, timeout=120):
-    #yaopei, repleace by curl
-    command = "curl http://127.0.0.1:12346/route -s | grep ipv6 "
-    output = st.show(dut, command, skip_tmpl=True, max_time=timeout, skip_error_check=True)
-    x = re.findall(r"\d+", output)
-    if x:
-        return int(x[1])
+    """
+    Get IPv6 route count using vendor-specific implementation.
+
+    Args:
+        dut: Device under test
+        timeout: Command timeout in seconds
+
+    Returns:
+        int: Number of IPv6 routes, or -1 if failed to get count
+
+    Environment Variables:
+        SONIC_VENDOR: Vendor name (e.g., 'cisco') to use vendor-specific commands
+    """
+    vendor = os.getenv('SONIC_VENDOR', 'default').lower()
+
+    if vendor == 'cisco':
+        # Cisco-specific implementation using sonic-db-cli
+        # Filter for IPv6 routes (containing ':' character)
+        command = "sonic-db-cli APPL_DB KEYS 'ROUTE_TABLE:*' | grep ':' | wc -l"
+        output = st.show(dut, command, skip_tmpl=True, max_time=timeout, skip_error_check=True)
+        # Extract the number from wc -l output
+        x = re.findall(r"\d+", output)
+        if x:
+            return int(x[0])  # wc -l returns count as first number
+        else:
+            return -1
     else:
-        return -1
+        # Default implementation using curl
+        command = "curl http://127.0.0.1:12346/route -s | grep ipv6 "
+        output = st.show(dut, command, skip_tmpl=True, max_time=timeout, skip_error_check=True)
+        x = re.findall(r"\d+", output)
+        if x:
+            return int(x[1])  # curl output has count as second number
+        else:
+            return -1
 
 def bcmcmd_show_ps(dut):
     return bcm_show(dut, 'bcmcmd "ps"')

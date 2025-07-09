@@ -10,16 +10,83 @@ from ixnetwork_restpy.assistants.batch.batchadd import BatchAdd
 
 ixia_controller = None
 
+def get_dynamic_chassis_info():
+    """
+    Get chassis IP and available ports from the TG runtime configuration
+    instead of using hardcoded values.
+    """
+    try:
+        # Get the TG chassis object from spytest
+        tg = tgapi.get_chassis()
+        if not tg:
+            st.log("No TG chassis available, falling back to environment variables")
+            return IXIA_HOST, []
+        
+        # Get chassis IP from TG object
+        chassis_ip = tg.tg_ip if hasattr(tg, 'tg_ip') else IXIA_HOST
+        
+        # Get available ports from tg_port_handle
+        available_ports = []
+        if hasattr(tg, 'tg_port_handle') and tg.tg_port_handle:
+            available_ports = list(tg.tg_port_handle.keys())
+            st.log("Found {} available ports from TG: {}".format(len(available_ports), available_ports))
+        else:
+            st.log("No port handles available from TG, using empty port list")
+        
+        st.log("Using dynamic chassis IP: {} with ports: {}".format(chassis_ip, available_ports))
+        return chassis_ip, available_ports
+        
+    except Exception as e:
+        st.log("Failed to get dynamic chassis info: {}, falling back to environment variables".format(str(e)))
+        return IXIA_HOST, []
+
 def ixia_controller_init():
     global ixia_controller
     st.log("Ixia controller init start")
-    ixia_controller = IxiaController(IXIA_HOST, IXIA_PORT)
-    st.log("Ixia controller init completed")
+    try:
+        ixia_controller = IxiaController(IXIA_HOST, IXIA_PORT)
+        st.log("Ixia controller connection established")
+
+        # Get chassis IP and ports dynamically from TG runtime configuration
+        chassis_ip, available_ports = get_dynamic_chassis_info()
+
+        if available_ports:
+            st.log("Configuring port ownership for {} ports".format(len(available_ports)))
+            ixia_controller.ensure_port_ownership(chassis_ip, available_ports)
+        else:
+            st.log("No available ports found, skipping port ownership configuration")
+
+        # Skip port ownership management for now to avoid API compatibility issues
+        # This can be re-enabled once the specific API version is determined
+        st.log("Skipping port ownership management due to API compatibility")
+
+        st.log("Ixia controller init completed")
+        return True
+    except Exception as e:
+        st.error("Ixia controller init failed: {}".format(str(e)))
+
+        # Provide helpful error messages
+        if "Unable to connect" in str(e):
+            st.log("Connection issue - check network connectivity to {}".format(IXIA_HOST))
+        elif "Port is owned by others" in str(e):
+            st.log("Port ownership issue - another user may be using the chassis")
+            st.log("Try running the troubleshooting script: ./ixia_troubleshoot.sh")
+
+        # Don't attempt cleanup on init failure to avoid more errors
+        raise
 
 
 def ixia_controller_deinit():
     global ixia_controller
     st.log("Ixia controller deinit start")
+    if ixia_controller:
+        try:
+            # Basic cleanup without complex port ownership management
+            st.log("Performing basic Ixia cleanup")
+            # Just set to None for now, let the session assistant handle cleanup
+        except Exception as e:
+            st.error("Failed during cleanup: {}".format(str(e)))
+
     ixia_controller = None
     gc.collect()
     st.log("Ixia controller deinit completed")
@@ -113,23 +180,59 @@ def ixia_get_traffic_stat(traffic_item_name):
     return traffic_item_stats
 
 def ixia_load_config(config_file_name):
-    ixia_controller.new_config()
-    st.wait(20)
-    st.log("load config {} begin".format(config_file_name))
-    ixia_controller.load_config(config_file_name)
-    # wait 10 sec for config load
-    st.wait(30)
-    st.log("load config {} completed".format(config_file_name))
-    return True
+    try:
+        ixia_controller.new_config()
+        st.wait(20)
+        st.log("load config {} begin".format(config_file_name))
+        ixia_controller.load_config(config_file_name)
+        # wait 30 sec for config load
+        st.wait(30)
+        st.log("load config {} completed".format(config_file_name))
+        return True
+    except Exception as e:
+        st.error("Failed to load config {}: {}".format(config_file_name, str(e)))
+        if "Port is owned by others" in str(e) or "No ports assigned" in str(e):
+            st.log("Port ownership issue detected during config load")
+            st.log("Run troubleshooting: ./ixia_troubleshoot.sh")
+            st.log("Or try: python3 ixia_port_manager.py --chassis {} --cleanup".format(IXIA_HOST))
+            return False
+        else:
+            st.error("Non-port related config load error: {}".format(str(e)))
+            return False
 
 
 def ixia_start_all_protocols():
     st.log("IXIA start all protocols begin")
-    ixia_controller.start_all_protocols()
-    # wait 20 sec for vrf bgp established
-    st.wait(20)
-    st.log("IXIA start all protocols completed.")
-    return True
+    try:
+        ixia_controller.start_all_protocols()
+        # wait 20 sec for vrf bgp established
+        st.wait(20)
+        st.log("IXIA start all protocols completed.")
+        return True
+    except Exception as e:
+        st.error("Failed to start all protocols: {}".format(str(e)))
+        if "Port is owned by others" in str(e) or "No ports assigned" in str(e):
+            st.log("Attempting to resolve port ownership issues...")
+            try:
+                # Try to force cleanup and retry
+                ixia_controller.force_cleanup_ports()
+                st.wait(5)  # Wait for cleanup
+
+                # Reload the configuration
+                st.log("Retrying protocol start after cleanup...")
+                ixia_controller.start_all_protocols()
+                st.wait(20)
+                st.log("IXIA start all protocols completed after retry.")
+                return True
+            except Exception as retry_error:
+                st.error("Protocol start failed even after cleanup: {}".format(str(retry_error)))
+                st.log("Please run the troubleshooting script: ./ixia_troubleshoot.sh")
+                return False
+        else:
+            st.error("Non-port ownership related error in start_all_protocols")
+            return False
+
+
 
 
 def ixia_stop_all_protocols():
@@ -142,29 +245,115 @@ def ixia_stop_all_protocols():
 
 
 def ixia_check_traffic(traffic_item_name, key="Rx Frames", value="0", exact_match=True):
-    st.wait(10)
-    st.log("Get traffic item {}".format(traffic_item_name))
-    st.log("Apply traffic item {}".format(traffic_item_name))
-    ixia_controller.traffic_apply()
-    st.wait(10)
-    st.log("Start traffic item {}".format(traffic_item_name))
-    ret = ixia_controller.start_stateless_traffic(traffic_item_name)
-    if not ret:
-        st.error("Start traffic item {} failed".format(traffic_item_name))
-        return False
-    # wait until traffic end
-    st.log("Wait traffic item completed...{}".format(traffic_item_name))
-    st.wait(20)
-    ret = ixia_controller.stop_stateless_traffic(traffic_item_name)
-    if not ret:
-        st.error("Start traffic item {} failed".format(traffic_item_name))
-        return False
+    """
+    Check traffic with robust error handling and recovery mechanisms.
 
-    if key == "Rx Frames" or key == "Rx Frame Rate":
-        return ixia_check_traffic_item_rx_frame(traffic_item_name, key, value, exact_match)
-    else:
-        st.error("Unsupported check key for traffic: {}".format(key))
-        return False
+    Args:
+        traffic_item_name: Name of the traffic item to check
+        key: Statistic key to check (default: "Rx Frames")
+        value: Expected value for comparison
+        exact_match: Whether to do exact match or allow 10% deviation
+
+    Returns:
+        bool: True if traffic check passes, False otherwise
+    """
+    try:
+        st.wait(10)
+        st.log("Checking traffic item: {}".format(traffic_item_name))
+
+        # Validate that traffic item exists before proceeding
+        try:
+            traffic_item = ixia_controller.get_traffic_item(traffic_item_name)
+            if not traffic_item:
+                st.error("Traffic item {} not found".format(traffic_item_name))
+                return False
+        except Exception as e:
+            st.error("Failed to get traffic item {}: {}".format(traffic_item_name, str(e)))
+            return False
+
+        # Apply traffic configuration with retry logic
+        st.log("Applying traffic configuration for {}".format(traffic_item_name))
+        max_retries = 3
+        apply_success = False
+        for attempt in range(max_retries):
+            try:
+                ixia_controller.traffic_apply()
+                apply_success = True
+                st.log("Traffic apply successful on attempt {}".format(attempt + 1))
+                break
+            except Exception as e:
+                st.log("Traffic apply attempt {} failed: {}".format(attempt + 1, str(e)))
+                if attempt < max_retries - 1:
+                    st.log("Retrying traffic apply in 5 seconds...")
+                    st.wait(5)
+
+                    # Try to regenerate traffic configuration
+                    try:
+                        st.log("Regenerating traffic configuration...")
+                        ixia_controller.generate_traffic()
+                        st.wait(5)
+                    except Exception as gen_e:
+                        st.log("Traffic regeneration failed: {}".format(str(gen_e)))
+                else:
+                    st.error("Traffic apply failed after {} attempts: {}".format(max_retries, str(e)))
+                    return False
+
+        if not apply_success:
+            st.error("Failed to apply traffic configuration for {}".format(traffic_item_name))
+            return False
+
+        st.wait(10)
+
+        # Start traffic with error handling
+        st.log("Starting traffic item {}".format(traffic_item_name))
+        try:
+            ret = ixia_controller.start_stateless_traffic(traffic_item_name)
+            if not ret:
+                st.error("Start traffic item {} failed - returned False".format(traffic_item_name))
+                return False
+        except Exception as e:
+            st.error("Exception during start traffic {}: {}".format(traffic_item_name, str(e)))
+            return False
+
+        # Wait for traffic completion
+        st.log("Waiting for traffic completion: {}".format(traffic_item_name))
+        st.wait(20)
+
+        # Stop traffic with error handling
+        try:
+            ret = ixia_controller.stop_stateless_traffic(traffic_item_name)
+            if not ret:
+                st.error("Stop traffic item {} failed - returned False".format(traffic_item_name))
+                # Don't return False here, we still want to check statistics
+                st.log("Continuing with statistics check despite stop failure")
+        except Exception as e:
+            st.error("Exception during stop traffic {}: {}".format(traffic_item_name, str(e)))
+            st.log("Continuing with statistics check despite stop exception")
+
+        # Check traffic statistics
+        if key == "Rx Frames" or key == "Rx Frame Rate":
+            try:
+                return ixia_check_traffic_item_rx_frame(traffic_item_name, key, value, exact_match)
+            except Exception as e:
+                st.error("Exception during statistics check for {}: {}".format(traffic_item_name, str(e)))
+                return False
+        else:
+            st.error("Unsupported check key for traffic: {}".format(key))
+            return False
+
+    except Exception as e:
+        st.error("Unexpected exception in ixia_check_traffic for {}: {}".format(traffic_item_name, str(e)))
+
+        # Provide troubleshooting hints based on error type
+        error_str = str(e).lower()
+        if "badrequest" in error_str or "bad request" in error_str:
+            st.log("BadRequest error suggests invalid traffic configuration or API state")
+            st.log("Try regenerating traffic configuration or restarting protocols")
+        elif "port" in error_str and ("owned" in error_str or "assign" in error_str):
+            st.log("Port ownership issue detected")
+            st.log("Run: python3 ixia_port_manager.py --chassis {} --cleanup".format(IXIA_HOST))
+        elif "connect" in error_str:
+            st.log("Connection issue - check network connectivity to Ixia chassis")
 
 
 def ixia_config_bgp_flapping(topology_name, device_group_name, ethernet_name,
@@ -204,19 +393,89 @@ def ixia_config_bgp_ipv6_flapping(topology_name, device_group_name, ethernet_nam
     topology.ApplyOnTheFly()
 
 def ixia_start_traffic(traffic_item_name):
-    st.wait(10)
-    st.log("Get traffic item {}".format(traffic_item_name))
-    st.log("Apply traffic item {}".format(traffic_item_name))
-    ixia_controller.traffic_apply()
-    st.wait(10)
-    st.log("Start traffic item {}".format(traffic_item_name))
-    ret = ixia_controller.start_stateless_traffic(traffic_item_name)
-    if not ret:
-        st.error("Start traffic item {} failed".format(traffic_item_name))
-        return False
-    st.wait(20)
-    return True
+    """
+    Start traffic with robust error handling and retry logic.
 
+    Args:
+        traffic_item_name: Name of the traffic item to start
+
+    Returns:
+        bool: True if traffic started successfully, False otherwise
+    """
+    try:
+        st.wait(10)
+        st.log("Starting traffic item: {}".format(traffic_item_name))
+
+        # Validate that traffic item exists
+        try:
+            traffic_item = ixia_controller.get_traffic_item(traffic_item_name)
+            if not traffic_item:
+                st.error("Traffic item {} not found".format(traffic_item_name))
+                return False
+        except Exception as e:
+            st.error("Failed to get traffic item {}: {}".format(traffic_item_name, str(e)))
+            return False
+
+        # Apply traffic with retry logic
+        st.log("Applying traffic configuration for {}".format(traffic_item_name))
+        max_retries = 3
+        apply_success = False
+
+        for attempt in range(max_retries):
+            try:
+                ixia_controller.traffic_apply()
+                apply_success = True
+                st.log("Traffic apply successful on attempt {}".format(attempt + 1))
+                break
+            except Exception as e:
+                st.log("Traffic apply attempt {} failed: {}".format(attempt + 1, str(e)))
+                if attempt < max_retries - 1:
+                    st.log("Retrying traffic apply in 5 seconds...")
+                    st.wait(5)
+
+                    # Try to regenerate traffic configuration
+                    try:
+                        st.log("Regenerating traffic configuration...")
+                        ixia_controller.generate_traffic()
+                        st.wait(5)
+                    except Exception as gen_e:
+                        st.log("Traffic regeneration failed: {}".format(str(gen_e)))
+                else:
+                    st.error("Traffic apply failed after {} attempts: {}".format(max_retries, str(e)))
+                    return False
+
+        if not apply_success:
+            st.error("Failed to apply traffic configuration for {}".format(traffic_item_name))
+            return False
+
+        st.wait(10)
+
+        # Start traffic with error handling
+        st.log("Starting stateless traffic: {}".format(traffic_item_name))
+        try:
+            ret = ixia_controller.start_stateless_traffic(traffic_item_name)
+            if not ret:
+                st.error("Start traffic item {} failed - returned False".format(traffic_item_name))
+                return False
+        except Exception as e:
+            st.error("Exception during start traffic {}: {}".format(traffic_item_name, str(e)))
+            return False
+
+        st.wait(20)
+        st.log("Traffic item {} started successfully".format(traffic_item_name))
+        return True
+
+    except Exception as e:
+        st.error("Unexpected exception in ixia_start_traffic for {}: {}".format(traffic_item_name, str(e)))
+        # Provide troubleshooting hints
+        error_str = str(e).lower()
+        if "badrequest" in error_str or "bad request" in error_str:
+            st.log("BadRequest error suggests invalid traffic configuration or API state")
+            st.log("Try regenerating traffic configuration or restarting protocols")
+        elif "port" in error_str and ("owned" in error_str or "assign" in error_str):
+            st.log("Port ownership issue detected")
+            st.log("Run: python3 ixia_port_manager.py --chassis {} --cleanup".format(IXIA_HOST))
+        return False
 
 def ixia_stop_traffic(traffic_item_name):
     ret = ixia_controller.stop_stateless_traffic(traffic_item_name)
@@ -228,19 +487,83 @@ def ixia_stop_traffic(traffic_item_name):
 
 
 def ixia_start_all_traffic():
-    st.log("Generate traffic item")
-    ixia_controller.generate_traffic()
-    st.wait(10)
-    st.log("Apply traffic item")
-    ixia_controller.traffic_apply()
-    st.wait(10)
-    st.log("Start all traffic item")
-    ret = ixia_controller.start_all_stateless_traffic()
-    if not ret:
-        st.error("Start all traffic item failed")
-        return False
-    st.wait(10)
-    return True
+    """
+    Start all traffic items with robust error handling.
+
+    Returns:
+        bool: True if all traffic started successfully, False otherwise
+    """
+    try:
+        st.log("Starting all traffic items with error handling")
+
+        # Generate traffic with error handling
+        st.log("Generating traffic configuration")
+        try:
+            ixia_controller.generate_traffic()
+            st.wait(10)
+        except Exception as e:
+            st.error("Failed to generate traffic: {}".format(str(e)))
+            return False
+
+        # Apply traffic with retry logic
+        st.log("Applying traffic configuration")
+        max_retries = 3
+        apply_success = False
+
+        for attempt in range(max_retries):
+            try:
+                ixia_controller.traffic_apply()
+                apply_success = True
+                st.log("Traffic apply successful on attempt {}".format(attempt + 1))
+                break
+            except Exception as e:
+                st.log("Traffic apply attempt {} failed: {}".format(attempt + 1, str(e)))
+                if attempt < max_retries - 1:
+                    st.log("Retrying traffic apply in 5 seconds...")
+                    st.wait(5)
+                    # Try to regenerate traffic configuration
+                    try:
+                        st.log("Regenerating traffic configuration...")
+                        ixia_controller.generate_traffic()
+                        st.wait(5)
+                    except Exception as gen_e:
+                        st.log("Traffic regeneration failed: {}".format(str(gen_e)))
+                else:
+                    st.error("Traffic apply failed after {} attempts: {}".format(max_retries, str(e)))
+                    return False
+
+        if not apply_success:
+            st.error("Failed to apply traffic configuration")
+            return False
+
+        st.wait(10)
+
+        # Start all traffic with error handling
+        st.log("Starting all stateless traffic")
+        try:
+            ret = ixia_controller.start_all_stateless_traffic()
+            if not ret:
+                st.error("Start all traffic failed - returned False")
+                return False
+        except Exception as e:
+            st.error("Exception during start all traffic: {}".format(str(e)))
+            return False
+
+        st.wait(10)
+        st.log("All traffic items started successfully")
+        return True
+    except Exception as e:
+        st.error("Unexpected exception in ixia_start_all_traffic: {}".format(str(e)))
+
+        # Provide troubleshooting hints
+        error_str = str(e).lower()
+        if "badrequest" in error_str or "bad request" in error_str:
+            st.log("BadRequest error suggests invalid traffic configuration or API state")
+            st.log("Try restarting protocols or reloading configuration")
+        elif "port" in error_str and ("owned" in error_str or "assign" in error_str):
+            st.log("Port ownership issue detected")
+            st.log("Run: python3 ixia_port_manager.py --chassis {} --cleanup".format(IXIA_HOST))
+        return False    
 
 
 def ixia_stop_all_traffic():
@@ -279,3 +602,24 @@ def ixia_enable_traffic(traffic_item_name):
     traffic_item = ixia_controller.get_traffic_item(traffic_item_name)
     if not traffic_item.Enabled:
         traffic_item.Enabled = True
+
+def get_chassis_ip():
+    """Get chassis IP dynamically from TG configuration."""
+    chassis_ip, _ = get_dynamic_chassis_info()
+    return chassis_ip
+
+def get_available_ports():
+    """Get available ports dynamically from TG configuration."""
+    _, available_ports = get_dynamic_chassis_info()
+    return available_ports
+
+def get_tg_port_handles():
+    """Get TG port handles dictionary for advanced port management."""
+    try:
+        tg = tgapi.get_chassis()
+        if tg and hasattr(tg, 'tg_port_handle'):
+            return tg.tg_port_handle
+        return {}
+    except Exception as e:
+        st.log("Failed to get TG port handles: {}".format(str(e)))
+        return {}

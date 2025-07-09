@@ -1244,7 +1244,7 @@ class TGIxia(TGBase):
         if self.ix_port == "443":
             # ixnetwork linux VM
             params.user_name = "admin"
-            params.user_password = "admin"
+            params.user_password = os.getenv('IXIA_USER_PASSWORD', 'admin')
         ret_ds = get_ixiangpf().connect(**params)
 
         logger.info(ret_ds)
@@ -1259,8 +1259,13 @@ class TGIxia(TGBase):
         for port in self.tg_port_list:
             # ixia output is different for key 'port_handle': {'10': {'59': {'130': {'4': {'1/5': '1/1/5'}}}}}
             key1, key2, key3, key4 = self.tg_ip.split('.')
-            self.tg_port_handle[port] = \
-                ret_ds['port_handle'][key1][key2][key3][key4][port]
+            #self.tg_port_handle[port] = \
+            #    ret_ds['port_handle'][key1][key2][key3][key4][port]
+            if "." in port:
+                front_port_number,fanout_port_number = port.split(".")
+                self.tg_port_handle[port] = ret_ds['port_handle'][key1][key2][key3][key4][front_port_number][fanout_port_number]
+            else:
+                self.tg_port_handle[port] = ret_ds['port_handle'][key1][key2][key3][key4][port]            
             # For topology_handle.
             self.topo_handle[self.tg_port_handle[port]]=None
             # To get 100G ports.

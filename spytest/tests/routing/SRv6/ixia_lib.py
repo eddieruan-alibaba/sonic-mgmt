@@ -17,9 +17,17 @@ class IxiaController():
         )
 
         self.ixnetwork = self.session_assistant.Ixnetwork
+        self.owned_ports = []  # Track owned ports for cleanup
+        print("Ixia controller initialized successfully")
 
     def new_config(self):
-        self.ixnetwork.NewConfig()
+        try:
+            self.ixnetwork.NewConfig()
+        except Exception as e:
+            print("Warning: NewConfig failed: {}".format(str(e)))
+            # Force cleanup and retry
+            self.force_cleanup_ports()
+            self.ixnetwork.NewConfig()
 
     def load_config(self, file_name):
         file_path = os.path.join(
@@ -28,6 +36,165 @@ class IxiaController():
 
         self.ixnetwork.LoadConfig(Files(file_path, local_file=True))
 
+    def force_cleanup_ports(self):
+        """Force cleanup of all ports to resolve ownership conflicts"""
+        try:
+            print("Attempting to force cleanup ports...")
+            # Get all chassis
+            chassis_list = self.ixnetwork.AvailableHardware.Chassis.find()
+
+            for chassis in chassis_list:
+                cards = chassis.Card.find()
+                for card in cards:
+                    ports = card.Port.find()
+                    for port in ports:
+                        try:
+                            # Force release port ownership
+                            if hasattr(port, 'ReleasePort'):
+                                port.ReleasePort()
+                            # Clear port ownership
+                            if hasattr(port, 'ClearOwnership'):
+                                port.ClearOwnership()
+                        except Exception as port_error:
+                            print("Failed to cleanup port {}: {}".format(port, str(port_error)))
+
+            # Clear all vports
+            vports = self.ixnetwork.Vport.find()
+            for vport in vports:
+                try:
+                    vport.remove()
+                except Exception as vport_error:
+                    print("Failed to remove vport {}: {}".format(vport, str(vport_error)))
+
+        except Exception as e:
+            print("Force cleanup failed: {}".format(str(e)))
+
+    def ensure_port_ownership(self, chassis_ip, port_list):
+        """
+        Ensure ports are properly owned before configuration.
+
+        This method now supports both port location formats:
+        - Legacy format: "1/1", "2/3", etc.
+        - Alternative format: "1.1", "2.3", etc.
+
+        Args:
+            chassis_ip (str): IP address of the Ixia chassis
+            port_list (list): List of port locations in either format
+
+        Returns:
+            None (logs success/failure for each port)
+        """
+        try:
+            print("Ensuring ownership of ports {} on chassis {}".format(port_list, chassis_ip))
+
+            # Check if chassis already exists
+            chassis_list = self.ixnetwork.AvailableHardware.Chassis.find(Hostname=chassis_ip)
+            if not chassis_list:
+                # Add chassis if not present
+                chassis = self.ixnetwork.AvailableHardware.Chassis.add(Hostname=chassis_ip)
+            else:
+                chassis = chassis_list[0]
+
+            # Connect to chassis using the correct method
+            try:
+                if hasattr(chassis, 'Connect'):
+                    chassis.Connect()
+                elif hasattr(chassis, 'RefreshInfo'):
+                    chassis.RefreshInfo()
+                else:
+                    print("Warning: No known connect method available, proceeding without explicit connection")
+            except Exception as connect_error:
+                print("Warning: Chassis connection failed: {}".format(str(connect_error)))
+                print("Proceeding with port ownership attempt...")
+            # Take ownership of required ports
+            for port_location in port_list:
+                try:
+                    # Use robust port parsing to handle both "1/1" and "1.1" formats
+                    card_id, port_id = self._parse_port_location(port_location)
+
+                    if card_id is None or port_id is None:
+                        print("Skipping invalid port location: {}".format(port_location))
+                        continue
+                    # Try to find the card
+                    cards = chassis.Card.find()
+                    target_card = None
+                    for card in cards:
+                        if hasattr(card, 'CardId') and str(card.CardId) == str(card_id):
+                            target_card = card
+                            break
+                    if target_card:
+                        # Try to find the port
+                        ports = target_card.Port.find()
+                        target_port = None
+                        for port in ports:
+                            if hasattr(port, 'PortId') and str(port.PortId) == str(port_id):
+                                target_port = port
+                                break
+
+                        if target_port:
+                            try:
+                                # Take ownership - try different methods
+                                if hasattr(target_port, 'TakeOwnership'):
+                                    target_port.TakeOwnership(Force=True)
+                                elif hasattr(target_port, 'ClearOwnership'):
+                                    target_port.ClearOwnership()
+
+                                self.owned_ports.append("{}/{}".format(chassis_ip, port_location))
+                                print("Successfully handled ownership for port {}/{}".format(chassis_ip, port_location))
+                            except Exception as port_error:
+                                print("Failed to take ownership of port {}: {}".format(port_location, str(port_error)))
+                        else:
+                            print("Port {} not found on card {}".format(port_id, card_id))
+                    else:
+                        print("Card {} not found on chassis {}".format(card_id, chassis_ip))
+                except Exception as parse_error:
+                    print("Failed to parse port location {}: {}".format(port_location, str(parse_error)))
+
+        except Exception as e:
+            print("Port ownership setup failed: {}".format(str(e)))
+            # Don't raise exception, continue with degraded functionality
+            print("Continuing without port ownership management...")
+
+    def release_port_ownership(self):
+        """Release ownership of all owned ports"""
+        try:
+            print("Releasing port ownership...")
+            for port_location in self.owned_ports:
+                try:
+                    # Parse format: "chassis_ip/card_id/port_id" or "chassis_ip/card_id.port_id"
+                    parts = port_location.split('/', 2)
+                    if len(parts) != 3:
+                        print("Warning: Invalid stored port location format: {}".format(port_location))
+                        continue
+
+                    chassis_ip, port_path = parts[0], parts[1] + '/' + parts[2]
+
+                    # Use robust port parsing for the port_path
+                    card_id, port_id = self._parse_port_location(port_path)
+
+                    if card_id is None or port_id is None:
+                        print("Warning: Could not parse port path '{}' from stored location '{}'".format(port_path, port_location))
+                        continue
+
+                    chassis = self.ixnetwork.AvailableHardware.Chassis.find(Hostname=chassis_ip)
+                    if chassis:
+                        card = chassis.Card.find(CardId=int(card_id))
+                        if card:
+                            port = card.Port.find(PortId=int(port_id))
+                            if port:
+                                try:
+                                    port.ReleasePort()
+                                    print("Released ownership of port {}".format(port_location))
+                                except Exception as e:
+                                    print("Failed to release port {}: {}".format(port_location, str(e)))
+                except Exception as parse_error:
+                    print("Failed to parse stored port location {}: {}".format(port_location, str(parse_error)))
+
+            self.owned_ports.clear()
+        except Exception as e:
+            print("Port ownership release failed: {}".format(str(e)))
+            # Don't raise exception, continue with degraded functionality
+            print("Continuing without port ownership management...")
 
     def get_traffic_item_statistics(self, traffic_item_name):
         '''
@@ -370,5 +537,37 @@ class IxiaController():
     def download_file(self, remote_file_name, local_file_name):
         self.session_assistant.Session.DownloadFile(remote_file_name, local_file_name)
 
+    def _parse_port_location(self, port_location):
+        """
+        Parse port location string to extract card_id and port_id.
+        Supports both formats: "1/1" and "1.1"
 
+        Args:
+            port_location (str): Port location in format "card/port" or "card.port"
 
+        Returns:
+            tuple: (card_id, port_id) as strings, or (None, None) if parsing fails
+        """
+        try:
+            # Normalize the port location by replacing '.' with '/'
+            normalized_location = port_location.replace('.', '/')
+
+            # Split by '/'
+            parts = normalized_location.split('/')
+
+            if len(parts) != 2:
+                print("Error: Port location '{}' must be in format 'card/port' or 'card.port'".format(port_location))
+                return None, None
+
+            card_id, port_id = parts
+
+            # Validate that both parts are numeric
+            if not (card_id.isdigit() and port_id.isdigit()):
+                print("Error: Card ID '{}' and Port ID '{}' must be numeric".format(card_id, port_id))
+                return None, None
+
+            return card_id, port_id
+
+        except Exception as e:
+            print("Error parsing port location '{}': {}".format(port_location, str(e)))
+            return None, None

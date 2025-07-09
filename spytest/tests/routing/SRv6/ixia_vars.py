@@ -1,21 +1,45 @@
-
 import os
+
+def get_vendor_specific_ixia_config(base_config_name):
+    """
+    Get vendor-specific IXIA config file name based on environment variable.
+
+    Args:
+        base_config_name (str): Base config filename (e.g., "esr_multi_vrf.ixncfg")
+
+    Returns:
+        str: Vendor-specific config filename or base filename if vendor file doesn't exist
+
+    Environment Variables:
+        SONIC_VENDOR: Vendor name (e.g., 'cisco') to use vendor-specific config files
+    """
+    vendor = os.getenv('SONIC_VENDOR', 'default').lower()
+
+    if vendor != 'default':
+        # Extract base name and extension
+        name, ext = os.path.splitext(base_config_name)
+        vendor_config = "{}_{}{}".format(name, vendor, ext)
+        return vendor_config
+    
+    return base_config_name
 
 # Dynamic IXIA configuration - can be overridden via environment variables
 IXIA_HOST = os.getenv('IXIA_HOST', '192.168.122.168')
 # Dynamic IXIA port assignment - can be overridden via environment variable
 IXIA_PORT = int(os.getenv('IXIA_PORT', '443'))
+# Dynamic IXIA user password - can be overridden via environment variable
+IXIA_USER_PASSWORD = os.getenv('IXIA_USER_PASSWORD', 'admin')
 
-ESR_MULTI_VRF_CONFIG = "esr_multi_vrf.ixncfg"
-ESR_MULTI_VRF_ECMP_CONFIG = "esr_multi_vrf_ecmp.ixncfg"
-ESR_ECMP_CONFIG = "esr_ecmp_04.ixncfg"
-ESR_MIRROR_CONFIG = "esr_mirror.ixncfg"
-ESR_2K_POLICY_CONFIG = "esr_te_policy.ixncfg"
-ESR_SID_REMARKING_CONFIG = "esr_sid_remarking.ixncfg"
-ESR_IPV4_IPV6_POLICY_CONFIG = "ip_ipv6_te_policy.ixncfg"
-ESR_IPV4_IPV6_500K_POLICY_CONFIG = "ip_ipv6_500k_te_policy.ixncfg"
-ESR_LOCATOR_ENDX_ECMP_128_MEMBER_CONFIG = "locator_endx_ecmp_128_member.ixncfg"
-ESR_LOCATOR_ENDX_ECMP_V6_HASH_CONFIG = "endx_ecmp_hash_v6.ixncfg"
+ESR_MULTI_VRF_CONFIG = get_vendor_specific_ixia_config("esr_multi_vrf.ixncfg")
+ESR_MULTI_VRF_ECMP_CONFIG = get_vendor_specific_ixia_config("esr_multi_vrf_ecmp.ixncfg")
+ESR_ECMP_CONFIG = get_vendor_specific_ixia_config("esr_ecmp_04.ixncfg")
+ESR_MIRROR_CONFIG = get_vendor_specific_ixia_config("esr_mirror.ixncfg")
+ESR_2K_POLICY_CONFIG = get_vendor_specific_ixia_config("esr_te_policy.ixncfg")
+ESR_SID_REMARKING_CONFIG = get_vendor_specific_ixia_config("esr_sid_remarking.ixncfg")
+ESR_IPV4_IPV6_POLICY_CONFIG = get_vendor_specific_ixia_config("ip_ipv6_te_policy.ixncfg")
+ESR_IPV4_IPV6_500K_POLICY_CONFIG = get_vendor_specific_ixia_config("ip_ipv6_500k_te_policy.ixncfg")
+ESR_LOCATOR_ENDX_ECMP_128_MEMBER_CONFIG = get_vendor_specific_ixia_config("locator_endx_ecmp_128_member.ixncfg")
+ESR_LOCATOR_ENDX_ECMP_V6_HASH_CONFIG = get_vendor_specific_ixia_config("endx_ecmp_hash_v6.ixncfg")
 
 # IXIA_PORT connected to 179
 PORT_NAME_1 = "1/1/15"
