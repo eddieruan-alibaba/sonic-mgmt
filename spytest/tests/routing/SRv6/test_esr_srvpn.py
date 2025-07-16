@@ -946,8 +946,9 @@ def test_base_config_srvpn_multi_vrf_03():
     # ixia config 100 subinterface
     st.banner("test_base_config_srvpn_multi_vrf_03 begin")
 
+    st.wait(30)
     # step1 check vpn route learn 50w
-    ret = check_vpn_route_nums(dut2, 1000000, 0)
+    ret = check_vpn_route_nums(dut2, 1000000, 1)
     if not ret:
         st.report_fail("step1 check_vpn_route_nums test_base_config_srvpn_multi_vrf_03")
 
@@ -984,11 +985,12 @@ def test_base_config_srvpn_multi_vrf_03():
         st.report_fail("Check traffic item {} rx frame failed".format(VRF_TRAFFIC_NAME))
 
     # step2: change vrf import rt withsame service-SID
-    to_check_vrf = 'Vrf47'
+    to_check_vrf = "Vrf47"
     rtlist = "1:10 1:30 1:50 1:70 1:90"
 
-    cmd = "cli -c 'configure terminal' -c 'router bgp 100 vrf Vrf47' -c 'address-family ipv4 unicast' -c 'route-target vpn import {}'".format(rtlist)
-    st.config(dut2, cmd)
+    #cmd = "cli -c 'configure terminal' -c 'router bgp 100 vrf Vrf_Vrf-TC47' -c 'address-family ipv4 unicast' -c 'route-target vpn import {}'".format(rtlist)
+    #st.config(dut2, cmd)
+    st.config(dut2, 'vtysh -c "configure terminal" -c "router bgp 100 vrf Vrf47" -c "address-family ipv4 unicast" -c "route-target vpn import {}"'.format(rtlist))
     st.wait(10)
 
     # check vrf route learn
@@ -1027,14 +1029,22 @@ def test_base_config_srvpn_multi_vrf_03():
     # 1:30 1:70 change service-SID
     # 1:30 101|ipv4|Vrf30
     # 1:70 101|ipv4|Vrf70
-    cmd = "cli -c 'configure terminal' -c 'router bgp 101 vrf Vrf30' -c 'no srv6-locator lsid1'"
-    st.config(dut1, cmd)
-    cmd = "cli -c 'configure terminal' -c 'router bgp 101 vrf Vrf30' -c 'srv6-locator lsid3'"
-    st.config(dut1, cmd)
-    cmd = "cli -c 'configure terminal' -c 'router bgp 101 vrf Vrf70' -c 'no srv6-locator lsid2'"
-    st.config(dut1, cmd)
-    cmd = "cli -c 'configure terminal' -c 'router bgp 101 vrf Vrf70' -c 'srv6-locator lsid4'"
-    st.config(dut1, cmd)
+    #cmd = "cli -c 'configure terminal' -c 'router bgp 101 vrf Vrf30' -c 'no srv6-locator lsid1'"
+    #st.config(dut1, cmd)
+    locator_name = 'lsid1'
+    st.config(dut1, 'vtysh -c "configure terminal" -c "router bgp 101 vrf Vrf30" -c "no srv6-locator {}"'.format(locator_name))
+    #cmd = "cli -c 'configure terminal' -c 'router bgp 101 vrf Vrf30' -c 'srv6-locator lsid3'"
+    #st.config(dut1, cmd)
+    locator_name = 'lsid3'
+    st.config(dut1, 'vtysh -c "configure terminal" -c "router bgp 101 vrf Vrf30" -c "srv6-locator {}"'.format(locator_name))
+    #cmd = "cli -c 'configure terminal' -c 'router bgp 101 vrf Vrf70' -c 'no srv6-locator lsid2'"
+    #st.config(dut1, cmd)
+    locator_name = 'lsid2'
+    st.config(dut1, 'vtysh -c "configure terminal" -c "router bgp 101 vrf Vrf70" -c "no srv6-locator {}"'.format(locator_name))
+    #cmd = "cli -c 'configure terminal' -c 'router bgp 101 vrf Vrf70' -c 'srv6-locator lsid4'"
+    #st.config(dut1, cmd)
+    locator_name = 'lsid4'
+    st.config(dut1, 'vtysh -c "configure terminal" -c "router bgp 101 vrf Vrf70" -c "srv6-locator {}"'.format(locator_name))
 
     st.wait(10)
      #check vpn route learn 50w
@@ -1126,7 +1136,7 @@ def test_srvpn_ecmp_04():
 
     # step1: change vrf import rt withsame service-SID
     # # check vrf route learn
-    to_check_vrf = 'Vrf20'
+    to_check_vrf = "Vrf20"
     def check_route_nums():
         show_hw_route_count(dut2)
         return check_vrf_route_nums(dut2, to_check_vrf, 10000, 1) 

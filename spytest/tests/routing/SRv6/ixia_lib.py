@@ -325,11 +325,11 @@ class IxiaController():
         return True
 
     def start_all_stateless_traffic(self):
-        self.ixnetwork.Traffic.find().TrafficItem.find().StartStatelessTraffic()
+        self.ixnetwork.Traffic.find().TrafficItem.find().StartStatelessTrafficBlocking()
         return True
 
     def stop_all_stateless_traffic(self):
-        self.ixnetwork.Traffic.find().TrafficItem.find().StopStatelessTraffic()
+        self.ixnetwork.Traffic.find().TrafficItem.find().StopStatelessTrafficBlocking()
         return True
 
     def start_stateless_traffic(self, traffic_item_name):
@@ -337,14 +337,14 @@ class IxiaController():
         if not traffic_item:
             return False
 
-        traffic_item.StartStatelessTraffic()
+        traffic_item.StartStatelessTrafficBlocking()
         return True
 
     def stop_stateless_traffic(self, traffic_item_name):
         traffic_item = self.get_traffic_item(traffic_item_name)
         if not traffic_item:
             return False
-        traffic_item.StopStatelessTraffic()
+        traffic_item.StopStatelessTrafficBlocking()
         return True
 
     def start_all_protocols(self):

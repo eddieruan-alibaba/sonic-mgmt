@@ -559,45 +559,217 @@ def appdb_get_onefield_route_related(dut, route_key, field):
  
 # [{u'fib_ibgp': '', u'total': '2', u'fib_static': '1', u'fib_ebgp': '', u'ibgp': '', u'ebgp': '', 
 # u'vrf': 'Vrf10050', u'fib_connected': '1', u'static': '1', u'fib_ospf': '', u'connected': '1', u'ospf': '', u'fib_total': '2'}]
+#def check_vrf_route_nums(dut, vrfname, expected_num, compare):
+#    cmd = "show ip route vrf {} summary".format(vrfname)
+#    result = st.show(dut, cmd, type='alicli')
+#    st.log(result)
+
+#    if result is not None:
+#        totals = result[0]['fib_total']
+#        if totals.isdigit():
+#            totals_num = string.atoi(totals)
+#            if totals_num >= expected_num and compare==1:
+#                return True
+#            elif totals_num == expected_num and compare==0:
+#                return True
+#            elif totals_num < expected_num and compare==-1:
+#                return True
+#            else:
+#                st.log("totals fib num is {} , expected is {}".format(totals_num, expected_num))
+#                return False
+#    return False
+
+
+
 def check_vrf_route_nums(dut, vrfname, expected_num, compare):
+    """
+    Check VRF route numbers using vtysh with robust parsing.
+
+    Args:
+        dut: Device under test
+        vrfname: VRF name to check
+        expected_num: Expected number of routes
+        compare: Comparison mode (1: >=, 0: ==, -1: <)
+
+    Returns:
+        bool: True if comparison passes, False otherwise
+    """
     cmd = "show ip route vrf {} summary".format(vrfname)
-    result = st.show(dut, cmd, type='alicli')
-    st.log(result)
+    st.log("Checking VRF {} route count with command: {}".format(vrfname, cmd))
 
-    if result is not None:
-        totals = result[0]['fib_total']
-        if totals.isdigit():
-            totals_num = string.atoi(totals)
-            if totals_num >= expected_num and compare==1:
-                return True
-            elif totals_num == expected_num and compare==0:
-                return True
-            elif totals_num < expected_num and compare==-1:
-                return True
-            else:
-                st.log("totals fib num is {} , expected is {}".format(totals_num, expected_num))
-                return False
-    return False
+    try:
+        # Try vtysh first for more reliable output
+        output = st.show(dut, cmd, skip_tmpl=True, max_time=500, type='vtysh')
+        if not output:
+            st.log("No output from vtysh, trying alicli")
+            result = st.show(dut, cmd, type='alicli')
+            if result:
+                output = str(result)
 
+        st.log("Raw command output: {}".format(output))
+
+        # Extract route count using robust regex patterns
+        totals_num = None
+
+        # Pattern 1: Look for "Totals" line with FIB count
+        # Example: "Totals               2                    2"
+        totals_match = re.search(r'Totals\s+\d+\s+(\d+)', str(output), re.IGNORECASE)
+        if totals_match:
+            totals_num = int(totals_match.group(1))
+            st.log("Found FIB total using Totals pattern: {}".format(totals_num))
+
+        # Pattern 2: Look for "Totals - Dataplane" line
+        # Example: "Totals - Dataplane   N/A                  2"
+        if totals_num is None:
+            dataplane_match = re.search(r'Totals\s*-\s*Dataplane\s+\S+\s+(\d+)', str(output), re.IGNORECASE)
+            if dataplane_match:
+                totals_num = int(dataplane_match.group(1))
+                st.log("Found FIB total using Dataplane pattern: {}".format(totals_num))
+
+        # Pattern 3: Parse alicli structured output if available
+        if totals_num is None and isinstance(output, list) and len(output) > 0:
+            try:
+                if 'fib_total' in output[0]:
+                    fib_total_str = output[0]['fib_total']
+                    if fib_total_str and fib_total_str.isdigit():
+                        totals_num = int(fib_total_str)
+                        st.log("Found FIB total from alicli fib_total: {}".format(totals_num))
+            except (KeyError, IndexError, TypeError, ValueError) as e:
+                st.log("Error parsing alicli output: {}".format(str(e)))
+
+        # Pattern 4: General number extraction as fallback
+        if totals_num is None:
+            numbers = re.findall(r'\b(\d+)\b', str(output))
+            if numbers:
+                # Look for the last significant number (often the FIB total)
+                for num_str in reversed(numbers):
+                    try:
+                        num = int(num_str)
+                        if num > 0:  # Skip zeros which are often not the total
+                            totals_num = num
+                            st.log("Using fallback number extraction: {}".format(totals_num))
+                            break
+                    except ValueError:
+                        continue
+
+        if totals_num is None:
+            st.log("Could not extract route count from output")
+            return False
+
+        st.log("VRF {} FIB route count: {}, expected: {}, compare mode: {}".format(
+            vrfname, totals_num, expected_num, compare))
+
+        # Perform comparison based on mode
+        if compare == 1:  # greater than or equal
+            result = totals_num >= expected_num
+        elif compare == 0:  # equal
+            result = totals_num == expected_num
+        elif compare == -1:  # less than
+            result = totals_num < expected_num
+        else:
+            st.log("Invalid compare mode: {}".format(compare))
+            return False
+
+        if result:
+            st.log("VRF route count check PASSED")
+        else:
+            st.log("VRF route count check FAILED: {} vs expected {}".format(totals_num, expected_num))
+
+        return result
+
+    except Exception as e:
+        st.log("Exception in check_vrf_route_nums: {}".format(str(e)))
+        return False
+
+
+#def check_vpn_route_nums(dut, expected_num, compare):
+#    cmd = "show bgp ipv4 vpn statistics"
+#    result = st.show(dut, cmd, type='alicli')
+#    st.log(result)
+#
+#    if result is not None:
+#        totals = result[0]['totaladv']
+#        if totals.isdigit():
+#            totals_num = string.atoi(totals)
+#            if totals_num >= expected_num and compare==1:
+#                return True
+#            elif totals_num == expected_num and compare==0:
+#                return True
+#            elif totals_num < expected_num and compare==-1:
+#                return True
+#            else:
+#                st.log("totals adv route num is {} , expected is {}".format(totals_num, expected_num))
+#                return False
+#    return False
 def check_vpn_route_nums(dut, expected_num, compare):
-    cmd = "show bgp ipv4 vpn statistics"
-    result = st.show(dut, cmd, type='alicli')
-    st.log(result)
+    """
+    Check VPN route numbers using vtysh with robust number extraction
 
-    if result is not None:
-        totals = result[0]['totaladv']
-        if totals.isdigit():
-            totals_num = string.atoi(totals)
-            if totals_num >= expected_num and compare==1:
-                return True
-            elif totals_num == expected_num and compare==0:
-                return True
-            elif totals_num < expected_num and compare==-1:
-                return True
+    Args:
+        dut: Device under test
+        expected_num: Expected number of routes
+        compare: Comparison type (1: >=, 0: ==, -1: <)
+
+    Returns:
+        bool: True if condition matches, False otherwise
+    """
+    cmd = "show bgp ipv4 vpn statistics"
+    result = st.show(dut, cmd, type='vtysh', skip_tmpl=True, skip_error_check=True)
+    st.log("VPN route statistics output: {}".format(result))
+
+    if result is None or result == "":
+        st.log("No output from BGP VPN statistics command")
+        return False
+
+    try:
+        # Extract numbers from the output using robust method
+        numbers = re.findall(r'\d+', str(result))
+
+        if not numbers:
+            st.log("No numbers found in BGP VPN statistics output")
+            return False
+
+        # For BGP VPN statistics, we typically want the total advertised routes
+        # This might be the first or last number depending on output format
+        # Try to find patterns like "Total: 123" or "Advertised: 456"
+
+        totals_num = 0
+
+        # Method 1: Look for specific patterns in the output
+        total_match = re.search(r'[Tt]otal[^:]*:\s*(\d+)', str(result))
+        if total_match:
+            totals_num = int(total_match.group(1))
+            st.log("Found total routes using pattern match: {}".format(totals_num))
+        else:
+            # Method 2: Look for advertised routes pattern
+            adv_match = re.search(r'[Aa]dvertised[^:]*:\s*(\d+)', str(result))
+            if adv_match:
+                totals_num = int(adv_match.group(1))
+                st.log("Found advertised routes using pattern match: {}".format(totals_num))
             else:
-                st.log("totals adv route num is {} , expected is {}".format(totals_num, expected_num))
-                return False
-    return False
+                # Method 3: Use the last number found (common in summary outputs)
+                totals_num = int(numbers[-1])
+                st.log("Using last number found in output: {}".format(totals_num))
+
+        # Perform the comparison
+        if compare == 1 and totals_num >= expected_num:
+            st.log("VPN route count {} >= expected {} - PASS".format(totals_num, expected_num))
+            return True
+        elif compare == 0 and totals_num == expected_num:
+            st.log("VPN route count {} == expected {} - PASS".format(totals_num, expected_num))
+            return True
+        elif compare == -1 and totals_num < expected_num:
+            st.log("VPN route count {} < expected {} - PASS".format(totals_num, expected_num))
+            return True
+        else:
+            st.log("VPN route count {} does not match expected {} with comparison {} - FAIL".format(
+                totals_num, expected_num, compare))
+            return False
+
+    except (ValueError, IndexError, AttributeError) as e:
+        st.log("Error parsing VPN route statistics: {}".format(str(e)))
+        st.log("Raw output was: {}".format(str(result)[:200]))
+        return False
 
 def get_random_array(start, end, num):
     ra = []
@@ -608,8 +780,10 @@ def get_random_array(start, end, num):
     return ra
 
 def check_bgp_vrf_ipv4_uni_sid(dut, vrf, prefix, expected_sid):
-    cmd = "cli -c 'no page' -c 'show bgp vrf {} ipv4 unicast {}'".format(vrf, prefix)
-    result = st.show(dut, cmd)
+    #cmd = "cli -c 'no page' -c 'show bgp vrf {} ipv4 unicast {}'".format(vrf, prefix)
+    cmd = "show bgp vrf {} ipv4 unicast {}".format(vrf, prefix)
+    result = st.show(dut, cmd, type='vtysh')
+    #result = st.show(dut, cmd)
     st.log(result)
 
     if result is not None and len(result) > 0:

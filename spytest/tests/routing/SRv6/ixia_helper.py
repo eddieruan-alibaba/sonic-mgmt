@@ -355,6 +355,8 @@ def ixia_check_traffic(traffic_item_name, key="Rx Frames", value="0", exact_matc
         elif "connect" in error_str:
             st.log("Connection issue - check network connectivity to Ixia chassis")
 
+        return False
+
 
 def ixia_config_bgp_flapping(topology_name, device_group_name, ethernet_name,
                  ipv4_name, bgp_peer_name, enable):
