@@ -1,0 +1,77 @@
+{
+    "INTERFACE": {
+        "Ethernet11": {},
+        "Ethernet11|100.1.0.178/24": {
+            "family": "IPv4",
+            "scope": "global"
+        },
+        "Ethernet11|2044::178/64": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "Ethernet12": {},
+        "Ethernet12|100.2.0.178/24": {
+            "family": "IPv4",
+            "scope": "global"
+        },
+        "Ethernet12|2055::178/64": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "Ethernet13": {},
+        "Ethernet133": {},
+        "Ethernet133|200.1.0.1/24": {
+            "family": "IPv4",
+            "scope": "global"
+        },
+        "Ethernet133|2000:0:0:1::1/64": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "Ethernet13|100.3.0.178/24": {
+            "family": "IPv4",
+            "scope": "global"
+        },
+        "Ethernet13|2066::178/64": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "Ethernet14": {},
+        "Ethernet14|100.4.0.178/24": {
+            "family": "IPv4",
+            "scope": "global"
+        },
+        "Ethernet14|2077::178/64": {
+            "family": "IPv6",
+            "scope": "global"
+        }
+    },
+    "ROUTE_MAP": {
+        "pass_all|1": {
+            "route_operation": "permit"
+        },
+        "set_ipv6_nh|1": {
+            "route_operation": "permit",
+            "set_ipv6_next_hop_prefer_global": "true"
+        }
+    },
+    "STATIC_ROUTE": {
+        "3.3.3.3/32": {
+            "bfd_name": [
+                "NULL"
+            ],
+            "color": [
+                "NULL"
+            ],
+            "distance": [
+                "NULL"
+            ],
+            "nexthop": [
+                "200.1.0.2"
+            ],
+            "tag": [
+                "NULL"
+            ]
+        }
+    }
+}

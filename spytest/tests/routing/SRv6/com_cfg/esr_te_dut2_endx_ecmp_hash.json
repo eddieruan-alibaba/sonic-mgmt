@@ -1,0 +1,160 @@
+{
+    "INTERFACE": {
+        "Ethernet11": {},
+        "Ethernet11|100.1.0.179/24": {
+            "family": "IPv4",
+            "scope": "global"
+        },
+        "Ethernet11|2044::179/64": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "Ethernet12": {},
+        "Ethernet12|100.2.0.179/24": {
+            "family": "IPv4",
+            "scope": "global"
+        },
+        "Ethernet12|2055::179/64": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "Ethernet13": {},
+        "Ethernet133": {},
+        "Ethernet133|2033::57/64": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "Ethernet13|100.3.0.179/24": {
+            "family": "IPv4",
+            "scope": "global"
+        },
+        "Ethernet13|2066::179/64": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "Ethernet14": {},
+        "Ethernet14|100.4.0.179/24": {
+            "family": "IPv4",
+            "scope": "global"
+        },
+        "Ethernet14|2077::179/64": {
+            "family": "IPv6",
+            "scope": "global"
+        }
+    },
+    "ROUTE_MAP": {
+        "pass_all|1": {
+            "route_operation": "permit"
+        },
+        "set_ipv6_nh|1": {
+            "route_operation": "permit",
+            "set_ipv6_next_hop_prefer_global": "true"
+        }
+    },
+    "SRV6_LOCATOR": {
+        "compress_v4": {
+            "argu_len": "64",
+            "block_len": "32",
+            "compress_16": "true",
+            "func_len": "16",
+            "node_len": "16",
+            "opcode_act": [
+                "end-x",
+                "end-x",
+                "end-x",
+                "end-x"
+            ],
+            "opcode_data": [
+                "interface Ethernet11 nexthop 100.1.0.178",
+                "interface Ethernet12 nexthop 100.2.0.178",
+                "interface Ethernet13 nexthop 100.3.0.178",
+                "interface Ethernet14 nexthop 100.4.0.178"
+            ],
+            "opcode_prefix": [
+                "0:0:0:41::",
+                "0:0:0:41::",
+                "0:0:0:41::",
+                "0:0:0:41::"
+            ],
+            "prefix": "fd00:606:2022::/48"
+        },
+        "compress_v6": {
+            "argu_len": "64",
+            "block_len": "32",
+            "compress_16": "true",
+            "func_len": "16",
+            "node_len": "16",
+            "opcode_act": [
+                "end-x",
+                "end-x",
+                "end-x",
+                "end-x"
+            ],
+            "opcode_data": [
+                "interface Ethernet11 nexthop 2044::178",
+                "interface Ethernet12 nexthop 2055::178",
+                "interface Ethernet13 nexthop 2066::178",
+                "interface Ethernet14 nexthop 2077::178"
+            ],
+            "opcode_prefix": [
+                "0:0:0:51::",
+                "0:0:0:51::",
+                "0:0:0:51::",
+                "0:0:0:51::"
+            ],
+            "prefix": "fd00:707:2022::/48"
+        },
+        "noncompress_v4": {
+            "argu_len": "48",
+            "block_len": "32",
+            "compress_16": "false",
+            "func_len": "32",
+            "node_len": "16",
+            "opcode_act": [
+                "end-x",
+                "end-x",
+                "end-x",
+                "end-x"
+            ],
+            "opcode_data": [
+                "interface Ethernet11 nexthop 100.1.0.178",
+                "interface Ethernet12 nexthop 100.2.0.178",
+                "interface Ethernet13 nexthop 100.3.0.178",
+                "interface Ethernet14 nexthop 100.4.0.178"
+            ],
+            "opcode_prefix": [
+                "::fff1:21:0:0:0",
+                "::fff1:21:0:0:0",
+                "::fff1:21:0:0:0",
+                "::fff1:21:0:0:0"
+            ],
+            "prefix": "fd00:401:401::/48"
+        },
+        "noncompress_v6": {
+            "argu_len": "48",
+            "block_len": "32",
+            "compress_16": "false",
+            "func_len": "32",
+            "node_len": "16",
+            "opcode_act": [
+                "end-x",
+                "end-x",
+                "end-x",
+                "end-x"
+            ],
+            "opcode_data": [
+                "interface Ethernet11 nexthop 2044::178",
+                "interface Ethernet12 nexthop 2055::178",
+                "interface Ethernet13 nexthop 2066::178",
+                "interface Ethernet14 nexthop 2077::178"
+            ],
+            "opcode_prefix": [
+                "::fff1:31:0:0:0",
+                "::fff1:31:0:0:0",
+                "::fff1:31:0:0:0",
+                "::fff1:31:0:0:0"
+            ],
+            "prefix": "fd00:501:501::/48"
+        }
+    }
+}

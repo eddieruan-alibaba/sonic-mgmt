@@ -1,0 +1,220 @@
+{
+    "AS_PATH_SET": {
+        "as_list": {
+            "as_path_set_member": [
+                "200"
+            ]
+        }
+    },
+    "BGP_GLOBALS": {
+        "Vrf1": {
+            "local_asn": "100",
+            "router_id": "1.1.1.179"
+        },
+        "default": {
+            "holdtime": "30",
+            "keepalive": "10",
+            "local_asn": "100",
+            "router_id": "2.1.0.178"
+        }
+    },
+    "BGP_GLOBALS_AF": {
+        "Vrf1|ipv4_unicast": {
+            "export_vpn": "true",
+            "import_vpn": "true",
+            "rd_vpn_export": "1:1",
+            "rt_vpn_import": "1:1"
+        }
+    },
+    "BGP_GLOBALS_AF_NETWORK": {
+        "default|ipv6_unicast|1000::178/128": {},
+        "default|ipv6_unicast|2000::178/128": {}
+    },
+    "BGP_NEIGHBOR": {
+        "default|1000::179": {
+            "asn": "100",
+            "capability_ext_nexthop": "true",
+            "local_addr": "1000::178"
+        },
+        "default|2011::179": {
+            "asn": "100",
+            "local_addr": "2011::178"
+        },
+        "default|2022::179": {
+            "asn": "100",
+            "local_addr": "2022::178"
+        },
+        "default|2033::179": {
+            "asn": "100",
+            "local_addr": "2033::178"
+        },
+        "default|2044::179": {
+            "asn": "100",
+            "local_addr": "2044::178"
+        }
+    },
+    "BGP_NEIGHBOR_AF": {
+        "default|1000::179|ipv4_vpn": {
+            "admin_status": "true",
+            "route_map_out": "as-map"
+        },
+        "default|1000::179|ipv6_vpn": {
+            "admin_status": "true",
+            "route_map_out": "as-map"
+        },
+        "default|2011::179|ipv6_unicast": {
+            "admin_status": "true",
+            "route_map_in": "set_ipv6_nh",
+            "route_map_out": "1"
+        },
+        "default|2022::179|ipv6_unicast": {
+            "admin_status": "true",
+            "route_map_in": "set_ipv6_nh",
+            "route_map_out": "2"
+        },
+        "default|2033::179|ipv6_unicast": {
+            "admin_status": "true",
+            "route_map_in": "set_ipv6_nh",
+            "route_map_out": "3"
+        },
+        "default|2044::179|ipv6_unicast": {
+            "admin_status": "true",
+            "route_map_in": "set_ipv6_nh",
+            "route_map_out": "4"
+        }
+    },
+    "INTERFACE": {
+        "Ethernet11": {},
+        "Ethernet11|2011::178/64": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "Ethernet12": {},
+        "Ethernet12|2022::178/64": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "Ethernet13": {},
+        "Ethernet13|2033::178/64": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "Ethernet14": {},
+        "Ethernet14|2044::178/64": {
+            "family": "IPv6",
+            "scope": "global"
+        }
+    },
+    "LOOPBACK_INTERFACE": {
+        "Loopback1": {},
+        "Loopback1|1000::178/128": {},
+        "Loopback1|2000::178/128": {}
+    },
+    "PREFIX": {
+        "1|1000::178/128|exact": {
+            "action": "permit"
+        },
+        "1|2000::178/128|exact": {
+            "action": "permit"
+        }
+    },
+    "PREFIX_SET": {
+        "1": {
+            "mode": "ipv6"
+        }
+    },
+    "ROUTE_MAP": {
+        "1|10": {
+    "LOOPBACK_INTERFACE": {
+        "Loopback1": {},
+        "Loopback1|1000::178/128": {},
+        "Loopback1|2000::178/128": {}
+    },
+    "PREFIX": {
+        "1|1000::178/128|exact": {
+            "action": "permit"
+        },
+        "1|2000::178/128|exact": {
+            "action": "permit"
+        }
+    },
+    "PREFIX_SET": {
+        "1": {
+            "mode": "ipv6"
+        }
+    },
+    "ROUTE_MAP": {
+        "1|10": {
+            "match_prefix_set": "1",
+            "route_operation": "permit"
+        },
+        "1|20": {
+            "route_operation": "deny"
+        },
+        "2|20": {
+            "route_operation": "deny"
+        },
+        "3|20": {
+            "route_operation": "deny"
+        },
+        "4|20": {
+            "route_operation": "deny"
+        },
+        "as-map|10": {
+            "match_as_path": "as_list",
+            "route_operation": "deny"
+        },
+        "pass_all|1": {
+            "route_operation": "permit"
+        },
+        "set_ipv6_nh|1": {
+            "route_operation": "permit",
+            "set_ipv6_next_hop_prefer_global": "true"
+        }
+    },
+    "SRV6_POLICY": {
+        "1|1000::179|1|a": {
+            "seg_name": "a",
+            "weight": "1"
+        },
+        "1|1000::179|2|b": {
+            "seg_name": "b",
+            "weight": "2"
+        },
+        "1|1000::179|3|c": {
+            "seg_name": "c",
+            "weight": "3"
+        },
+        "1|1000::179|4|d": {
+            "seg_name": "d",
+            "weight": "4"
+        }
+    },
+    "SRV6_SID_LIST": {
+        "a": {
+            "1": "fd00:202:202:fff1:115::"
+        },
+        "b": {
+            "1": "fd00:202:202:fff1:116::"
+        },
+        "c": {
+            "1": "fd00:202:202:fff1:117::"
+        },
+        "d": {
+            "1": "fd00:202:202:fff1:118::"
+        }
+    },
+    "VLAN_SUB_INTERFACE": {
+        "Ethernet21.1001": {
+            "admin_status": "up",
+            "vrf_name": "Vrf1"
+        },
+        "Ethernet21.1001|101.1.0.1/24": {
+            "family": "IPv4",
+            "scope": "global"
+        }
+    },
+    "VRF": {
+        "Vrf1": {}
+    }
+}
