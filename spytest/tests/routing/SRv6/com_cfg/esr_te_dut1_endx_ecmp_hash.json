@@ -19,15 +19,6 @@
             "scope": "global"
         },
         "Ethernet13": {},
-        "Ethernet133": {},
-        "Ethernet133|200.1.0.1/24": {
-            "family": "IPv4",
-            "scope": "global"
-        },
-        "Ethernet133|2000:0:0:1::1/64": {
-            "family": "IPv6",
-            "scope": "global"
-        },
         "Ethernet13|100.3.0.178/24": {
             "family": "IPv4",
             "scope": "global"
@@ -44,6 +35,15 @@
         "Ethernet14|2077::178/64": {
             "family": "IPv6",
             "scope": "global"
+        },
+        "Ethernet21": {},
+        "Ethernet21|200.1.0.1/24": {
+            "family": "IPv4",
+            "scope": "global"
+        },
+        "Ethernet21|2000:0:0:1::1/64": {
+            "family": "IPv6",
+            "scope": "global"
         }
     },
     "ROUTE_MAP": {
@@ -57,21 +57,7 @@
     },
     "STATIC_ROUTE": {
         "3.3.3.3/32": {
-            "bfd_name": [
-                "NULL"
-            ],
-            "color": [
-                "NULL"
-            ],
-            "distance": [
-                "NULL"
-            ],
-            "nexthop": [
-                "200.1.0.2"
-            ],
-            "tag": [
-                "NULL"
-            ]
+            "nexthop": "200.1.0.2"
         }
     }
 }

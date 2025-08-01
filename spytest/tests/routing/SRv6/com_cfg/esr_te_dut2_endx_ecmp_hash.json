@@ -19,11 +19,6 @@
             "scope": "global"
         },
         "Ethernet13": {},
-        "Ethernet133": {},
-        "Ethernet133|2033::57/64": {
-            "family": "IPv6",
-            "scope": "global"
-        },
         "Ethernet13|100.3.0.179/24": {
             "family": "IPv4",
             "scope": "global"
@@ -38,6 +33,11 @@
             "scope": "global"
         },
         "Ethernet14|2077::179/64": {
+            "family": "IPv6",
+            "scope": "global"
+        },
+        "Ethernet21": {},
+        "Ethernet21|2033::57/64": {
             "family": "IPv6",
             "scope": "global"
         }
