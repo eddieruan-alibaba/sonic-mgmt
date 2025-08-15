@@ -1,0 +1,40 @@
+# Default port configuration for ESR SRv6 tests
+ecmp_ports:
+  dut1: ['Ethernet3', 'Ethernet4']
+  dut2: ['Ethernet3', 'Ethernet4']
+
+ecmp_503_504_ports:
+  dut1_dut2: ['Ethernet12', 'Ethernet16', 'Ethernet28', 'Ethernet32', 'Ethernet44', 'Ethernet60']
+  dut_tg: ['Ethernet109', 'Ethernet110']
+
+ecmp_501_502_ports:
+  dut1_dut2: ['Ethernet92', 'Ethernet96', 'Ethernet108']
+  dut_RJ: ['Ethernet8', 'Ethernet9', 'Ethernet10', 'Ethernet11']
+  dut_tg: ['Ethernet111', 'Ethernet112']
+
+bfd_ports:
+  dut: ['Ethernet13']
+
+# Environment-specific overrides
+environments:
+  cisco:
+    ecmp_ports:
+      dut1: ['Ethernet144', 'Ethernet152']
+      dut2: ['Ethernet144', 'Ethernet152']
+    bfd_ports:
+      dut: ['Ethernet152']
+  
+  broadcom:
+    ecmp_ports:
+      dut1: ['Ethernet5', 'Ethernet6']
+      dut2: ['Ethernet5', 'Ethernet6']
+    bfd_ports:
+      dut: ['Ethernet7']
+
+  mellanox:
+    ecmp_ports:
+      dut1: ['Ethernet0', 'Ethernet4']
+      dut2: ['Ethernet0', 'Ethernet4']
+    bfd_ports:
+      dut: ['Ethernet8']      
+      

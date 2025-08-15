@@ -1,20 +1,135 @@
+import os
 from spytest.dicts import SpyTestDict
+
+# Import YAML with fallback for environments where it's not available
+try:
+    import yaml
+except ImportError:
+    print("PyYAML not available, using JSON fallback")
+    import json
+    
+    def yaml_safe_load(f):
+        return json.load(f)
+    
+    class yaml:
+        safe_load = yaml_safe_load
 
 data = SpyTestDict()
 
-data.ecmp_dut1_portlist = ['Ethernet3', 'Ethernet4']
-data.ecmp_dut2_portlist = ['Ethernet3', 'Ethernet4']
+
+def load_port_config():
+    """
+    Load port configuration from YAML file with environment-specific overrides.
+    
+    Returns:
+        dict: Port configuration dictionary
+    """
+    # Default YAML file path
+    default_yaml_path = os.path.join(os.path.dirname(__file__), "port_config.yaml")
+    
+    # Allow override via environment variable
+    yaml_path = os.getenv('ESR_PORT_CONFIG_FILE', default_yaml_path)
+    
+    # Load YAML configuration
+    try:
+        with open(yaml_path, 'r') as f:
+            config = yaml.safe_load(f)
+        
+        # Apply environment-specific overrides
+        vendor = os.getenv('SONIC_VENDOR', 'default').lower()
+        if vendor in config.get('environments', {}):
+            env_config = config['environments'][vendor]
+            # Deep merge environment-specific config
+            for section, ports in env_config.items():
+                if section in config:
+                    config[section].update(ports)
+        
+        print("Loaded port config from: {} (vendor: {})".format(yaml_path, vendor))
+        return config
+    
+    except FileNotFoundError:
+        print("Port config file not found: {}, using defaults".format(yaml_path))
+        return get_default_port_config()
+    
+    except Exception as e:
+        print("Error loading port config: {}, using defaults".format(str(e)))
+        return get_default_port_config()
+
+def get_default_port_config():
+    """
+    Fallback default port configuration.
+    
+    Returns:
+        dict: Default port configuration
+    """
+    return {
+        'ecmp_ports': {
+            'dut1': ['Ethernet3', 'Ethernet4'],
+            'dut2': ['Ethernet3', 'Ethernet4']
+        },
+        'ecmp_503_504_ports': {
+            'dut1_dut2': ['Ethernet12', 'Ethernet16', 'Ethernet28', 'Ethernet32', 'Ethernet44', 'Ethernet60'],
+            'dut_tg': ['Ethernet109', 'Ethernet110']
+        },
+        'ecmp_501_502_ports': {
+            'dut1_dut2': ['Ethernet92', 'Ethernet96', 'Ethernet108'],
+            'dut_RJ': ['Ethernet8', 'Ethernet9', 'Ethernet10', 'Ethernet11'],
+            'dut_tg': ['Ethernet111', 'Ethernet112']
+        },
+        'bfd_ports': {
+            'dut': ['Ethernet13']
+        }
+    }
+
+
+def assign_dynamic_ports():
+    """
+    Assign ports dynamically based on YAML configuration.
+    """
+    port_config = load_port_config()
+    
+    # Assign ECMP ports
+    data.ecmp_dut1_portlist = port_config['ecmp_ports']['dut1']
+    data.ecmp_dut2_portlist = port_config['ecmp_ports']['dut2']
+    
+    # Assign other port lists
+    data.ecmp_503_504_dut1_dut2_portlist = port_config['ecmp_503_504_ports']['dut1_dut2']
+    data.ecmp_503_504_dut_tg_portlist = port_config['ecmp_503_504_ports']['dut_tg']
+    
+    data.ecmp_501_502_dut1_dut2_portlist = port_config['ecmp_501_502_ports']['dut1_dut2']
+    data.ecmp_501_502_dut_RJ_portlist = port_config['ecmp_501_502_ports']['dut_RJ']
+    data.ecmp_501_502_dut_tg_portlist = port_config['ecmp_501_502_ports']['dut_tg']
+    
+    data.dut_bfd_port_list = port_config['bfd_ports']['dut']
+    
+    # Log the assigned ports
+    print("Dynamic port assignment completed:")
+    print("  DUT1 ECMP ports: {}".format(data.ecmp_dut1_portlist))
+    print("  DUT2 ECMP ports: {}".format(data.ecmp_dut2_portlist))
+    print("  503/504 DUT1-DUT2 ports: {}".format(data.ecmp_503_504_dut1_dut2_portlist))
+    print("  503/504 DUT-TG ports: {}".format(data.ecmp_503_504_dut_tg_portlist))
+    print("  501/502 DUT1-DUT2 ports: {}".format(data.ecmp_501_502_dut1_dut2_portlist))
+    print("  501/502 DUT-RJ ports: {}".format(data.ecmp_501_502_dut_RJ_portlist))
+    print("  501/502 DUT-TG ports: {}".format(data.ecmp_501_502_dut_tg_portlist))
+    print("  BFD ports: {}".format(data.dut_bfd_port_list))
+
+
+# Initialize dynamic port assignments
+assign_dynamic_ports()
+
+#data.ecmp_dut1_portlist = ['Ethernet3', 'Ethernet4']
+#data.ecmp_dut2_portlist = ['Ethernet3', 'Ethernet4']
 data.ecmp_member_Gbps = 58
 
-data.ecmp_503_504_dut1_dut2_portlist = ['Ethernet12', 'Ethernet16', 'Ethernet28', 'Ethernet32', 'Ethernet44', 'Ethernet60']
-data.ecmp_503_504_dut_tg_portlist = ['Ethernet109', 'Ethernet110']
-data.ecmp_501_502_dut1_dut2_portlist = ['Ethernet92', 'Ethernet96', 'Ethernet108']
-data.ecmp_501_502_dut_RJ_portlist = ['Ethernet8', 'Ethernet9', 'Ethernet10', 'Ethernet11']
-data.ecmp_501_502_dut_tg_portlist = ['Ethernet111', 'Ethernet112']
+#data.ecmp_503_504_dut1_dut2_portlist = ['Ethernet12', 'Ethernet16', 'Ethernet28', 'Ethernet32', 'Ethernet44', 'Ethernet60']
+#data.ecmp_503_504_dut_tg_portlist = ['Ethernet109', 'Ethernet110']
+#data.ecmp_501_502_dut1_dut2_portlist = ['Ethernet92', 'Ethernet96', 'Ethernet108']
+#data.ecmp_501_502_dut_RJ_portlist = ['Ethernet8', 'Ethernet9', 'Ethernet10', 'Ethernet11']
+#data.ecmp_501_502_dut_tg_portlist = ['Ethernet111', 'Ethernet112']
 data.dut_ecmp_scale_start_subintf = '201'
 data.dut_ecmp_scale_subintf_num = 13
 data.dut_isolate_group_num = 6
-data.dut_bfd_port_list = ['Ethernet13']
+#data.dut_bfd_port_list = ['Ethernet13']
 data.dut1_vrf1_ip_addr = ["12.109.104.2", "12.110.104.2", "12.111.100.2", " 12.112.100.2"]
 data.dut1_vrf1_ipv6_addr = ["fd40:12:109:104::2", "fd40:12:110:104::2", "fd40:12:111:100::2", "fd40:12:112:100::2"]
 data.dut1_vrf1_id = ["503", "503", "501", "501"]

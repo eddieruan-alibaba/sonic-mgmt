@@ -90,12 +90,6 @@ def tg_ixia_load(version, logger, logs_path=None):
                         "10.0": "10.00","10.00": "10.00"}
     version_string = str(version)
     version_string = ixia_version_map.get(version_string, version_string)
-    if (version_string not in ixia_version_map and
-        not os.path.exists(os.path.join(tgen_path, "ixia")) and
-        not os.path.exists(os.path.join(tgen_path, version_string)) ):
-
-        logger.error("IXIA: unsupported version {}".format(version_string))
-        return None
 
     ixia_hltapi_map = {'7.40': 'HLTSET173',
                        '8.40': 'HLTSET219',
@@ -106,22 +100,33 @@ def tg_ixia_load(version, logger, logs_path=None):
                        '10.00': 'HLTSET273'
                        }
 
+    ixnetwork_version_string = os.getenv("IXNETWORK_VERSION", version_string)
+    hl_api_version_string = os.getenv("HLAPI_VERSION", version_string)
+    logger.info("version: {}, {}".format(ixnetwork_version_string, hl_api_version_string))
+
     ix_path = '' if os.path.exists(os.path.join(tgen_path, version_string)) else "ixia"
-    ixnetwork = os.path.join(tgen_path, ix_path, version_string, "lib")
-    hl_api = os.path.join(ixnetwork, "hltapi" if os.path.exists(os.path.join(ixnetwork,"hltapi")) else "hlapi", "library")
+    ixnetwork_path = os.path.join(tgen_path, ix_path, "ixnetwork", ixnetwork_version_string, "lib")
+    hl_api_path = os.path.join(tgen_path, ix_path, "hlapi", hl_api_version_string)
 
-    if os.path.exists(ixnetwork) and os.path.exists(hl_api):
-        ngpf_api = os.path.join(hl_api, "library", "common", "ixiangpf", "python")
-        ixn_py_api = os.path.join(ixnetwork, "PythonApi")
-        if version_string in ixia_hltapi_map:
-            os.environ["IXIA_VERSION"] = ixia_hltapi_map[version_string]
-        os.environ["IXIA_HOME"] = ixnetwork
-        os.environ["TCLLIBPATH"] = str(ixnetwork)
+    print("ixnetwork_path:", ixnetwork_path)
+    print("hl_api_path:", hl_api_path)
 
-        sys.path.append(ngpf_api)
-        sys.path.append(ixn_py_api)
+    if version_string is not "9.20":
+        if os.path.exists(ixnetwork_path) and os.path.exists(hl_api_path):
+            ngpf_api = os.path.join(hl_api_path, "library", "common", "ixiangpf", "python")
+            ixn_py_api = os.path.join(ixnetwork_path, "PythonApi")
+            if version_string in ixia_hltapi_map:
+                os.environ["IXIA_VERSION"] = ixia_hltapi_map[version_string]
+            ixn_py_api = os.path.join(ixnetwork_path, "PythonApi")
+            ixn_tcl_api_1 = os.path.join(ixnetwork_path, "IxTclNetwork")
+            ixn_tcl_api_2 = os.path.join(ixnetwork_path, "TclApi", "IxTclNetwork")
+            os.environ["TCLLIBPATH"] = " ".join([hl_api_path, ixn_tcl_api_1, ixn_tcl_api_2])
+            logger.info("path tcl: {}, {}, {}".format(hl_api_path, ngpf_api, ixn_py_api))
 
-        return version_string
+            sys.path.append(ngpf_api)
+            sys.path.append(ixn_py_api)
+
+            return version_string
 
     #  9.0 onwards for BRCM
     tcl_path = os.getenv("SCID_TCL85_BIN", def_tcl_path)
@@ -137,9 +142,9 @@ def tg_ixia_load(version, logger, logs_path=None):
         ixia_root = os.path.join(tgen_path, "ixia")
     hlt_api = os.path.join(ixia_root, "hlapi", hltapi_version)
     ngpf_api = os.path.join(hlt_api, "library", "common", "ixiangpf", "python")
-    ixn_py_api = os.path.join(ixia_root, "ixnetwork", ixnetwork_version,"lib", "PythonApi")
-    ixn_tcl_api_1 = os.path.join(ixia_root, "ixnetwork", ixnetwork_version,"lib", "IxTclNetwork")
-    ixn_tcl_api_2 = os.path.join(ixia_root, "ixnetwork", ixnetwork_version,"lib", "TclApi", "IxTclNetwork")
+    ixn_py_api = os.path.join(ixia_root, "ixnetwork_path", ixnetwork_version,"lib", "PythonApi")
+    ixn_tcl_api_1 = os.path.join(ixia_root, "ixnetwork_path", ixnetwork_version,"lib", "IxTclNetwork")
+    ixn_tcl_api_2 = os.path.join(ixia_root, "ixnetwork_path", ixnetwork_version,"lib", "TclApi", "IxTclNetwork")
     logger.error("path tcl: {}, {}, {}".format(hlt_api, ngpf_api, ixn_py_api))
 
     os.environ["IXIA_VERSION"] = ixia_hltapi_map[version_string]

@@ -1131,6 +1131,8 @@ def test_srvpn_ecmp_04():
     ixia_load_config(ESR_ECMP_CONFIG)
     ixia_start_all_protocols()
 
+    # Wait for protocols to start and routes exchange
+    st.wait(10)
     # ecmp ingress vrf
     # Vrf10  Vrf20  Vrf60
 
@@ -1156,20 +1158,20 @@ def test_srvpn_ecmp_04():
     #         st.report_fail("step1 check_bgp_vrf_ipv4_uni_sid failed ")
 
     # check route appdb
-    vrf_name = st.show(dut1, "vrfnametodevname {}".format(to_check_vrf), skip_tmpl=True, max_time=500, type="vtysh")
-    last_pos = vrf_name.rfind('\n')
-    vrf_name = vrf_name[:last_pos]
+    #vrf_name = st.show(dut1, "vrfnametodevname {}".format(to_check_vrf), skip_tmpl=True, max_time=500, type="vtysh")
+    #last_pos = vrf_name.rfind('\n')
+    #vrf_name = vrf_name[:last_pos]
 
     st.wait(5)
     checkpoint_msg = "step1 route appdb check failed"
  
-    key = 'ROUTE_TABLE:' + vrf_name + ':200.10.0.1/32'
+    key = 'ROUTE_TABLE:' + to_check_vrf + ':200.10.0.1'
     def check_ecmp_appdb():
         dut = dut2
         show_hw_route_count(dut)
 
         # show ip route
-        show_cmd = "cli -c 'show ip route vrf {} {}'".format(to_check_vrf, "200.10.0.1/32")
+        show_cmd = "vtysh -c 'show ip route vrf {} {}'".format(to_check_vrf, "200.10.0.1/32")
         st.show(dut, show_cmd, skip_tmpl=True)
 
         nexthop = appdb_get_onefield_route_related(dut, key, "nexthop")
@@ -1198,6 +1200,7 @@ def test_srvpn_ecmp_04():
         if sid not in vpnsid_ecmp_list:
             st.report_fail("step1 route appdb check failed , sid = {}".format(sid))
 
+    papi.clear_interface_counters(dut2)
     st.wait(30)
 
     # check interface counters

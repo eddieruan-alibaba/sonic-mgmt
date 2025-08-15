@@ -8,13 +8,53 @@ import time
 
 class IxiaController():
 
-    def __init__(self, host, port):
-        self.session_assistant = SessionAssistant(
-            IpAddress=host,
-            RestPort=port,
-            LogLevel=SessionAssistant.LOGLEVEL_INFO,
-            ClearConfig=True,
-        )
+    def __init__(self, host, port, username=None, password=None):
+        # Set default credentials if not provided
+        if username is None:
+            username = os.getenv('IXIA_USERNAME', 'admin')
+        if password is None:
+            password = os.getenv('IXIA_PASSWORD', 'admin')
+            
+        print(f"Attempting to connect to IXIA chassis at {host}:{port} with username: {username}")
+        
+        # Try different authentication methods
+        auth_methods = [
+            # Method 1: With username and password
+            {
+                'IpAddress': host,
+                'RestPort': port,
+                'UserName': username,
+                'Password': password,
+                'LogLevel': SessionAssistant.LOGLEVEL_INFO,
+                'ClearConfig': True,
+            },
+            # Method 2: Without explicit credentials (for older IXIA versions or default auth)
+            {
+                'IpAddress': host,
+                'RestPort': port,
+                'LogLevel': SessionAssistant.LOGLEVEL_INFO,
+                'ClearConfig': True,
+            }
+        ]
+        
+        last_error = None
+        for i, auth_params in enumerate(auth_methods, 1):
+            try:
+                print(f"Trying authentication method {i}...")
+                self.session_assistant = SessionAssistant(**auth_params)
+                print(f"Successfully connected using method {i}")
+                break
+            except Exception as e:
+                print(f"Authentication method {i} failed: {e}")
+                last_error = e
+                if i < len(auth_methods):
+                    print(f"Trying next method...")
+                    time.sleep(2)  # Brief pause between attempts
+        else:
+            # All methods failed
+            error_msg = f"All authentication methods failed. Last error: {last_error}"
+            print(error_msg)
+            raise Exception(error_msg)
 
         self.ixnetwork = self.session_assistant.Ixnetwork
         self.owned_ports = []  # Track owned ports for cleanup

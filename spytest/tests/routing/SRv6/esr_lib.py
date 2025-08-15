@@ -420,7 +420,7 @@ def configdb_checkpoint(dut, key, checkfield, checkval, expect = True, checkpoin
 def configdb_onefield_checkpoint(dut, key, checkfield, checkval, expect = True, checkpoint = ''):
     command = redis.build(dut, redis.CONFIG_DB, 'hget "{}" "{}"'.format(key, checkfield))
     output = st.show(dut, command, skip_tmpl=True)
-    if output is '':
+    if output == '':
         st.report_fail("{} confg DB has no right filed {}".format(checkpoint, checkfield))
 
     output = output.strip('"')
@@ -479,7 +479,7 @@ def appdb_checkpoint(dut, key, checkfield, checkval, expect = True, checkpoint =
 def appdb_onefield_checkpoint(dut, key, checkfield, checkval, expect = True, checkpoint = ''):
     command = redis.build(dut, redis.APPL_DB, 'hget "{}" "{}"'.format(key, checkfield))
     output = st.show(dut, command, skip_tmpl=True)
-    if output is '':
+    if output == '':
         st.report_fail("{} app DB has no right filed {}".format(checkpoint, checkfield))
 
     output = output.strip('"')
@@ -496,7 +496,7 @@ def appdb_onefield_checkpoint(dut, key, checkfield, checkval, expect = True, che
 def appdb_get_onefield(dut, key, field):
     command = redis.build(dut, redis.APPL_DB, 'hget "{}" "{}"'.format(key, field))
     output = st.show(dut, command, skip_tmpl=True)
-    if output is '' or output.startswith('(nil)'):
+    if output == '' or output.startswith('(nil)'):
         return None
 
     output = output.strip('"')
@@ -877,8 +877,8 @@ def intf_traffic_stats(entry_tx):
     p_tx = abs(int(float(p_txmt)))
     return p_tx
 def check_dut_intf_tx_traffic_counters(dut, portlist, expect_val):
-    papi.clear_interface_counters(dut)
-    st.wait(5)
+    #papi.clear_interface_counters(dut)
+    #st.wait(5)
     output = papi.get_interface_counters_all(dut)
     retry = 0
     while len(output) == 0 and retry < 10:

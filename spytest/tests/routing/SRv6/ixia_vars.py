@@ -27,7 +27,12 @@ def get_vendor_specific_ixia_config(base_config_name):
 IXIA_HOST = os.getenv('IXIA_HOST', '192.168.122.168')
 # Dynamic IXIA port assignment - can be overridden via environment variable
 IXIA_PORT = int(os.getenv('IXIA_PORT', '443'))
-# Dynamic IXIA user password - can be overridden via environment variable
+
+# Dynamic IXIA authentication - can be overridden via environment variables
+IXIA_USERNAME = os.getenv('IXIA_USERNAME', 'admin')
+IXIA_PASSWORD = os.getenv('IXIA_USER_PASSWORD', 'admin')
+
+# Legacy password variable for backward compatibility
 IXIA_USER_PASSWORD = os.getenv('IXIA_USER_PASSWORD', 'admin')
 
 ESR_MULTI_VRF_CONFIG = get_vendor_specific_ixia_config("esr_multi_vrf.ixncfg")

@@ -44,7 +44,7 @@ def ixia_controller_init():
     global ixia_controller
     st.log("Ixia controller init start")
     try:
-        ixia_controller = IxiaController(IXIA_HOST, IXIA_PORT)
+        ixia_controller = IxiaController(IXIA_HOST, IXIA_PORT, IXIA_USERNAME, IXIA_PASSWORD)
         st.log("Ixia controller connection established")
 
         # Get chassis IP and ports dynamically from TG runtime configuration
@@ -65,12 +65,26 @@ def ixia_controller_init():
     except Exception as e:
         st.error("Ixia controller init failed: {}".format(str(e)))
 
-        # Provide helpful error messages
-        if "Unable to connect" in str(e):
-            st.log("Connection issue - check network connectivity to {}".format(IXIA_HOST))
-        elif "Port is owned by others" in str(e):
+        # Provide helpful error messages based on error type
+        error_str = str(e).lower()
+        if "unauthorized" in error_str or "invalid username or password" in error_str:
+            st.log("Authentication failed - check IXIA credentials")
+            st.log("Current settings: Host={}, Port={}, User={}".format(IXIA_HOST, IXIA_PORT, IXIA_USERNAME))
+            st.log("Set correct credentials using environment variables:")
+            st.log("  export IXIA_HOST=<chassis_ip>")
+            st.log("  export IXIA_USERNAME=<username>")
+            st.log("  export IXIA_PASSWORD=<password>")
+        elif "unable to connect" in error_str or "connection refused" in error_str:
+            st.log("Network connectivity issue - check connection to {}:{}".format(IXIA_HOST, IXIA_PORT))
+            st.log("Verify chassis is reachable: ping {}".format(IXIA_HOST))
+            st.log("Check port accessibility: telnet {} {}".format(IXIA_HOST, IXIA_PORT))
+        elif "port is owned by others" in error_str:
             st.log("Port ownership issue - another user may be using the chassis")
-            st.log("Try running the troubleshooting script: ./ixia_troubleshoot.sh")
+        elif "404" in error_str:
+            st.log("Service not found - IXIA Web Edition may not be running")
+            st.log("Check if IXIA Web Edition service is started on chassis")
+        else:
+            st.log("Unexpected error - run troubleshooting script for more details")
 
         # Don't attempt cleanup on init failure to avoid more errors
         raise
@@ -153,7 +167,7 @@ def ixia_check_traffic_item_rx_frame(traffic_item_name, key, rx_count, exact_mat
     tmp_rx_count = traffic_item_stats[key]
     st.log("Get traffic item {} Rx Frames count {},  expect count {}".format(traffic_item_name, tmp_rx_count, rx_count))
 
-    match = re.match("\d+", tmp_rx_count)
+    match = re.match(r"\d+", tmp_rx_count)
     if match:
         tmp_rx_count_int = int(match.group())
     else:
@@ -317,7 +331,7 @@ def ixia_check_traffic(traffic_item_name, key="Rx Frames", value="0", exact_matc
 
         # Wait for traffic completion
         st.log("Waiting for traffic completion: {}".format(traffic_item_name))
-        st.wait(20)
+        st.wait(30)
 
         # Stop traffic with error handling
         try:
@@ -463,7 +477,7 @@ def ixia_start_traffic(traffic_item_name):
             st.error("Exception during start traffic {}: {}".format(traffic_item_name, str(e)))
             return False
 
-        st.wait(20)
+        st.wait(30)
         st.log("Traffic item {} started successfully".format(traffic_item_name))
         return True
 
@@ -551,7 +565,7 @@ def ixia_start_all_traffic():
             st.error("Exception during start all traffic: {}".format(str(e)))
             return False
 
-        st.wait(10)
+        st.wait(30)
         st.log("All traffic items started successfully")
         return True
     except Exception as e:

@@ -188,7 +188,7 @@ def main(silent=False):
         _print_git_ver()
     retval = pytest.main()
     rv = get_test_status()
-    if rv.has_key('status') and rv['status'] == 'Fail':
+    if 'status' in rv and rv['status'] == 'Fail':
         retval = -1
     return retval
 
