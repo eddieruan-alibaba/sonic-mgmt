@@ -593,6 +593,19 @@
           when:
           - hwsku is defined
           - hwsku == 'cisco-8101-p4-32x100-vs'
+
+        - name: remove buffer-related keys for {{ hwsku }} (BUFFER_POOL, BUFFER_QUEUE, BUFFER_PG, BUFFER_PROFILE)
+          become: true
+          shell: |
+            for pattern in "BUFFER_POOL*" "BUFFER_QUEUE*" "BUFFER_PG*" "BUFFER_PROFILE*"; do
+              for k in $(redis-cli -n 4 KEYS "$pattern"); do
+                redis-cli -n 4 DEL "$k" > /dev/null
+              done
+            done
+          when:
+            - hwsku is defined
+            - hwsku == 'cisco-8101-p4-32x100-vs'
+            - dut_cfg_file_loc is not defined
         when: dut_cfg_file_loc is not defined
 
       - name: SONiC config reload to pick up config_db.json
