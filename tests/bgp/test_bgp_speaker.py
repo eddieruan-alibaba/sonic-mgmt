@@ -181,6 +181,8 @@ def common_setup_teardown(duthosts, rand_one_dut_hostname, ptfhost, localhost, t
 
     yield ptfip, mg_facts, interface_facts, vlan_ips, nexthops_ipv6, vlan_if_name, speaker_ips, port_num, http_ready
 
+    logger.info("########### Skip Teardown for bgp speaker testing ###########")
+    return
     logger.info("########### Teardown for bgp speaker testing ###########")
 
     for i in range(0, 3):
