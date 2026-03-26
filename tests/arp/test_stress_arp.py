@@ -57,7 +57,10 @@ def ignore_errors_for_non_selected_dualtor_hosts(
 
 
 @pytest.fixture(autouse=True)
-def arp_cache_fdb_cleanup(duthosts, tbinfo):
+def arp_cache_fdb_cleanup(setup_dualtor_mux_ports, duthosts, tbinfo):
+    """
+    The fixture order guarantees mux state transition before cleanup to prevent misidentified Standby-phase errors.
+    """
     is_ipv6_only = is_ipv6_only_topology(tbinfo)
     try:
         for dut in duthosts:
@@ -104,7 +107,7 @@ def add_arp(ptf_intf_ipv4_addr, intf1_index, ptfadapter):
                                           hw_tgt='ff:ff:ff:ff:ff:ff'
                                           )
         # Add a short delay to avoid packet loss
-        time.sleep(0.001)
+        time.sleep(0.01)
         testutils.send_packet(ptfadapter, intf1_index, pkt)
     logger.info("Sending {} arp entries".format(ip_num))
 
