@@ -45,7 +45,7 @@
   fail:
     msg: >-
       Distribution '{{ ansible_distribution }}' is not supported.
-      Only Ubuntu 22.04, Ubuntu 24.04, and Debian 13 (Trixie) are supported.
+      Only Ubuntu 20.04+ and Debian 13 (Trixie) are supported.
   when:
     - ansible_distribution != "Ubuntu"
     - ansible_distribution != "Debian"
@@ -54,10 +54,10 @@
   fail:
     msg: >-
       Ubuntu {{ ansible_distribution_version}} is not supported.
-      Minimum required version is 22.04.
+      Minimum required version is 20.04.
   when:
     - ansible_distribution == "Ubuntu"
-    - ansible_distribution_version is version("22.04", "<")
+    - ansible_distribution_version is version("20.04", "<")
 
 - name: Fail if Debian version is not supported
   fail:

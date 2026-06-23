@@ -23,6 +23,13 @@
       become: yes
       environment: "{{ proxy_env | default({}) }}"
 
+    - name: Add docker repository for 20.04
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+        state: present
+      become: yes
+      when: ansible_distribution_version == "20.04"
+
     - name: Add docker repository for 22.04
       apt_repository:
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable
