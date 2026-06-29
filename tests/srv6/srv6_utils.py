@@ -303,6 +303,9 @@ rc, out, err = run('vtysh -c "show ipv6 route %s nexthop-group"' % PREFIX)
 if rc != 0:
     result["msg"] = "vtysh failed: %s" % err.strip()
     print(json.dumps(result)); sys.exit(0)
+m = re.search(r"Routing entry for\s+(\S+)", out)
+canonical = m.group(1) if m else PREFIX
+result["canonical_prefix"] = canonical
 m = re.search(r"Nexthop Group ID:\s*(\d+)", out)
 if not m:
     result["msg"] = "no Nexthop Group ID in vtysh output"
@@ -312,9 +315,10 @@ result["zebra_nhg_id"] = zebra_nhg_id
 
 # (2) APPL_STATE_DB:NHG_FULL_STATE_TABLE:<zebra_nhg_id>
 key = "NHG_FULL_STATE_TABLE:%d" % zebra_nhg_id
-rc, out, err = run('redis-appstatedb --raw hgetall "%s"' % key)
+rc, out, err = run('redis-cli -n 14 --raw hgetall "%s"' % key)
 if rc != 0 or not out.strip():
-    result["msg"] = "NHG_FULL_STATE_TABLE entry %s missing" % key
+    result["msg"] = ("NHG_FULL_STATE_TABLE entry %s missing (rc=%d stderr=%r)"
+                     % (key, rc, err.strip()))
     print(json.dumps(result)); sys.exit(0)
 # Output alternates field/value lines
 lines = out.splitlines()
@@ -330,10 +334,13 @@ if not sonic_nhg_id_str.isdigit():
 sonic_nhg_id = int(sonic_nhg_id_str)
 result["sonic_nhg_id"] = sonic_nhg_id
 
-# (3) APPL_DB:ROUTE_TABLE:<prefix>
-rc, out, err = run('redis-appdb --raw hgetall "ROUTE_TABLE:%s"' % PREFIX)
+# (3) APPL_DB:ROUTE_TABLE:<canonical_prefix>
+# Use the canonical prefix from vtysh; fpmsyncd stores host routes without
+# the /128 suffix but uses the full /<len> form for everything else.
+route_prefix = canonical[:-4] if canonical.endswith("/128") else canonical
+rc, out, err = run('redis-cli -n 0 --raw hgetall "ROUTE_TABLE:%s"' % route_prefix)
 if rc != 0 or not out.strip():
-    result["msg"] = "ROUTE_TABLE entry missing for %s" % PREFIX
+    result["msg"] = "ROUTE_TABLE entry missing for ROUTE_TABLE:%s" % route_prefix
     print(json.dumps(result)); sys.exit(0)
 lines = out.splitlines()
 route_row = dict(zip(lines[0::2], lines[1::2]))
@@ -437,6 +444,9 @@ rc, out, err = run('vtysh -c "show %s route vrf %s %s nexthop-group"'
 if rc != 0:
     result["msg"] = "vtysh failed: %s" % err.strip()
     print(json.dumps(result)); sys.exit(0)
+m = re.search(r"Routing entry for\s+(\S+)", out)
+canonical = m.group(1) if m else PREFIX
+result["canonical_prefix"] = canonical
 m = re.search(r"Nexthop Group ID:\s*(\d+)", out)
 if not m:
     result["msg"] = "no Nexthop Group ID in vtysh output"
@@ -451,9 +461,10 @@ result["received_nhg_id"] = received_nhg_id
 
 # (2) APPL_STATE_DB:NHG_FULL_STATE_TABLE:<received_nhg_id>
 key = "NHG_FULL_STATE_TABLE:%d" % received_nhg_id
-rc, out, err = run('redis-appstatedb --raw hgetall "%s"' % key)
+rc, out, err = run('redis-cli -n 14 --raw hgetall "%s"' % key)
 if rc != 0 or not out.strip():
-    result["msg"] = "NHG_FULL_STATE_TABLE entry %s missing" % key
+    result["msg"] = ("NHG_FULL_STATE_TABLE entry %s missing (rc=%d stderr=%r)"
+                     % (key, rc, err.strip()))
     print(json.dumps(result)); sys.exit(0)
 lines = out.splitlines()
 nhg_state = dict(zip(lines[0::2], lines[1::2]))
@@ -471,9 +482,16 @@ state_pic = nhg_state.get("pic_context_id")
 if state_pic is not None and state_pic != "N/A":
     result["pic_context_id"] = state_pic
 
-# (3) APPL_DB:ROUTE_TABLE:<vrf>:<prefix>
-route_key = "ROUTE_TABLE:%s:%s" % (VRF, PREFIX)
-rc, out, err = run('redis-appdb --raw hgetall "%s"' % route_key)
+# (3) APPL_DB:ROUTE_TABLE:<vrf>:<canonical_prefix>
+# Use the canonical prefix from vtysh; fpmsyncd stores host routes
+# without the /32 (IPv4) or /128 (IPv6) suffix.
+route_prefix = canonical
+if IP_STR == "ipv6" and route_prefix.endswith("/128"):
+    route_prefix = route_prefix[:-4]
+elif IP_STR == "ip" and route_prefix.endswith("/32"):
+    route_prefix = route_prefix[:-3]
+route_key = "ROUTE_TABLE:%s:%s" % (VRF, route_prefix)
+rc, out, err = run('redis-cli -n 0 --raw hgetall "%s"' % route_key)
 if rc != 0 or not out.strip():
     result["msg"] = "ROUTE_TABLE entry missing for %s" % route_key
     print(json.dumps(result)); sys.exit(0)
