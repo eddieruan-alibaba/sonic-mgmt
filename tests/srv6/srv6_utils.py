@@ -1,3 +1,4 @@
+import json
 import logging
 import time
 import requests
@@ -263,6 +264,286 @@ def check_routes(nbrhost, ips, nexthops, vrf="", is_v6=False):
             logger.info("Sleep {} seconds to retry round {}".format(sleep_duration_for_retry, count))
 
     pytest_assert(ret)
+
+
+#
+# Verify global IPv6 route NHG correlation:
+#
+#   1. vtysh "show ipv6 route <prefix> nexthop-group" gives the zebra
+#      "Nexthop Group ID" (resolved) for the route.
+#   2. APPL_STATE_DB key "NHG_FULL_STATE_TABLE:<zebra_nhg_id>" must exist
+#      with status == "OK"; it carries the sonic_nhg_id.
+#   3. APPL_DB key "ROUTE_TABLE:<prefix>" must carry nexthop_group equal
+#      to that sonic_nhg_id.
+#
+# The whole correlation is performed by a small Python script that is
+# uploaded to the DUT and run there once, so that we issue a single SSH
+# command instead of one round-trip per redis/vtysh call.
+#
+# Returns a dict with at least:
+#   {"ok": True|False, "msg": "<diagnostic>",
+#    "zebra_nhg_id": int, "sonic_nhg_id": int}
+#
+def check_v6_route_nhg_chain_func(duthost, prefix):
+    script = r'''
+import json, re, subprocess, sys
+
+PREFIX = sys.argv[1]
+
+def run(cmd):
+    p = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    return p.returncode, p.stdout, p.stderr
+
+result = {"ok": False, "prefix": PREFIX, "msg": "",
+          "zebra_nhg_id": None, "sonic_nhg_id": None,
+          "route_nexthop_group": None, "nhg_state_status": None}
+
+# (1) zebra: resolved Nexthop Group ID
+rc, out, err = run('vtysh -c "show ipv6 route %s nexthop-group"' % PREFIX)
+if rc != 0:
+    result["msg"] = "vtysh failed: %s" % err.strip()
+    print(json.dumps(result)); sys.exit(0)
+m = re.search(r"Nexthop Group ID:\s*(\d+)", out)
+if not m:
+    result["msg"] = "no Nexthop Group ID in vtysh output"
+    print(json.dumps(result)); sys.exit(0)
+zebra_nhg_id = int(m.group(1))
+result["zebra_nhg_id"] = zebra_nhg_id
+
+# (2) APPL_STATE_DB:NHG_FULL_STATE_TABLE:<zebra_nhg_id>
+key = "NHG_FULL_STATE_TABLE:%d" % zebra_nhg_id
+rc, out, err = run('redis-appstatedb --raw hgetall "%s"' % key)
+if rc != 0 or not out.strip():
+    result["msg"] = "NHG_FULL_STATE_TABLE entry %s missing" % key
+    print(json.dumps(result)); sys.exit(0)
+# Output alternates field/value lines
+lines = out.splitlines()
+nhg_state = dict(zip(lines[0::2], lines[1::2]))
+result["nhg_state_status"] = nhg_state.get("status")
+if nhg_state.get("status") != "OK":
+    result["msg"] = "NHG state status is %r, expected OK" % nhg_state.get("status")
+    print(json.dumps(result)); sys.exit(0)
+sonic_nhg_id_str = nhg_state.get("sonic_nhg_id", "")
+if not sonic_nhg_id_str.isdigit():
+    result["msg"] = "sonic_nhg_id missing or non-numeric: %r" % sonic_nhg_id_str
+    print(json.dumps(result)); sys.exit(0)
+sonic_nhg_id = int(sonic_nhg_id_str)
+result["sonic_nhg_id"] = sonic_nhg_id
+
+# (3) APPL_DB:ROUTE_TABLE:<prefix>
+rc, out, err = run('redis-appdb --raw hgetall "ROUTE_TABLE:%s"' % PREFIX)
+if rc != 0 or not out.strip():
+    result["msg"] = "ROUTE_TABLE entry missing for %s" % PREFIX
+    print(json.dumps(result)); sys.exit(0)
+lines = out.splitlines()
+route_row = dict(zip(lines[0::2], lines[1::2]))
+route_nhg = route_row.get("nexthop_group", "")
+result["route_nexthop_group"] = route_nhg
+if not route_nhg.isdigit() or int(route_nhg) != sonic_nhg_id:
+    result["msg"] = ("ROUTE_TABLE nexthop_group=%r does not match "
+                     "NHG_FULL_STATE_TABLE sonic_nhg_id=%d"
+                     % (route_nhg, sonic_nhg_id))
+    print(json.dumps(result)); sys.exit(0)
+
+result["ok"] = True
+result["msg"] = "OK"
+print(json.dumps(result))
+'''
+    # Single SSH round-trip: pipe the script in via stdin and execute it.
+    cmd = "python3 - {} <<'PYEOF'\n{}PYEOF".format(prefix, script)
+    res = duthost.shell(cmd, module_ignore_errors=True)
+    stdout = (res.get("stdout") or "").strip()
+    try:
+        data = json.loads(stdout)
+    except Exception:
+        return {"ok": False,
+                "msg": "Failed to parse DUT script output: %r (stderr=%r)" %
+                       (stdout, res.get("stderr")),
+                "zebra_nhg_id": None,
+                "sonic_nhg_id": None}
+    return data
+
+
+#
+# Pytest-asserting wrapper around check_v6_route_nhg_chain_func with retry.
+#
+def check_v6_route_nhg_chain(duthost, prefix, retries=3, retry_wait=10):
+    last = None
+    for attempt in range(retries):
+        last = check_v6_route_nhg_chain_func(duthost, prefix)
+        if last.get("ok"):
+            logger.info("v6 route NHG chain OK for %s: zebra_nhg_id=%s "
+                        "sonic_nhg_id=%s",
+                        prefix, last.get("zebra_nhg_id"),
+                        last.get("sonic_nhg_id"))
+            return last
+        logger.info("v6 route NHG chain check attempt %d/%d failed for %s: %s",
+                    attempt + 1, retries, prefix, last.get("msg"))
+        if attempt + 1 < retries:
+            time.sleep(retry_wait)
+    pytest_assert(False,
+                  "v6 route NHG chain verification failed for {}: {}"
+                  .format(prefix, last.get("msg") if last else "no result"))
+
+
+#
+# Verify VRF (IPv4 or IPv6) route NHG correlation:
+#
+#   1. vtysh "show {ip|ipv6} route vrf <vrf> <prefix> nexthop-group" gives
+#      both:
+#        - "Nexthop Group ID"          (the resolved NHE id)
+#        - "Received Nexthop Group ID" (the protocol-original NHE id)
+#      For recursive SRv6 VPN routes these two ids are typically different.
+#   2. APPL_STATE_DB key "NHG_FULL_STATE_TABLE:<received_nhg_id>" must
+#      exist with status == "OK"; it carries sonic_nhg_id and
+#      (for SRv6 VPN routes) pic_context_id.
+#   3. APPL_DB key "ROUTE_TABLE:<vrf>:<prefix>" must carry:
+#        - nexthop_group  == NHG_FULL_STATE_TABLE.sonic_nhg_id
+#        - pic_context_id == NHG_FULL_STATE_TABLE.pic_context_id
+#          (only compared if the state table reports a pic_context_id)
+#
+# Single SSH round-trip — the entire correlation runs as a Python script
+# on the DUT.
+#
+# Returns a dict with at least:
+#   {"ok": True|False, "msg": "<diagnostic>",
+#    "zebra_nhg_id": int, "received_nhg_id": int,
+#    "sonic_nhg_id": int, "pic_context_id": str|None,
+#    "route_nexthop_group": str, "route_pic_context_id": str|None}
+#
+def check_vrf_route_nhg_chain_func(duthost, vrf, prefix, is_v6=False):
+    ip_str = "ipv6" if is_v6 else "ip"
+    script = r'''
+import json, re, subprocess, sys
+
+IP_STR = sys.argv[1]
+VRF = sys.argv[2]
+PREFIX = sys.argv[3]
+
+def run(cmd):
+    p = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    return p.returncode, p.stdout, p.stderr
+
+result = {"ok": False, "vrf": VRF, "prefix": PREFIX, "is_v6": IP_STR == "ipv6",
+          "msg": "",
+          "zebra_nhg_id": None, "received_nhg_id": None,
+          "sonic_nhg_id": None, "pic_context_id": None,
+          "route_nexthop_group": None, "route_pic_context_id": None,
+          "nhg_state_status": None}
+
+# (1) vtysh: resolved + received Nexthop Group ID
+rc, out, err = run('vtysh -c "show %s route vrf %s %s nexthop-group"'
+                   % (IP_STR, VRF, PREFIX))
+if rc != 0:
+    result["msg"] = "vtysh failed: %s" % err.strip()
+    print(json.dumps(result)); sys.exit(0)
+m = re.search(r"Nexthop Group ID:\s*(\d+)", out)
+if not m:
+    result["msg"] = "no Nexthop Group ID in vtysh output"
+    print(json.dumps(result)); sys.exit(0)
+result["zebra_nhg_id"] = int(m.group(1))
+m = re.search(r"Received Nexthop Group ID:\s*(\d+)", out)
+if not m:
+    result["msg"] = "no Received Nexthop Group ID in vtysh output"
+    print(json.dumps(result)); sys.exit(0)
+received_nhg_id = int(m.group(1))
+result["received_nhg_id"] = received_nhg_id
+
+# (2) APPL_STATE_DB:NHG_FULL_STATE_TABLE:<received_nhg_id>
+key = "NHG_FULL_STATE_TABLE:%d" % received_nhg_id
+rc, out, err = run('redis-appstatedb --raw hgetall "%s"' % key)
+if rc != 0 or not out.strip():
+    result["msg"] = "NHG_FULL_STATE_TABLE entry %s missing" % key
+    print(json.dumps(result)); sys.exit(0)
+lines = out.splitlines()
+nhg_state = dict(zip(lines[0::2], lines[1::2]))
+result["nhg_state_status"] = nhg_state.get("status")
+if nhg_state.get("status") != "OK":
+    result["msg"] = "NHG state status is %r, expected OK" % nhg_state.get("status")
+    print(json.dumps(result)); sys.exit(0)
+sonic_nhg_id_str = nhg_state.get("sonic_nhg_id", "")
+if not sonic_nhg_id_str.isdigit():
+    result["msg"] = "sonic_nhg_id missing or non-numeric: %r" % sonic_nhg_id_str
+    print(json.dumps(result)); sys.exit(0)
+result["sonic_nhg_id"] = int(sonic_nhg_id_str)
+# pic_context_id is optional (only present for SRv6 VPN routes)
+state_pic = nhg_state.get("pic_context_id")
+if state_pic is not None and state_pic != "N/A":
+    result["pic_context_id"] = state_pic
+
+# (3) APPL_DB:ROUTE_TABLE:<vrf>:<prefix>
+route_key = "ROUTE_TABLE:%s:%s" % (VRF, PREFIX)
+rc, out, err = run('redis-appdb --raw hgetall "%s"' % route_key)
+if rc != 0 or not out.strip():
+    result["msg"] = "ROUTE_TABLE entry missing for %s" % route_key
+    print(json.dumps(result)); sys.exit(0)
+lines = out.splitlines()
+route_row = dict(zip(lines[0::2], lines[1::2]))
+route_nhg = route_row.get("nexthop_group", "")
+result["route_nexthop_group"] = route_nhg
+if not route_nhg.isdigit() or int(route_nhg) != result["sonic_nhg_id"]:
+    result["msg"] = ("ROUTE_TABLE nexthop_group=%r does not match "
+                     "NHG_FULL_STATE_TABLE sonic_nhg_id=%d"
+                     % (route_nhg, result["sonic_nhg_id"]))
+    print(json.dumps(result)); sys.exit(0)
+
+# pic_context_id correlation (only when state table reports one)
+if result["pic_context_id"] is not None:
+    route_pic = route_row.get("pic_context_id", "")
+    result["route_pic_context_id"] = route_pic
+    if route_pic != result["pic_context_id"]:
+        result["msg"] = ("ROUTE_TABLE pic_context_id=%r does not match "
+                         "NHG_FULL_STATE_TABLE pic_context_id=%r"
+                         % (route_pic, result["pic_context_id"]))
+        print(json.dumps(result)); sys.exit(0)
+
+result["ok"] = True
+result["msg"] = "OK"
+print(json.dumps(result))
+'''
+    cmd = "python3 - {} {} {} <<'PYEOF'\n{}PYEOF".format(ip_str, vrf, prefix, script)
+    res = duthost.shell(cmd, module_ignore_errors=True)
+    stdout = (res.get("stdout") or "").strip()
+    try:
+        data = json.loads(stdout)
+    except Exception:
+        return {"ok": False,
+                "msg": "Failed to parse DUT script output: %r (stderr=%r)" %
+                       (stdout, res.get("stderr")),
+                "zebra_nhg_id": None,
+                "received_nhg_id": None,
+                "sonic_nhg_id": None,
+                "pic_context_id": None}
+    return data
+
+
+#
+# Pytest-asserting wrapper around check_vrf_route_nhg_chain_func with retry.
+#
+def check_vrf_route_nhg_chain(duthost, vrf, prefix, is_v6=False,
+                              retries=3, retry_wait=10):
+    last = None
+    for attempt in range(retries):
+        last = check_vrf_route_nhg_chain_func(duthost, vrf, prefix, is_v6=is_v6)
+        if last.get("ok"):
+            logger.info("vrf route NHG chain OK for vrf=%s prefix=%s: "
+                        "zebra_nhg_id=%s received_nhg_id=%s "
+                        "sonic_nhg_id=%s pic_context_id=%s",
+                        vrf, prefix,
+                        last.get("zebra_nhg_id"),
+                        last.get("received_nhg_id"),
+                        last.get("sonic_nhg_id"),
+                        last.get("pic_context_id"))
+            return last
+        logger.info("vrf route NHG chain check attempt %d/%d failed for "
+                    "vrf=%s prefix=%s: %s",
+                    attempt + 1, retries, vrf, prefix, last.get("msg"))
+        if attempt + 1 < retries:
+            time.sleep(retry_wait)
+    pytest_assert(False,
+                  "vrf route NHG chain verification failed for vrf={} "
+                  "prefix={}: {}".format(vrf, prefix,
+                                         last.get("msg") if last else "no result"))
 
 
 #

@@ -14,6 +14,8 @@ from srv6_utils import check_bgp_neighbors
 from srv6_utils import check_bgp_neighbors_func
 from srv6_utils import runSendReceive
 from srv6_utils import check_routes
+from srv6_utils import check_v6_route_nhg_chain
+from srv6_utils import check_vrf_route_nhg_chain
 from srv6_utils import recording_fwding_chain
 from srv6_utils import turn_on_off_frr_debug
 from srv6_utils import collect_frr_debugfile
@@ -207,6 +209,17 @@ def test_check_routes(duthosts, rand_one_dut_hostname, nbrhosts):
         nbrhost, ["fd00:201:201:11::", "fd00:202:202:22::"],
         ["fc08::2", "fc06::2"], global_route, is_v6
     )
+
+    # NHG chain correlation: zebra Nexthop Group ID -> APPL_STATE_DB ->
+    # APPL_DB ROUTE_TABLE. Single SSH round-trip per route.
+    logger.info("Check NHG chain for VRF1 SRv6 VPN routes")
+    for ip in dut1_ips:
+        check_vrf_route_nhg_chain(nbrhost, "Vrf1", ip)
+
+    logger.info("Check NHG chain for global IPv6 core/loopback routes")
+    for v6_prefix in ["fd00:201:201:11::", "fd00:202:202:22::",
+                      "2064:100::1d", "2064:200::1e"]:
+        check_v6_route_nhg_chain(nbrhost, v6_prefix)
 
 
 #
