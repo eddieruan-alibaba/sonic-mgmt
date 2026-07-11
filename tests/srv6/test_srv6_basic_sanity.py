@@ -181,6 +181,92 @@ TOPO2_STATIC_ROUTES_REMOVE = [
     "no ipv6 route 4::4/128 3::3",
 ]
 
+# P2/P4 outbound: only advertise PE loopbacks with short AS-path (2 hops) to PE3.
+# PE3 inbound: only accept PE loopbacks with short AS-path (3 hops including peer AS).
+P2_OUTBOUND_FILTER = [
+    "ipv6 prefix-list PE_LOOPBACKS seq 5 permit 2064:100::1d/128",
+    "ipv6 prefix-list PE_LOOPBACKS seq 10 permit 2064:200::1e/128",
+    "ipv6 prefix-list PE_LOOPBACKS seq 15 permit 2064:300::1f/128",
+    "bgp as-path access-list SHORT_PATH_OUT permit ^[0-9]+_[0-9]+$",
+    "route-map TO_PE3 permit 10",
+    " match ipv6 address prefix-list PE_LOOPBACKS",
+    " match as-path SHORT_PATH_OUT",
+    "route-map TO_PE3 deny 20",
+    " match ipv6 address prefix-list PE_LOOPBACKS",
+    "route-map TO_PE3 permit 30",
+    "router bgp 65102",
+    " address-family ipv6 unicast",
+    "  neighbor fc08::1 route-map TO_PE3 out",
+]
+
+P2_OUTBOUND_FILTER_REMOVE = [
+    "router bgp 65102",
+    " address-family ipv6 unicast",
+    "  neighbor fc08::1 route-map pass_all out",
+    "exit-address-family",
+    "exit",
+    "no route-map TO_PE3",
+    "no ipv6 prefix-list PE_LOOPBACKS",
+    "no bgp as-path access-list SHORT_PATH_OUT",
+]
+
+P4_OUTBOUND_FILTER = [
+    "ipv6 prefix-list PE_LOOPBACKS seq 5 permit 2064:100::1d/128",
+    "ipv6 prefix-list PE_LOOPBACKS seq 10 permit 2064:200::1e/128",
+    "ipv6 prefix-list PE_LOOPBACKS seq 15 permit 2064:300::1f/128",
+    "bgp as-path access-list SHORT_PATH_OUT permit ^[0-9]+_[0-9]+$",
+    "route-map TO_PE3 permit 10",
+    " match ipv6 address prefix-list PE_LOOPBACKS",
+    " match as-path SHORT_PATH_OUT",
+    "route-map TO_PE3 deny 20",
+    " match ipv6 address prefix-list PE_LOOPBACKS",
+    "route-map TO_PE3 permit 30",
+    "router bgp 65103",
+    " address-family ipv6 unicast",
+    "  neighbor fc06::1 route-map TO_PE3 out",
+]
+
+P4_OUTBOUND_FILTER_REMOVE = [
+    "router bgp 65103",
+    " address-family ipv6 unicast",
+    "  neighbor fc06::1 route-map pass_all out",
+    "exit-address-family",
+    "exit",
+    "no route-map TO_PE3",
+    "no ipv6 prefix-list PE_LOOPBACKS",
+    "no bgp as-path access-list SHORT_PATH_OUT",
+]
+
+PE3_INBOUND_FILTER = [
+    "ipv6 prefix-list PE_LOOPBACKS seq 5 permit 2064:100::1d/128",
+    "ipv6 prefix-list PE_LOOPBACKS seq 10 permit 2064:200::1e/128",
+    "bgp as-path access-list SHORT_PATH permit ^[0-9]+_[0-9]+_[0-9]+$",
+    "route-map FILTER_IN permit 10",
+    " match ipv6 address prefix-list PE_LOOPBACKS",
+    " match as-path SHORT_PATH",
+    " set ipv6 next-hop prefer-global",
+    "route-map FILTER_IN deny 20",
+    " match ipv6 address prefix-list PE_LOOPBACKS",
+    "route-map FILTER_IN permit 30",
+    " set ipv6 next-hop prefer-global",
+    "router bgp 64602",
+    " address-family ipv6 unicast",
+    "  neighbor fc08::2 route-map FILTER_IN in",
+    "  neighbor fc06::2 route-map FILTER_IN in",
+]
+
+PE3_INBOUND_FILTER_REMOVE = [
+    "router bgp 64602",
+    " address-family ipv6 unicast",
+    "  neighbor fc08::2 route-map pass_all_in in",
+    "  neighbor fc06::2 route-map pass_all_in in",
+    "exit-address-family",
+    "exit",
+    "no route-map FILTER_IN",
+    "no ipv6 prefix-list PE_LOOPBACKS",
+    "no bgp as-path access-list SHORT_PATH",
+]
+
 
 def test_interface_on_each_node(duthosts, rand_one_dut_hostname, nbrhosts):
     for vm_name in test_vm_names:
