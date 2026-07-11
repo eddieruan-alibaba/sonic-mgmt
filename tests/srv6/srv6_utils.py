@@ -969,7 +969,7 @@ def apply_config_cmmds_to_vtysh(nbrhost, cmd_list):
 def collect_db_entries(duthost, testcase_name, db_name, collecting_prefix):
     # 1. Determine Redis credentials
     if db_name == "appdb":
-        db_num, port = 0, 6378
+        db_num, port = 0, 6379
     elif db_name == "appstatedb":
         db_num, port = 14, 6379
     else:
@@ -1171,7 +1171,7 @@ def should_skip(r_state, sonic_nhg_id, nexthop):
 
 def main():
     nexthop = sys.argv[1]
-    r_app = redis.Redis(host='127.0.0.1', port=6378, db=0, decode_responses=True)
+    r_app = redis.Redis(host='127.0.0.1', port=6379, db=0, decode_responses=True)
     r_state = redis.Redis(host='127.0.0.1', port=6379, db=14, decode_responses=False)
 
     keys = r_app.keys('NEXTHOP_GROUP_TABLE:*')
@@ -1222,7 +1222,7 @@ import redis, sys
 
 def main():
     nexthop = sys.argv[1]
-    r_app = redis.Redis(host='127.0.0.1', port=6378, db=0, decode_responses=True)
+    r_app = redis.Redis(host='127.0.0.1', port=6379, db=0, decode_responses=True)
     keys = r_app.keys('NEXTHOP_GROUP_TABLE:*')
     for key in keys:
         nh_value = r_app.hget(key, 'nexthop') or ''
