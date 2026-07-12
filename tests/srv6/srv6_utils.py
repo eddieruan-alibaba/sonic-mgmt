@@ -1,4 +1,5 @@
 import base64
+import datetime
 import json
 import logging
 import time
@@ -614,12 +615,15 @@ debug_cmds = [
 #
 # Turn on/off FRR debug to a file
 #
-def turn_on_off_frr_debug(duthosts, rand_one_dut_hostname, nbrhosts, filename, vm, is_on=True):
+def turn_on_off_frr_debug(duthosts, rand_one_dut_hostname, nbrhosts, filename, vm, is_on=True,
+                          debug_cmds_list=None):
     nbrhost = nbrhosts[vm]['host']
     # save frr log to a file
     pfxstr = " "
     if not is_on:
         pfxstr = " no "
+
+    cmds = debug_cmds_list if debug_cmds_list is not None else debug_cmds
 
     cmd = "vtysh -c 'configure terminal' -c '{} log file {}'".format(pfxstr, filename)
     nbrhost.command(cmd)
@@ -627,7 +631,7 @@ def turn_on_off_frr_debug(duthosts, rand_one_dut_hostname, nbrhosts, filename, v
     #
     # Change frr debug flags
     #
-    for dcmd in debug_cmds:
+    for dcmd in cmds:
         cmd = "vtysh -c '" + pfxstr + dcmd + "'"
         nbrhost.command(cmd)
 
