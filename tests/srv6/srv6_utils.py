@@ -655,7 +655,8 @@ def collect_frr_debugfile(duthosts, rand_one_dut_hostname, nbrhosts, filename, v
     nbrhost = nbrhosts[vm]['host']
     cmd = "mkdir -p {}".format(test_log_dir)
     nbrhost.shell(cmd, module_ignore_errors=True)
-    cmd = "docker cp bgp:{} {}".format(filename, test_log_dir)
+    basename = filename.split("/")[-1]
+    cmd = "docker exec bgp cat {} > {}/{}".format(filename, test_log_dir, basename)
     nbrhost.shell(cmd, module_ignore_errors=True)
 
 
