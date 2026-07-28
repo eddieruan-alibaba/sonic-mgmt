@@ -85,7 +85,7 @@
     block:
 
     - name: Encrypt TACACS password from secret_group_vars
-      shell: python3 -c "import crypt; print(crypt.crypt('{{secret_group_vars['str']['altpasswords'][0]}}', 'abc'))"
+      shell: python3 -c "import ctypes, ctypes.util; _l = ctypes.CDLL(ctypes.util.find_library('crypt')); _l.crypt.restype = ctypes.c_char_p; _l.crypt.argtypes = [ctypes.c_char_p, ctypes.c_char_p]; print(_l.crypt('{{secret_group_vars['str']['altpasswords'][0]}}'.encode(), 'abc'.encode()).decode())"
       register: encrypted_sonic_password_secret_group_vars
       no_log: True
       delegate_to: "{{ ptf_host }}"
@@ -105,7 +105,7 @@
       include_vars: "{{ playbook_dir }}/group_vars/lab/secrets.yml"
 
     - name: Encrypt TACACS password from sonicadmin_password
-      shell: python3 -c "import crypt; print(crypt.crypt('{{sonicadmin_password}}', 'abc'))"
+      shell: python3 -c "import ctypes, ctypes.util; _l = ctypes.CDLL(ctypes.util.find_library('crypt')); _l.crypt.restype = ctypes.c_char_p; _l.crypt.argtypes = [ctypes.c_char_p, ctypes.c_char_p]; print(_l.crypt('{{sonicadmin_password}}'.encode(), 'abc'.encode()).decode())"
       register: encrypted_sonic_password_sonicadmin_password
       no_log: True
       delegate_to: "{{ ptf_host }}"
