@@ -233,9 +233,12 @@ def check_routes_func(nbrhost, ips, nexthops, vrf="", is_v6=False):
         print_lines(res)
         found = 0
         for nexthop in nexthops:
-            for line in res:
-                if nexthop in line:
-                    found = found + 1
+            # Count each expected nexthop at most once. A nexthop appears both
+            # on its own entry line and again on every resolved path's
+            # "res via <prefix> (<nhg id>)" annotation, so counting matching
+            # lines inflates found and never equals len(nexthops).
+            if any(nexthop in line for line in res):
+                found = found + 1
         if len(nexthops) != found:
             return False
     return True
