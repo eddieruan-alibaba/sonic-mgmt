@@ -274,7 +274,9 @@ def check_routes(nbrhost, ips, nexthops, vrf="", is_v6=False):
 #
 #   1. vtysh "show ipv6 route <prefix> nexthop-group" gives the zebra
 #      "Nexthop Group ID" (resolved) for the route.
-#   2. APPL_STATE_DB key "NHG_FULL_STATE_TABLE:<zebra_nhg_id>" must exist
+#   1b. "show fpm nhg-fib by-rib-id <Nexthop Group ID> json" maps it to the
+#      plugin-allocated dplane NHG id (the id put on the wire in nhg-fib mode).
+#   2. APPL_STATE_DB key "NHG_FULL_STATE_TABLE:<dplane_nhg_id>" must exist
 #      with status == "OK"; it carries the sonic_nhg_id.
 #   3. APPL_DB key "ROUTE_TABLE:<prefix>" must carry nexthop_group equal
 #      to that sonic_nhg_id.
@@ -298,7 +300,8 @@ def run(cmd):
     return p.returncode, p.stdout, p.stderr
 
 result = {"ok": False, "prefix": PREFIX, "msg": "",
-          "zebra_nhg_id": None, "sonic_nhg_id": None,
+          "zebra_nhg_id": None, "dplane_nhg_id": None, "sonic_nhg_id": None,
+          "nhg_mode": None, "state_key_id": None,
           "route_nexthop_group": None, "nhg_state_status": None}
 
 # (1) zebra: resolved Nexthop Group ID
@@ -316,8 +319,44 @@ if not m:
 zebra_nhg_id = int(m.group(1))
 result["zebra_nhg_id"] = zebra_nhg_id
 
-# (2) APPL_STATE_DB:NHG_FULL_STATE_TABLE:<zebra_nhg_id>
-key = "NHG_FULL_STATE_TABLE:%d" % zebra_nhg_id
+# (1a) Which id space does the FPM plugin put on the wire?
+# "NHG Mode: nhg-fib" means the plugin allocates its own dplane NHG ids and
+# sends those (RTM_NEWNHGFIB / RTA_NH_ID), so APPL_STATE_DB is keyed by the
+# dplane id. In any other mode the zebra NHG id goes on the wire and remains
+# the key. Undeterminable mode falls back to the zebra id (legacy behaviour).
+rc, out, err = run('vtysh -c "show fpm status"')
+nhg_mode = ""
+if rc == 0:
+    mm = re.search(r"NHG Mode\s+(\S+)", out)
+    if mm:
+        nhg_mode = mm.group(1).strip()
+    elif re.search(r"Use NHG FIB Mode\s+Yes", out):
+        nhg_mode = "nhg-fib"
+result["nhg_mode"] = nhg_mode
+
+if nhg_mode == "nhg-fib":
+    # (1b) Bridge zebra NHG id -> plugin-allocated dplane NHG id.
+    rc, out, err = run('vtysh -c "show fpm nhg-fib by-rib-id %d json"'
+                       % zebra_nhg_id)
+    if rc != 0:
+        result["msg"] = "by-rib-id lookup failed: %s" % err.strip()
+        print(json.dumps(result)); sys.exit(0)
+    try:
+        objs = json.loads(out) if out.strip() else []
+    except ValueError:
+        objs = []
+    if not objs or not isinstance(objs[0].get("dplaneId"), int):
+        result["msg"] = ("no dplane NHG mapped from zebra NHG id %d"
+                         % zebra_nhg_id)
+        print(json.dumps(result)); sys.exit(0)
+    state_id = objs[0]["dplaneId"]
+    result["dplane_nhg_id"] = state_id
+else:
+    state_id = zebra_nhg_id
+
+# (2) APPL_STATE_DB:NHG_FULL_STATE_TABLE:<state_id>
+result["state_key_id"] = state_id
+key = "NHG_FULL_STATE_TABLE:%d" % state_id
 rc, out, err = run('redis-cli -n 14 --raw hgetall "%s"' % key)
 if rc != 0 or not out.strip():
     result["msg"] = ("NHG_FULL_STATE_TABLE entry %s missing (rc=%d stderr=%r)"
@@ -404,7 +443,10 @@ def check_v6_route_nhg_chain(duthost, prefix, retries=3, retry_wait=10):
 #        - "Nexthop Group ID"          (the resolved NHE id)
 #        - "Received Nexthop Group ID" (the protocol-original NHE id)
 #      For recursive SRv6 VPN routes these two ids are typically different.
-#   2. APPL_STATE_DB key "NHG_FULL_STATE_TABLE:<received_nhg_id>" must
+#   1b. "show fpm nhg-fib by-rib-id <Nexthop Group ID> json" maps the resolved
+#      zebra NHG id to the plugin-allocated dplane NHG id — the id the FPM
+#      plugin actually puts on the wire in nhg-fib mode.
+#   2. APPL_STATE_DB key "NHG_FULL_STATE_TABLE:<dplane_nhg_id>" must
 #      exist with status == "OK"; it carries sonic_nhg_id and
 #      (for SRv6 VPN routes) pic_context_id.
 #   3. APPL_DB key "ROUTE_TABLE:<vrf>:<prefix>" must carry:
@@ -437,6 +479,8 @@ def run(cmd):
 result = {"ok": False, "vrf": VRF, "prefix": PREFIX, "is_v6": IP_STR == "ipv6",
           "msg": "",
           "zebra_nhg_id": None, "received_nhg_id": None,
+          "dplane_nhg_id": None,
+          "nhg_mode": None, "state_key_id": None,
           "sonic_nhg_id": None, "pic_context_id": None,
           "route_nexthop_group": None, "route_pic_context_id": None,
           "nhg_state_status": None}
@@ -462,8 +506,50 @@ if not m:
 received_nhg_id = int(m.group(1))
 result["received_nhg_id"] = received_nhg_id
 
-# (2) APPL_STATE_DB:NHG_FULL_STATE_TABLE:<received_nhg_id>
-key = "NHG_FULL_STATE_TABLE:%d" % received_nhg_id
+# (1a) Which id space does the FPM plugin put on the wire?
+# "NHG Mode: nhg-fib" means the plugin allocates its own uint32 dplane ids and
+# sends THOSE (RTM_NEWNHGFIB / RTA_NH_ID), so fpmsyncd keys
+# NHG_FULL_STATE_TABLE by the dplane id. In any other mode the zebra id goes on
+# the wire and stays the key (legacy behaviour: the received NHE id).
+rc, out, err = run('vtysh -c "show fpm status"')
+nhg_mode = ""
+if rc == 0:
+    mm = re.search(r"NHG Mode\s+(\S+)", out)
+    if mm:
+        nhg_mode = mm.group(1).strip()
+    elif re.search(r"Use NHG FIB Mode\s+Yes", out):
+        nhg_mode = "nhg-fib"
+result["nhg_mode"] = nhg_mode
+
+if nhg_mode == "nhg-fib":
+    # (1b) Bridge zebra NHG id -> dplane NHG id. The plugin records the
+    # route's resolved "Nexthop Group ID" (dplane_ctx_get_nhe_id), which is
+    # what `show fpm nhg-fib by-rib-id` is indexed on.
+    rc, out, err = run('vtysh -c "show fpm nhg-fib by-rib-id %d json"'
+                       % result["zebra_nhg_id"])
+    if rc != 0:
+        result["msg"] = "by-rib-id lookup failed: %s" % err.strip()
+        print(json.dumps(result)); sys.exit(0)
+    try:
+        objs = json.loads(out) if out.strip() else []
+    except ValueError:
+        objs = []
+    if not objs:
+        result["msg"] = ("no dplane NHG mapped from zebra NHG id %d "
+                         "(show fpm nhg-fib by-rib-id returned empty)"
+                         % result["zebra_nhg_id"])
+        print(json.dumps(result)); sys.exit(0)
+    result["dplane_nhg_id"] = objs[0].get("dplaneId")
+    if not isinstance(result["dplane_nhg_id"], int):
+        result["msg"] = "dplaneId missing in by-rib-id output: %r" % objs[0]
+        print(json.dumps(result)); sys.exit(0)
+    state_id = result["dplane_nhg_id"]
+else:
+    state_id = received_nhg_id
+
+# (2) APPL_STATE_DB:NHG_FULL_STATE_TABLE:<state_id>
+result["state_key_id"] = state_id
+key = "NHG_FULL_STATE_TABLE:%d" % state_id
 rc, out, err = run('redis-cli -n 14 --raw hgetall "%s"' % key)
 if rc != 0 or not out.strip():
     result["msg"] = ("NHG_FULL_STATE_TABLE entry %s missing (rc=%d stderr=%r)"
