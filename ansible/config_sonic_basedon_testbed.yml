@@ -1000,7 +1000,7 @@
         when: init_cfg_profile is not defined
 
       - name: SONiC config reload to pick up config_db.json
-        command: config reload -y
+        command: config reload -y -f
         become: yes
         when: init_cfg_profile is defined
 
