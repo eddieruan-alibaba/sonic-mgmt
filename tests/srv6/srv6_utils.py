@@ -1083,12 +1083,13 @@ def stop_record_collection(duthost, testcase_name):
     collect_vtysh_route_snapshot(duthost, testcase_name)
 
 def assert_appdb_nexthop_removed(duthost, nexthop, timeout=10, poll_interval=1):
-    """Poll APPDB until nexthop is absent from ALL NHG entries' nexthop field.
+    """Poll APP_DB until nexthop is absent from all forwarding entries.
 
-    Skips NHGs that are:
+    Both NHG objects and routes can carry a nexthop directly (a route with a
+    single surviving path does not get an NHG object), so both tables are
+    checked. NHGs that are skipped:
     1. Gateway NHGs for the given nexthop (gate field matches), or
-    2. SRv6 NHGs (any recursive depends has non-null nh_srv6), or
-    3. NHGs pending deletion in zebra (show nexthop rib has "Time to Deletion").
+    2. SRv6 NHGs (any recursive depends has non-null nh_srv6).
 
     Runs a single python3 script on DUT per poll iteration (one RPC call).
     """
@@ -1097,7 +1098,7 @@ def assert_appdb_nexthop_removed(duthost, nexthop, timeout=10, poll_interval=1):
     # Prints "found:<key>" if nexthop is still present in a non-skipped NHG,
     # or "not_found" if nexthop is absent from all relevant NHGs.
     check_script = r"""#!/usr/bin/env python3
-import redis, json, sys, subprocess
+import redis, json, sys
 
 def get_nhg_json(r_state, rib_id):
     raw = r_state.hget('NHG_FULL_STATE_TABLE:{}'.format(rib_id), 'json')
@@ -1145,17 +1146,6 @@ def any_nh_srv6_present(r_state, rib_id, visited=None):
                 return True
     return False
 
-def has_time_to_deletion(rib_id):
-    try:
-        out = subprocess.check_output(
-            ['vtysh', '-c', 'show nexthop rib {}'.format(rib_id)],
-            stderr=subprocess.STDOUT)
-        if isinstance(out, bytes):
-            out = out.decode()
-        return 'Time to Deletion' in out
-    except subprocess.CalledProcessError:
-        return False
-
 def should_skip(r_state, sonic_nhg_id, nexthop):
     rib_id = find_rib_id_by_sonic_nhg_id(r_state, sonic_nhg_id)
     if rib_id is None:
@@ -1170,10 +1160,10 @@ def should_skip(r_state, sonic_nhg_id, nexthop):
     # Case 2: SRv6 NHG
     if any_nh_srv6_present(r_state, rib_id):
         return True
-    # Case 3: NHG pending deletion in zebra
-    if has_time_to_deletion(rib_id):
-        return True
     return False
+
+def uses_nexthop(value, nexthop):
+    return any(part.strip() == nexthop for part in value.split(','))
 
 def main():
     nexthop = sys.argv[1]
@@ -1183,10 +1173,18 @@ def main():
     keys = r_app.keys('NEXTHOP_GROUP_TABLE:*')
     for key in keys:
         nh_value = r_app.hget(key, 'nexthop') or ''
-        if nexthop in nh_value:
+        if uses_nexthop(nh_value, nexthop):
             sonic_nhg_id = key.replace('NEXTHOP_GROUP_TABLE:', '')
             if should_skip(r_state, sonic_nhg_id, nexthop):
                 continue
+            print('found:{}'.format(key))
+            return
+
+    # A route with a single path carries the nexthop directly.
+    keys = r_app.keys('ROUTE_TABLE:*')
+    for key in keys:
+        nh_value = r_app.hget(key, 'nexthop') or ''
+        if uses_nexthop(nh_value, nexthop):
             print('found:{}'.format(key))
             return
     print('not_found')
@@ -1222,19 +1220,27 @@ if __name__ == '__main__':
 
 
 def assert_appdb_nexthop_present(duthost, nexthop):
-    """Assert nexthop exists in at least one NHG entry (single RPC call)."""
+    """Assert nexthop is used by at least one APP_DB forwarding entry.
+
+    A nexthop can be carried by an NHG object (multi-path) or directly by a
+    route (single surviving path), so both tables are checked.
+    """
     check_script = r"""#!/usr/bin/env python3
 import redis, sys
+
+def uses_nexthop(value, nexthop):
+    return any(part.strip() == nexthop for part in value.split(','))
 
 def main():
     nexthop = sys.argv[1]
     r_app = redis.Redis(host='127.0.0.1', port=6379, db=0, decode_responses=True)
-    keys = r_app.keys('NEXTHOP_GROUP_TABLE:*')
-    for key in keys:
-        nh_value = r_app.hget(key, 'nexthop') or ''
-        if nexthop in nh_value:
-            print('found:{}'.format(key))
-            return
+    for pattern in ('NEXTHOP_GROUP_TABLE:*', 'ROUTE_TABLE:*'):
+        keys = r_app.keys(pattern)
+        for key in keys:
+            nh_value = r_app.hget(key, 'nexthop') or ''
+            if uses_nexthop(nh_value, nexthop):
+                print('found:{}'.format(key))
+                return
     print('not_found')
 
 if __name__ == '__main__':
