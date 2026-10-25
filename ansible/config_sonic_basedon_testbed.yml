@@ -1000,7 +1000,9 @@
         when: init_cfg_profile is not defined
 
       - name: SONiC config reload to pick up config_db.json
-        command: config reload -y
+        # -f skips YANG validation of the default config_db.json; the profile
+        # uses BGP_GLOBALS_AF keys not yet defined in the YANG model
+        command: config reload -y -f
         become: yes
         when: init_cfg_profile is defined
 
