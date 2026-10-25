@@ -437,6 +437,7 @@ def run(cmd):
 result = {"ok": False, "vrf": VRF, "prefix": PREFIX, "is_v6": IP_STR == "ipv6",
           "msg": "",
           "zebra_nhg_id": None, "received_nhg_id": None,
+          "dplane_nhg_id": None, "rib_nhg_id_used": None,
           "sonic_nhg_id": None, "pic_context_id": None,
           "route_nexthop_group": None, "route_pic_context_id": None,
           "nhg_state_status": None}
@@ -462,8 +463,38 @@ if not m:
 received_nhg_id = int(m.group(1))
 result["received_nhg_id"] = received_nhg_id
 
-# (2) APPL_STATE_DB:NHG_FULL_STATE_TABLE:<received_nhg_id>
-key = "NHG_FULL_STATE_TABLE:%d" % received_nhg_id
+# (2) zebra NHG id -> plugin dplane NHG id.
+# The plugin allocates its own ids; by-rib-id is the reverse index from the
+# zebra NHG id the route carries to the derived dplane object.
+def lookup_dplane_id(rib_id):
+    rc, out, err = run('vtysh -c "show fpm nhg-fib by-rib-id %d json"'
+                       % rib_id)
+    if rc != 0 or not out.strip():
+        return None
+    try:
+        objs = json.loads(out)
+    except ValueError:
+        return None
+    if not objs:
+        return None
+    dplane_id = objs[0].get("dplaneId")
+    return dplane_id if isinstance(dplane_id, int) else None
+
+dplane_nhg_id = None
+for rib_id in (received_nhg_id, result["zebra_nhg_id"]):
+    dplane_nhg_id = lookup_dplane_id(rib_id)
+    if dplane_nhg_id is not None:
+        result["rib_nhg_id_used"] = rib_id
+        break
+if dplane_nhg_id is None:
+    result["msg"] = ("show fpm nhg-fib by-rib-id found no dplane NHG for "
+                     "received=%d zebra=%d"
+                     % (received_nhg_id, result["zebra_nhg_id"]))
+    print(json.dumps(result)); sys.exit(0)
+result["dplane_nhg_id"] = dplane_nhg_id
+
+# (3) APPL_STATE_DB:NHG_FULL_STATE_TABLE:<dplane_nhg_id>
+key = "NHG_FULL_STATE_TABLE:%d" % dplane_nhg_id
 rc, out, err = run('redis-cli -n 14 --raw hgetall "%s"' % key)
 if rc != 0 or not out.strip():
     result["msg"] = ("NHG_FULL_STATE_TABLE entry %s missing (rc=%d stderr=%r)"
@@ -485,7 +516,7 @@ state_pic = nhg_state.get("pic_context_id")
 if state_pic is not None and state_pic != "N/A":
     result["pic_context_id"] = state_pic
 
-# (3) APPL_DB:ROUTE_TABLE:<vrf>:<canonical_prefix>
+# (4) APPL_DB:ROUTE_TABLE:<vrf>:<canonical_prefix>
 # Use the canonical prefix from vtysh; fpmsyncd stores host routes
 # without the /32 (IPv4) or /128 (IPv6) suffix.
 route_prefix = canonical
@@ -549,10 +580,11 @@ def check_vrf_route_nhg_chain(duthost, vrf, prefix, is_v6=False,
         if last.get("ok"):
             logger.info("vrf route NHG chain OK for vrf=%s prefix=%s: "
                         "zebra_nhg_id=%s received_nhg_id=%s "
-                        "sonic_nhg_id=%s pic_context_id=%s",
+                        "dplane_nhg_id=%s sonic_nhg_id=%s pic_context_id=%s",
                         vrf, prefix,
                         last.get("zebra_nhg_id"),
                         last.get("received_nhg_id"),
+                        last.get("dplane_nhg_id"),
                         last.get("sonic_nhg_id"),
                         last.get("pic_context_id"))
             return last
